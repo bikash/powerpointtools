@@ -12,6 +12,23 @@ namespace PowerPointLaTeX
     {
         private const string TagPrefix = "PowerPointLaTeX_";
 
+        private static void InternalPurgeTags(Tags tags, string prefix)
+        {
+            int i = 0;
+            while (i < tags.Count)
+            {
+                string name = TagPrefix + prefix;
+                if (tags.Name(i).StartsWith(name))
+                {
+                    tags.Delete(name);
+                }
+                else
+                {
+                    i += i + 1;
+                }
+            }
+        }
+
         public static void SetTag(this Shape shape, string name, string value)
         {
             shape.Tags.Add(TagPrefix + name, value);
@@ -27,9 +44,39 @@ namespace PowerPointLaTeX
             shape.Tags.Delete(TagPrefix + name);
         }
 
+        public static void PurgeTags(this Shape shape, string prefix) {
+            InternalPurgeTags(shape.Tags, prefix);
+        }
+
+        // TODO: wtf? how can I get rid of this duplicate code? [12/31/2008 Andreas]
+        public static void SetTag(this Presentation presentation, string name, string value)
+        {
+            presentation.Tags.Add(TagPrefix + name, value);
+        }
+
+        public static string GetTag(this Presentation presentation, string name)
+        {
+            return presentation.Tags[TagPrefix + name];
+        }
+
+        public static void ClearTag(this Presentation presentation, string name)
+        {
+            presentation.Tags.Delete(TagPrefix + name);
+        }
+
+        public static void PurgeTags(this Presentation presentation, string prefix)
+        {
+            InternalPurgeTags(presentation.Tags, prefix);
+        }
+
         public static LaTeXTags LaTeXTags(this Shape shape)
         {
             return new LaTeXTags(shape);
+        }
+
+        public static CacheTags CacheTags(this Presentation presentation)
+        {
+            return new CacheTags(presentation);
         }
     }
 
@@ -41,6 +88,7 @@ namespace PowerPointLaTeX
             public static implicit operator T
         }*/
 
+    // TODO: move this somewhere else, too [12/31/2008 Andreas]
     static class Helper
     {
         internal static int ParseIntToString(string text)
@@ -54,182 +102,6 @@ namespace PowerPointLaTeX
             {
             }
             return value;
-        }
-    }
-
-    class LaTeXEntry
-    {
-        private Shape shape;
-        private int index;
-
-        public LaTeXEntry(Shape shape, int index)
-        {
-            this.shape = shape;
-            this.index = index;
-        }
-
-        public void Clear() {
-            shape.ClearTag("Entry[" + index + "].Code");
-            shape.ClearTag("Entry[" + index + "].StartIndex");
-            shape.ClearTag("Entry[" + index + "].Length");
-            shape.ClearTag("Entry[" + index + "].ShapeID");
-        }
-
-        public string Code
-        {
-            get
-            {
-                return shape.GetTag("Entry[" + index + "].Code");
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].Code", value);
-            }
-        }
-
-        public int StartIndex
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].StartIndex"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].StartIndex", value.ToString());
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].Length"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].Length", value.ToString());
-            }
-        }
-
-        public int ShapeID
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].ShapeID"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].ShapeID", value.ToString());
-            }
-        }
-    }
-
-    class LaTeXEntries
-    {
-        private Shape shape;
-
-        public LaTeXEntries(Shape shape)
-        {
-            this.shape = shape;
-        }
-
-        public void Clear() {
-            for( int i = 0 ; i < Length ; i++ ) {
-                this[i].Clear();
-            }
-            shape.ClearTag("Entry.Length");
-        }
-
-        public LaTeXEntry this[int index]
-        {
-            get
-            {
-                if( index >= Length ) {
-                    Length = index + 1;
-                }
-                return new LaTeXEntry(shape, index);
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry.Length"));
-            }
-            set
-            {
-                shape.SetTag("Entry.Length", value.ToString());
-            }
-        }
-    }
-
-    class LaTeXTags
-    {
-        private Shape shape;
-
-        public LaTeXTags(Shape shape)
-        {
-            this.shape = shape;
-        }
-
-        public void Clear() {
-            shape.ClearTag("Code");
-            shape.ClearTag("Type");
-            shape.ClearTag("ParentShapeID");
-            Entries.Clear();
-        }
-
-        public string Code
-        {
-            get
-            {
-                return shape.GetTag("Code");
-            }
-            set
-            {
-                shape.SetTag("Code", value);
-            }
-        }
-
-        public LaTeXTool.EquationType Type
-        {
-            get
-            {
-                LaTeXTool.EquationType type = LaTeXTool.EquationType.None;
-                try
-                {
-                    type = (LaTeXTool.EquationType) Enum.Parse(typeof(LaTeXTool.EquationType), shape.GetTag("Type"));
-                }
-                catch
-                {
-                }
-                return type;
-            }
-            set
-            {
-                shape.SetTag("Type", value.ToString());
-            }
-        }
-
-        public int ParentShapeID
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("ParentShapeID"));
-            }
-            set
-            {
-                shape.SetTag("ParentShapeID", value.ToString());
-            }
-        }
-
-        public LaTeXEntries Entries
-        {
-            get
-            {
-                return new LaTeXEntries(shape);
-            }
         }
     }
 }

@@ -13,6 +13,18 @@ namespace PowerPointLaTeX
 {
     public partial class LaTeXRibbon : OfficeRibbon
     {
+        private LaTeXTool Tool {
+            get {
+                return Globals.ThisAddIn.Tool;
+            }
+        }
+
+        private Microsoft.Office.Interop.PowerPoint.Application Application {
+            get {
+                return Globals.ThisAddIn.Application;
+            }
+        }
+
         public LaTeXRibbon()
         {
             InitializeComponent();
@@ -23,16 +35,10 @@ namespace PowerPointLaTeX
 
         }
 
-        // TODO: remove duplicate (same function exists in Tool, too) [12/31/2008 Andreas]
-        private Slide GetActiveSlide()
-        {
-            return ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
-        }
-
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Application.ActiveWindow.Selection.Unselect();
-            Globals.ThisAddIn.Tool.CompileSlide(GetActiveSlide());
+            Application.ActiveWindow.Selection.Unselect();
+            Tool.CompileSlide(Tool.ActiveSlide);
             
             
 /*
@@ -57,7 +63,7 @@ End Sub
 
         private void DecompileSlide_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());
+            Tool.DecompileSlide(Tool.ActiveSlide);
         }
 
         /*

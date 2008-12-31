@@ -35,12 +35,19 @@ namespace PowerPointLaTeX
             }
         }
 
-        // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
-        private Shape AddPictureFromData(Slide slide, LaTeXWebService.WebService.URLData data)
-        {
-            Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(data.contentType, "gif|bmp|jpeg|png"));
+        internal Presentation ActivePresentation {
+            get { return Application.ActivePresentation; }
+        }
 
-            MemoryStream stream = new MemoryStream(data.content);
+        internal Slide ActiveSlide {
+            get { return Application.ActiveWindow.View.Slide as Slide; }
+        }
+
+        // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
+        private Shape AddPictureFromData(Slide slide, byte[] data)
+        {
+
+            MemoryStream stream = new MemoryStream(data);
             Image image = Image.FromStream(stream);
 
             IDataObject oldClipboardContent = Clipboard.GetDataObject();
@@ -61,7 +68,16 @@ namespace PowerPointLaTeX
 
         private Shape CompileLaTeXCode(Slide slide, Shape shape, string latexCode, TextRange codeRange)
         {
-            LaTeXWebService.WebService.URLData data = LaTeXWebService.WebService.compileLaTeX(latexCode);
+            // check the cache first
+            byte[] data = ActivePresentation.CacheTags()[latexCode];
+            if (data == null)
+            {
+                LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
+                Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
+                data = URLData.content;
+
+                ActivePresentation.CacheTags()[latexCode] = data;
+            }
             Shape picture = AddPictureFromData(slide, data);
 
             picture.AlternativeText = latexCode;
@@ -72,6 +88,7 @@ namespace PowerPointLaTeX
             // add tags to the picture
             picture.LaTeXTags().Code = latexCode;
             picture.LaTeXTags().Type = EquationType.Inline;
+            picture.LaTeXTags().ParentId = shape.Id;
 
             // align the picture and remove the original text
             // 1 Point = 1/72 Inches
@@ -108,6 +125,10 @@ namespace PowerPointLaTeX
             return picture;
         }
 
+        private bool IsEscapeCode(string code) {
+            return code == "!";
+        }
+
         private void CompileTextRange(Slide slide, Shape shape, TextRange range)
         {
             int startIndex = 0;
@@ -131,10 +152,10 @@ namespace PowerPointLaTeX
 
                 // escape $$!$$
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
-                if (latexCode != "!")
+                if (!IsEscapeCode(latexCode))
                 {
                     Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
-                    tagEntry.ShapeID = picture.Id;
+                    tagEntry.ShapeId = picture.Id;
                 }
                 else
                 {
@@ -153,7 +174,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        private void CompileShape(Slide slide, Shape shape)
+        public void CompileShape(Slide slide, Shape shape)
         {
             if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
@@ -174,9 +195,9 @@ namespace PowerPointLaTeX
                 LaTeXEntry entry = entries[i];
                 string latexCode = entry.Code;
 
-                if (latexCode != "!")
+                if (!IsEscapeCode(latexCode))
                 {
-                    int shapeID = entry.ShapeID;
+                    int shapeID = entry.ShapeId;
                     // find the shape
                     Shape picture = slide.Shapes.FindById(shapeID);
 
@@ -196,7 +217,7 @@ namespace PowerPointLaTeX
             shape.LaTeXTags().Clear();
         }
 
-        private void DecompileShape(Slide slide, Shape shape)
+        public void DecompileShape(Slide slide, Shape shape)
         {
             if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
@@ -273,25 +294,39 @@ namespace PowerPointLaTeX
             return shapeRange;
         }
 
+        public List<Shape> GetInlineShapes(Shape shape) {
+            List<Shape> shapes = new List<Shape>();
+
+            Slide slide = shape.GetSlide();
+            foreach( LaTeXEntry entry in shape.LaTeXTags().Entries) {
+                if (!IsEscapeCode(entry.Code))
+                {
+                    Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
+                    Trace.Assert(inlineShape != null);
+                    shapes.Add(inlineShape);
+                }
+            }
+            return shapes;
+        }
+
+        /// <summary>
+        /// from an inline shape
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        public Shape GetParentShape(Shape shape) {
+            LaTeXTags tags = shape.LaTeXTags();
+            Debug.Assert(tags.Type == EquationType.Inline);
+            Slide slide = shape.GetSlide();
+
+            Shape parent = slide.Shapes.FindById(tags.ParentId);
+            Trace.Assert(parent != null);
+            return parent;
+        }
+
         public void SelectionWithoutInlines(Selection selection)
         {
             selection.FilterShapes(target => target.LaTeXTags().Type != EquationType.Inline);
-        }
-
-        private Slide GetActiveSlide()
-        {
-            return ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
-        }
-
-        public void DecompileSelection(Selection selection) {
-            List<Shape> shapes = selection.GetShapes();
-            // if this is a text selection, add the corresponding shapes, too
-
-            shapes = shapes.FindAll(target => target.LaTeXTags().Type == EquationType.HasCompiledInlines);
-            foreach (Shape shape in shapes)
-            {
-                DecompileShape(GetActiveSlide(), shape);
-            }
         }
     }
 }

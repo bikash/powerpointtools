@@ -162,12 +162,14 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="CacheTags.cs" />
     <Compile Include="LaTeXRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="LaTeXRibbon.Designer.cs">
       <DependentUpon>LaTeXRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="LaTeXTags.cs" />
     <Compile Include="LaTeXTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -195,6 +197,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SelectionExtension.cs" />
+    <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="TagExtension.cs" />
     <Compile Include="ThisAddIn.cs">

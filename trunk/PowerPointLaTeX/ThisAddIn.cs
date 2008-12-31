@@ -7,6 +7,7 @@ using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.PowerPoint;
+using System.Diagnostics;
 
 namespace PowerPointLaTeX
 {
@@ -18,9 +19,7 @@ namespace PowerPointLaTeX
             private set;
         }
 
-        private Selection oldSelection = null;
-
-        private void ThisAddIn_Startup( object sender, System.EventArgs e )
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Tool = new LaTeXTool();
 
@@ -31,12 +30,41 @@ namespace PowerPointLaTeX
             Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
         }
 
+        private Shape oldTextShape = null;
+
         void Application_WindowSelectionChange(Selection Sel)
         {
-            // automatically deselect inline objects and decompile shapes
-            Tool.SelectionWithoutInlines(Sel);
-            Tool.DecompileSelection(Sel);
-            oldSelection = Sel;
+            // automatically select the parent (and thus all children) of a inline objects
+            List<Shape> shapes = Sel.GetShapesFromShapeSelection();
+            // all parent shapes of inline shapes in shapes
+            IEnumerable<Shape> parentShapes =
+                shapes.FindAll(shape => shape.LaTeXTags().Type == LaTeXTool.EquationType.Inline).
+                    ConvertAll(inlineShape => Tool.GetParentShape(inlineShape));
+            // add the parent shapes in the original selection
+            parentShapes = parentShapes.Union(
+                    shapes.FindAll(shape => shape.LaTeXTags().Type == LaTeXTool.EquationType.HasCompiledInlines)
+                );
+
+            IEnumerable<Shape> shapeUnion = shapes.Union(parentShapes);
+
+            foreach (Shape shape in parentShapes)
+            {
+                List<Shape> inlineShapes = Tool.GetInlineShapes(shape);
+                shapeUnion = shapeUnion.Union(inlineShapes);
+            }
+            Sel.SelectShapes(shapeUnion, false);
+
+            Shape textShape = Sel.GetShapeFromTextSelection();
+            // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
+            if( oldTextShape != null && oldTextShape != textShape) {
+                Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
+            }
+            if (textShape != null)
+            {
+                Tool.DecompileShape(Tool.ActiveSlide, textShape);
+            }
+
+            oldTextShape = textShape;
         }
 
         void Application_WindowBeforeDoubleClick(Selection Sel, ref bool Cancel)
@@ -47,17 +75,15 @@ namespace PowerPointLaTeX
 
         void Application_SlideShowBegin(SlideShowWindow Wn)
         {
-            MessageBox.Show("Test");
             //throw new NotImplementedException();
         }
 
         void Application_PresentationSave(Presentation Pres)
         {
-            MessageBox.Show("Test");
             //throw new NotImplementedException();
         }
 
-        private void ThisAddIn_Shutdown( object sender, System.EventArgs e )
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
         }
 
@@ -70,8 +96,8 @@ namespace PowerPointLaTeX
         /// </summary>
         private void InternalStartup()
         {
-            this.Startup += new System.EventHandler( ThisAddIn_Startup );
-            this.Shutdown += new System.EventHandler( ThisAddIn_Shutdown );
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
         }
 
         #endregion
