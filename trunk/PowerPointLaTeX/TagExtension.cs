@@ -176,6 +176,7 @@ namespace PowerPointLaTeX
         public void Clear() {
             shape.ClearTag("Code");
             shape.ClearTag("Type");
+            shape.ClearTag("ParentShapeID");
             Entries.Clear();
         }
 
@@ -208,6 +209,18 @@ namespace PowerPointLaTeX
             set
             {
                 shape.SetTag("Type", value.ToString());
+            }
+        }
+
+        public int ParentShapeID
+        {
+            get
+            {
+                return Helper.ParseIntToString(shape.GetTag("ParentShapeID"));
+            }
+            set
+            {
+                shape.SetTag("ParentShapeID", value.ToString());
             }
         }
 

@@ -108,23 +108,6 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>
-        {
-            Selection selection = Application.ActiveWindow.Selection;
-            selection.Unselect();
-
-            foreach (Shape shape in list)
-            {
-                shape.Select(Microsoft.Office.Core.MsoTriState.msoFalse);
-            }
-
-            // FIXME: ignore ChildShapeRange for now [12/31/2008 Andreas]
-            ShapeRange shapeRange = selection.ShapeRange;
-            selection.Unselect();
-
-            return shapeRange;
-        }
-
         private void CompileTextRange(Slide slide, Shape shape, TextRange range)
         {
             int startIndex = 0;
@@ -271,6 +254,44 @@ namespace PowerPointLaTeX
         public void BakeSlide(Slide slide)
         {
             WalkSlide(slide, BakeShape);
+        }
+
+        private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>
+        {
+            Selection selection = Application.ActiveWindow.Selection;
+            selection.Unselect();
+
+            foreach (Shape shape in list)
+            {
+                shape.Select(Microsoft.Office.Core.MsoTriState.msoFalse);
+            }
+
+            // FIXME: ignore ChildShapeRange for now [12/31/2008 Andreas]
+            ShapeRange shapeRange = selection.ShapeRange;
+            selection.Unselect();
+
+            return shapeRange;
+        }
+
+        public void SelectionWithoutInlines(Selection selection)
+        {
+            selection.FilterShapes(target => target.LaTeXTags().Type != EquationType.Inline);
+        }
+
+        private Slide GetActiveSlide()
+        {
+            return ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
+        }
+
+        public void DecompileSelection(Selection selection) {
+            List<Shape> shapes = selection.GetShapes();
+            // if this is a text selection, add the corresponding shapes, too
+
+            shapes = shapes.FindAll(target => target.LaTeXTags().Type == EquationType.HasCompiledInlines);
+            foreach (Shape shape in shapes)
+            {
+                DecompileShape(GetActiveSlide(), shape);
+            }
         }
     }
 }

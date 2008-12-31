@@ -194,6 +194,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="SelectionExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="TagExtension.cs" />
     <Compile Include="ThisAddIn.cs">

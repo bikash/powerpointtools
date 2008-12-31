@@ -23,6 +23,7 @@ namespace PowerPointLaTeX
 
         }
 
+        // TODO: remove duplicate (same function exists in Tool, too) [12/31/2008 Andreas]
         private Slide GetActiveSlide()
         {
             return ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
@@ -30,6 +31,7 @@ namespace PowerPointLaTeX
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
+            Globals.ThisAddIn.Application.ActiveWindow.Selection.Unselect();
             Globals.ThisAddIn.Tool.CompileSlide(GetActiveSlide());
             
             
@@ -55,8 +57,9 @@ End Sub
 
         private void DecompileSlide_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());)
+            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());
         }
+
         /*
                    string latexCode = @"a \le b";
                     string hexData = "";
