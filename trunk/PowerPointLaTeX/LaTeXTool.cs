@@ -101,12 +101,8 @@ namespace PowerPointLaTeX
 
 
             //System.Drawing.Font font = new System.Drawing.Font(codeRange.Font.Name, fontSize, GraphicsUnit.Point);
-
             // base line: center (assume that its a one-line codeRange)
-            picture.Top = codeRange.BoundTop + (fontSize - picture.Height) * 0.5f;
-
-            codeRange.ParagraphFormat.LineRuleWithin = Microsoft.Office.Core.MsoTriState.msoFalse;
-            codeRange.ParagraphFormat.SpaceWithin = picture.Height;
+            picture.Top = codeRange.BoundTop + fontSize - picture.Height;
 
             // fill up text with spaces to "wrap around" the object
             codeRange.Text = "";

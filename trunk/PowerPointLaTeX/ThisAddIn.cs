@@ -19,9 +19,15 @@ namespace PowerPointLaTeX
             private set;
         }
 
+        internal Settings Settings {
+            get;
+            private set;
+        }
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Tool = new LaTeXTool();
+            Settings = new Settings();
 
             // register events
             Application.PresentationSave += new EApplication_PresentationSaveEventHandler(Application_PresentationSave);
@@ -30,9 +36,20 @@ namespace PowerPointLaTeX
             Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
         }
 
-        private Shape oldTextShape = null;
+        private Dictionary<Presentation, Shape> oldTextShapeDict = new Dictionary<Presentation, Shape>();
+        private Shape oldTextShape {
+            get {
+                if( !oldTextShapeDict.ContainsKey(Tool.ActivePresentation) ) {
+                    return null;
+                }
+                return oldTextShapeDict[Tool.ActivePresentation];
+            }
+            set {
+                oldTextShapeDict[Tool.ActivePresentation] = value;
+            }
+        }
 
-        void Application_WindowSelectionChange(Selection Sel)
+        private void Application_WindowSelectionChange(Selection Sel)
         {
             // automatically select the parent (and thus all children) of a inline objects
             List<Shape> shapes = Sel.GetShapesFromShapeSelection();
@@ -56,14 +73,17 @@ namespace PowerPointLaTeX
 
             Shape textShape = Sel.GetShapeFromTextSelection();
             // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
-            if( oldTextShape != null && oldTextShape != textShape) {
-                Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
-            }
-            if (textShape != null)
+            if (Settings.AutomaticCompilation)
             {
-                Tool.DecompileShape(Tool.ActiveSlide, textShape);
+                if (oldTextShape != null && oldTextShape != textShape)
+                {
+                    Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
+                }
+                if (textShape != null)
+                {
+                    Tool.DecompileShape(Tool.ActiveSlide, textShape);
+                }
             }
-
             oldTextShape = textShape;
         }
 

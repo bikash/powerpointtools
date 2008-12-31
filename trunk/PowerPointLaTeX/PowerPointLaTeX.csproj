@@ -186,6 +186,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="PowerPointLaTeX_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
@@ -197,6 +198,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SelectionExtension.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="TagExtension.cs" />
