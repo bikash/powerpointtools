@@ -23,10 +23,16 @@ namespace PowerPointLaTeX
 
         }
 
+        private Slide GetActiveSlide()
+        {
+            return ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
+        }
+
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
-            Slide slide = ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
-
+            Globals.ThisAddIn.Tool.CompileSlide(GetActiveSlide());
+            
+            
 /*
             Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
             Microsoft.Vbe.Interop.VBComponent component = presentation.VBProject.VBComponents.Add(Microsoft.Vbe.Interop.vbext_ComponentType.vbext_ct_StdModule);
@@ -45,6 +51,11 @@ End Sub
             setting.Action = PpActionType.ppActionRunMacro;
             setting.Run = "Test__";*/
 
+        }
+
+        private void DecompileSlide_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());
         }
         /*
                    string latexCode = @"a \le b";
