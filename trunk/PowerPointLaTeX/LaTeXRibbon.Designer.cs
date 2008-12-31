@@ -32,19 +32,26 @@
             this.inlineGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DecompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.CompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.generalGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
+            this.offlineModeToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
+            this.automaticCompilationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
+            this.bakeButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.LaTeX.SuspendLayout();
             this.inlineGroup.SuspendLayout();
+            this.generalGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // LaTeX
             // 
             this.LaTeX.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.LaTeX.Groups.Add(this.generalGroup);
             this.LaTeX.Groups.Add(this.inlineGroup);
             this.LaTeX.Label = "TabAddIns";
             this.LaTeX.Name = "LaTeX";
             // 
             // inlineGroup
             // 
+            this.inlineGroup.Items.Add(this.automaticCompilationToggle);
             this.inlineGroup.Items.Add(this.DecompileSlide);
             this.inlineGroup.Items.Add(this.CompileSlide);
             this.inlineGroup.Label = "Inline Formulas";
@@ -64,6 +71,34 @@
             this.CompileSlide.ShowImage = true;
             this.CompileSlide.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.button1_Click);
             // 
+            // generalGroup
+            // 
+            this.generalGroup.Items.Add(this.offlineModeToggle);
+            this.generalGroup.Items.Add(this.bakeButton);
+            this.generalGroup.Label = "General";
+            this.generalGroup.Name = "generalGroup";
+            // 
+            // offlineModeToggle
+            // 
+            this.offlineModeToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.offlineModeToggle.Label = "Offline Mode";
+            this.offlineModeToggle.Name = "offlineModeToggle";
+            this.offlineModeToggle.ShowImage = true;
+            // 
+            // automaticCompilationToggle
+            // 
+            this.automaticCompilationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.automaticCompilationToggle.Label = "Automatic Compilation";
+            this.automaticCompilationToggle.Name = "automaticCompilationToggle";
+            this.automaticCompilationToggle.ShowImage = true;
+            // 
+            // bakeButton
+            // 
+            this.bakeButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.bakeButton.Label = "Bake LaTeX";
+            this.bakeButton.Name = "bakeButton";
+            this.bakeButton.ShowImage = true;
+            // 
             // LaTeXRibbon
             // 
             this.Name = "LaTeXRibbon";
@@ -74,6 +109,8 @@
             this.LaTeX.PerformLayout();
             this.inlineGroup.ResumeLayout(false);
             this.inlineGroup.PerformLayout();
+            this.generalGroup.ResumeLayout(false);
+            this.generalGroup.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -84,6 +121,10 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup inlineGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton CompileSlide;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton DecompileSlide;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup generalGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton offlineModeToggle;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton automaticCompilationToggle;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton bakeButton;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection

@@ -16,14 +16,17 @@ namespace PowerPointLaTeX
     /// </summary>
     class LaTeXTool
     {
-        public enum EquationType {
+        public enum EquationType
+        {
             None,
+            HasInlines,
+            HasCompiledInlines,
             Inline,
             Equation
         }
 
-        private delegate void WalkTextRange(Slide slide, Shape shape, TextRange textRange);
-               
+        private delegate void DoShape(Slide slide, Shape shape);
+
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
             get
@@ -69,7 +72,7 @@ namespace PowerPointLaTeX
             // add tags to the picture
             picture.LaTeXTags().Code = latexCode;
             picture.LaTeXTags().Type = EquationType.Inline;
-               
+
             // align the picture and remove the original text
             // 1 Point = 1/72 Inches
             float fontSize = codeRange.Font.Size;
@@ -78,7 +81,7 @@ namespace PowerPointLaTeX
             float scalingFactor = fontSize / 50.0f;
                         picture.Width *= scalingFactor;
                         picture.Height *= scalingFactor;*/
-            
+
 
             //System.Drawing.Font font = new System.Drawing.Font(codeRange.Font.Name, fontSize, GraphicsUnit.Point);
 
@@ -87,6 +90,8 @@ namespace PowerPointLaTeX
 
             codeRange.ParagraphFormat.LineRuleWithin = Microsoft.Office.Core.MsoTriState.msoFalse;
             codeRange.ParagraphFormat.SpaceWithin = picture.Height;
+
+            // fill up text with spaces to "wrap around" the object
             codeRange.Text = "";
             float width = 0;
             while (width < picture.Width)
@@ -97,7 +102,27 @@ namespace PowerPointLaTeX
 
             picture.Left = codeRange.BoundLeft;
 
+            // copy animations from the parent shape
+            // TODO: braindead API [12/31/2008 Andreas]
+
             return picture;
+        }
+
+        private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>
+        {
+            Selection selection = Application.ActiveWindow.Selection;
+            selection.Unselect();
+
+            foreach (Shape shape in list)
+            {
+                shape.Select(Microsoft.Office.Core.MsoTriState.msoFalse);
+            }
+
+            // FIXME: ignore ChildShapeRange for now [12/31/2008 Andreas]
+            ShapeRange shapeRange = selection.ShapeRange;
+            selection.Unselect();
+
+            return shapeRange;
         }
 
         private void CompileTextRange(Slide slide, Shape shape, TextRange range)
@@ -120,52 +145,92 @@ namespace PowerPointLaTeX
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
                 tagEntry.Code = latexCode;
-                
+
+                // escape $$!$$
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
-                Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
+                if (latexCode != "!")
+                {
+                    Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
+                    tagEntry.ShapeID = picture.Id;
+                }
+                else
+                {
+                    codeRange.Text = "$$";
+                }
 
                 tagEntry.StartIndex = codeRange.Start;
                 tagEntry.Length = codeRange.Length;
-                tagEntry.ShapeID = picture.Id;
-                
+
                 startIndex = codeRange.Start + codeRange.Length - 1;
                 codeCount++;
             }
-        }        
+            if (codeCount > 0)
+            {
+                shape.LaTeXTags().Type = EquationType.HasCompiledInlines;
+            }
+        }
 
-        private void DecompileTextRange(Slide slide, Shape shape, TextRange range) {
+        private void CompileShape(Slide slide, Shape shape)
+        {
+            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+            {
+                TextFrame textFrame = shape.TextFrame;
+                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    CompileTextRange(slide, shape, textFrame.TextRange);
+                }
+            }
+        }
+
+        private void DecompileTextRange(Slide slide, Shape shape, TextRange range)
+        {
             LaTeXEntries entries = shape.LaTeXTags().Entries;
             int length = entries.Length;
-            for( int i = length - 1 ; i >= 0 ; i-- ) {
+            for (int i = length - 1; i >= 0; i--)
+            {
                 LaTeXEntry entry = entries[i];
-                int shapeID = entry.ShapeID;
-                // find the shape
-                Shape picture = slide.Shapes.FindById(shapeID);
-                
-                Debug.Assert(picture != null);
-                Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
-                // fail gracefully
-                if (picture != null)
+                string latexCode = entry.Code;
+
+                if (latexCode != "!")
                 {
-                    picture.Delete();
+                    int shapeID = entry.ShapeID;
+                    // find the shape
+                    Shape picture = slide.Shapes.FindById(shapeID);
+
+                    Debug.Assert(picture != null);
+                    Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
+                    // fail gracefully
+                    if (picture != null)
+                    {
+                        picture.Delete();
+                    }
                 }
 
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
-                codeRange.Text = "$$" + entry.Code + "$$";
+                codeRange.Text = "$$" + latexCode + "$$";
             }
             shape.LaTeXTags().Clear();
         }
 
-        private void PurgeInlinesFromTextRange(Slide slide, Shape shape, TextRange range)
+        private void DecompileShape(Slide slide, Shape shape)
         {
-            if (shape.LaTeXTags().Type == EquationType.None)
+            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
-                shape.LaTeXTags().Clear();
+                TextFrame textFrame = shape.TextFrame;
+                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    DecompileTextRange(slide, shape, textFrame.TextRange);
+                }
             }
         }
 
-        private void WalkShape(Slide slide, Shape shape, WalkTextRange walkTextRange)
+        private void BakeShape(Slide slide, Shape shape)
+        {
+            shape.LaTeXTags().Clear();
+        }
+
+        private void WalkShape(Slide slide, Shape shape, DoShape doShape)
         {
             if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
@@ -174,21 +239,14 @@ namespace PowerPointLaTeX
                 {
                     foreach (Cell cell in row.Cells)
                     {
-                        WalkShape(slide, cell.Shape, walkTextRange);
+                        WalkShape(slide, cell.Shape, doShape);
                     }
                 }
             }
-            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                TextFrame textFrame = shape.TextFrame;
-                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    walkTextRange(slide, shape, textFrame.TextRange);
-                }
-            }
+            doShape(slide, shape);
         }
 
-        private void WalkSlide(Slide slide, WalkTextRange walkTextRange)
+        private void WalkSlide(Slide slide, DoShape walkTextRange)
         {
             foreach (Shape shape in slide.Shapes)
             {
@@ -198,26 +256,21 @@ namespace PowerPointLaTeX
 
         public void CompileSlide(Slide slide)
         {
-            WalkSlide(slide, CompileTextRange);
+            WalkSlide(slide, CompileShape);
         }
 
-        public void DecompileSlide(Slide slide) {
-            WalkSlide(slide, DecompileTextRange);
+        public void DecompileSlide(Slide slide)
+        {
+            WalkSlide(slide, DecompileShape);
         }
 
         /// <summary>
         /// Removes all tags and all pictures that belong to inline formulas
         /// </summary>
         /// <param name="slide"></param>
-        public void PurgeInlinesFromSlide(Slide slide) {
-            WalkSlide(slide, PurgeInlinesFromTextRange);
-
-            // purge all inline pictures, too
-            foreach(Shape shape in slide.Shapes) {
-                if( shape.LaTeXTags().Type == EquationType.Inline ) {
-                    shape.Delete();
-                }
-            }
+        public void BakeSlide(Slide slide)
+        {
+            WalkSlide(slide, BakeShape);
         }
     }
 }

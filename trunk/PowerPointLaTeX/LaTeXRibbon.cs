@@ -55,7 +55,7 @@ End Sub
 
         private void DecompileSlide_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());
+            Globals.ThisAddIn.Tool.DecompileSlide(GetActiveSlide());)
         }
         /*
                    string latexCode = @"a \le b";
