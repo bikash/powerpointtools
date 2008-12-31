@@ -17,6 +17,7 @@ namespace PowerPointLaTeX
     class LaTeXTool
     {
         public enum EquationType {
+            None,
             Inline,
             Equation
         }
@@ -130,9 +131,7 @@ namespace PowerPointLaTeX
                 startIndex = codeRange.Start + codeRange.Length - 1;
                 codeCount++;
             }
-        }
-
-        
+        }        
 
         private void DecompileTextRange(Slide slide, Shape shape, TextRange range) {
             LaTeXEntries entries = shape.LaTeXTags().Entries;
@@ -143,10 +142,13 @@ namespace PowerPointLaTeX
                 // find the shape
                 Shape picture = slide.Shapes.FindById(shapeID);
                 
-                Trace.Assert(picture != null);
-                Trace.Assert(picture.LaTeXTags().Type == EquationType.Inline);
-
-                picture.Delete();
+                Debug.Assert(picture != null);
+                Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
+                // fail gracefully
+                if (picture != null)
+                {
+                    picture.Delete();
+                }
 
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
@@ -155,17 +157,17 @@ namespace PowerPointLaTeX
             shape.LaTeXTags().Clear();
         }
 
+        private void PurgeInlinesFromTextRange(Slide slide, Shape shape, TextRange range)
+        {
+            if (shape.LaTeXTags().Type == EquationType.None)
+            {
+                shape.LaTeXTags().Clear();
+            }
+        }
+
         private void WalkShape(Slide slide, Shape shape, WalkTextRange walkTextRange)
         {
-            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                TextFrame textFrame = shape.TextFrame;
-                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    walkTextRange(slide, shape, textFrame.TextRange);
-                }
-            }
-            else if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)
+            if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
                 Table table = shape.Table;
                 foreach (Row row in table.Rows)
@@ -174,6 +176,14 @@ namespace PowerPointLaTeX
                     {
                         WalkShape(slide, cell.Shape, walkTextRange);
                     }
+                }
+            }
+            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+            {
+                TextFrame textFrame = shape.TextFrame;
+                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    walkTextRange(slide, shape, textFrame.TextRange);
                 }
             }
         }
@@ -193,6 +203,21 @@ namespace PowerPointLaTeX
 
         public void DecompileSlide(Slide slide) {
             WalkSlide(slide, DecompileTextRange);
+        }
+
+        /// <summary>
+        /// Removes all tags and all pictures that belong to inline formulas
+        /// </summary>
+        /// <param name="slide"></param>
+        public void PurgeInlinesFromSlide(Slide slide) {
+            WalkSlide(slide, PurgeInlinesFromTextRange);
+
+            // purge all inline pictures, too
+            foreach(Shape shape in slide.Shapes) {
+                if( shape.LaTeXTags().Type == EquationType.Inline ) {
+                    shape.Delete();
+                }
+            }
         }
     }
 }

@@ -195,7 +195,7 @@ namespace PowerPointLaTeX
         {
             get
             {
-                LaTeXTool.EquationType type = LaTeXTool.EquationType.Inline;
+                LaTeXTool.EquationType type = LaTeXTool.EquationType.None;
                 try
                 {
                     type = (LaTeXTool.EquationType) Enum.Parse(typeof(LaTeXTool.EquationType), shape.GetTag("Type"));

@@ -28,40 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Microsoft.Office.Tools.Ribbon.RibbonDialogLauncher ribbonDialogLauncher1 = new Microsoft.Office.Tools.Ribbon.RibbonDialogLauncher();
-            this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
-            this.group1 = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
+            this.LaTeX = new Microsoft.Office.Tools.Ribbon.RibbonTab();
+            this.inlineGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DecompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.CompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
-            this.tab1.SuspendLayout();
-            this.group1.SuspendLayout();
+            this.LaTeX.SuspendLayout();
+            this.inlineGroup.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tab1
+            // LaTeX
             // 
-            this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.group1);
-            this.tab1.Label = "TabAddIns";
-            this.tab1.Name = "tab1";
+            this.LaTeX.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.LaTeX.Groups.Add(this.inlineGroup);
+            this.LaTeX.Label = "TabAddIns";
+            this.LaTeX.Name = "LaTeX";
             // 
-            // group1
+            // inlineGroup
             // 
-            this.group1.DialogLauncher = ribbonDialogLauncher1;
-            this.group1.Items.Add(this.DecompileSlide);
-            this.group1.Items.Add(this.CompileSlide);
-            this.group1.Label = "firstGroup";
-            this.group1.Name = "group1";
+            this.inlineGroup.Items.Add(this.DecompileSlide);
+            this.inlineGroup.Items.Add(this.CompileSlide);
+            this.inlineGroup.Label = "Inline Formulas";
+            this.inlineGroup.Name = "inlineGroup";
             // 
             // DecompileSlide
             // 
-            this.DecompileSlide.Label = "decompile";
+            this.DecompileSlide.Label = "Decompile Selection";
             this.DecompileSlide.Name = "DecompileSlide";
             this.DecompileSlide.ShowImage = true;
             this.DecompileSlide.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DecompileSlide_Click);
             // 
             // CompileSlide
             // 
-            this.CompileSlide.Label = "compile";
+            this.CompileSlide.Label = "Compile Selection";
             this.CompileSlide.Name = "CompileSlide";
             this.CompileSlide.ShowImage = true;
             this.CompileSlide.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.button1_Click);
@@ -70,20 +68,20 @@
             // 
             this.Name = "LaTeXRibbon";
             this.RibbonType = "Microsoft.PowerPoint.Presentation";
-            this.Tabs.Add(this.tab1);
+            this.Tabs.Add(this.LaTeX);
             this.Load += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonUIEventArgs>(this.LaTeXRibbon_Load);
-            this.tab1.ResumeLayout(false);
-            this.tab1.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
+            this.LaTeX.ResumeLayout(false);
+            this.LaTeX.PerformLayout();
+            this.inlineGroup.ResumeLayout(false);
+            this.inlineGroup.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonTab LaTeX;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup inlineGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton CompileSlide;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton DecompileSlide;
     }
