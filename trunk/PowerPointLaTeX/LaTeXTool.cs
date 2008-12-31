@@ -10,15 +10,20 @@ using System.Windows.Forms;
 
 namespace PowerPointLaTeX
 {
+    using CustomExtensions;
+
     /// <summary>
     /// Contains all the important methods, etc.
     /// Instantiated by the add-in
     /// </summary>
     class LaTeXTool
     {
-        private const string TagPrefix = "PowerPointLaTeX_";
+
         private const string CodeTag = "Code";
         private const string TypeTag = "Type";
+        private const string StartIndexTag = "StartIndex";
+        private const string LengthTag = "Length";
+        private const string CountTag = "Count";
 
         // used for equations that will be toggled
         private const string TypeInline = "inline";
@@ -57,7 +62,7 @@ namespace PowerPointLaTeX
             return pictureRange[1];
         }
 
-        private void CompileLaTeXCode(Slide slide, string latexCode, TextRange codeRange)
+        private void CompileLaTeXCode(Slide slide, Shape shape, string latexCode, TextRange codeRange)
         {
             LaTeXWebService.WebService.URLData data = LaTeXWebService.WebService.compileLaTeX(latexCode);
             Shape picture = AddPictureFromData(slide, data);
@@ -67,9 +72,10 @@ namespace PowerPointLaTeX
             //pictureRange.Width = range.BoundWidth;
             //pictureRange.Height = range.BoundHeight;
 
-            picture.Tags.Add(TagPrefix + CodeTag, latexCode);
-            picture.Tags.Add(TagPrefix + TypeTag, TypeInline);
-            
+            // add tags to the picture
+            picture.AddElementTag(CodeTag, latexCode);
+            picture.AddElementTag(TypeTag, TypeInline);
+               
             // align the picture and remove the original text
             // 1 Point = 1/72 Inches
             float fontSize = codeRange.Font.Size;
@@ -98,10 +104,12 @@ namespace PowerPointLaTeX
             picture.Left = codeRange.BoundLeft;
         }
 
-        private void CompileTextRange(Slide slide, TextRange range)
+        private void CompileTextRange(Slide slide, Shape shape, TextRange range)
         {
             string text = range.Text;
             int startIndex = 0;
+
+            int codeCount = 0;
             while ((startIndex = text.IndexOf("$$", startIndex)) != -1)
             {
                 startIndex += 2;
@@ -115,11 +123,18 @@ namespace PowerPointLaTeX
                 int length = endIndex - startIndex;
                 string latexCode = text.Substring(startIndex, length);
 
+                shape.AddArrayTag(CodeTag, codeCount, latexCode);
+                
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
-                CompileLaTeXCode(slide, latexCode, codeRange);
+                CompileLaTeXCode(slide, shape, latexCode, codeRange);
 
+                shape.AddArrayTag(StartIndexTag, codeCount, (startIndex - 2).ToString() );
+                shape.AddArrayTag(LengthTag, codeCount, length.ToString() );
+                
                 startIndex = endIndex + 2;
+                codeCount++;
             }
+            shape.AddElementTag(CountTag, codeCount.ToString() );
         }
 
         private void CompileShape(Slide slide, Shape shape)
@@ -129,7 +144,7 @@ namespace PowerPointLaTeX
                 TextFrame textFrame = shape.TextFrame;
                 if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
                 {
-                    CompileTextRange(slide, textFrame.TextRange);
+                    CompileTextRange(slide, shape, textFrame.TextRange);
                 }
             }
             else if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)

@@ -26,7 +26,25 @@ namespace PowerPointLaTeX
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
             Slide slide = ((Slide) Globals.ThisAddIn.Application.ActiveWindow.View.Slide);
-            Globals.ThisAddIn.Tool.CompileSlide(slide);
+
+/*
+            Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
+            Microsoft.Vbe.Interop.VBComponent component = presentation.VBProject.VBComponents.Add(Microsoft.Vbe.Interop.vbext_ComponentType.vbext_ct_StdModule);
+            component.CodeModule.AddFromString(
+@"
+Sub Test__()
+    MsgBox ""Hello World""
+End Sub
+"
+                );
+
+            //Globals.ThisAddIn.Tool.CompileSlide(slide);
+            Shape shape = slide.Shapes[1];
+            shape.TextFrame.TextRange.Text = "Hello World";
+            ActionSetting setting = shape.ActionSettings[PpMouseActivation.ppMouseClick];
+            setting.Action = PpActionType.ppActionRunMacro;
+            setting.Run = "Test__";*/
+
         }
         /*
                    string latexCode = @"a \le b";
