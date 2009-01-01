@@ -31,17 +31,22 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LaTeXRibbon));
             this.LaTeX = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.generalGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
-            this.button1 = new Microsoft.Office.Tools.Ribbon.RibbonButton();
-            this.offlineModeToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
+            this.PreferencesButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.PresentationModeToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.separator1 = new Microsoft.Office.Tools.Ribbon.RibbonSeparator();
-            this.bakeButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.FinalizeButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.inlineGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
-            this.automaticCompilationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
-            this.CompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
-            this.DecompileSlide = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.AutomaticCompilationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
+            this.DecompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.CompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
+            this.LaTeXGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
+            this.DeveloperTaskPaneToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.LaTeX.SuspendLayout();
             this.generalGroup.SuspendLayout();
             this.inlineGroup.SuspendLayout();
+            this.tab1.SuspendLayout();
+            this.LaTeXGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // LaTeX
@@ -53,84 +58,124 @@
             // 
             // generalGroup
             // 
-            this.generalGroup.Items.Add(this.button1);
-            this.generalGroup.Items.Add(this.offlineModeToggle);
+            this.generalGroup.Items.Add(this.PreferencesButton);
+            this.generalGroup.Items.Add(this.PresentationModeToggle);
             this.generalGroup.Items.Add(this.separator1);
-            this.generalGroup.Items.Add(this.bakeButton);
+            this.generalGroup.Items.Add(this.FinalizeButton);
             this.generalGroup.Label = "General";
             this.generalGroup.Name = "generalGroup";
             // 
-            // button1
+            // PreferencesButton
             // 
-            this.button1.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.button1.Label = "Preferences";
-            this.button1.Name = "button1";
-            this.button1.OfficeImageId = "MessageOptions";
-            this.button1.ShowImage = true;
+            this.PreferencesButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.PreferencesButton.Label = "Preferences";
+            this.PreferencesButton.Name = "PreferencesButton";
+            this.PreferencesButton.OfficeImageId = "MessageOptions";
+            this.PreferencesButton.ShowImage = true;
             // 
-            // offlineModeToggle
+            // PresentationModeToggle
             // 
-            this.offlineModeToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.offlineModeToggle.Description = "Compiles everything and protects it from changes";
-            this.offlineModeToggle.Image = ((System.Drawing.Image) (resources.GetObject("offlineModeToggle.Image")));
-            this.offlineModeToggle.Label = "Offline Mode";
-            this.offlineModeToggle.Name = "offlineModeToggle";
-            this.offlineModeToggle.ShowImage = true;
+            this.PresentationModeToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.PresentationModeToggle.Description = "Compiles everything and protects it from changes";
+            this.PresentationModeToggle.Label = "Presentation Mode";
+            this.PresentationModeToggle.Name = "PresentationModeToggle";
+            this.PresentationModeToggle.OfficeImageId = "ProtectDocument";
+            this.PresentationModeToggle.ScreenTip = "Presentation Mode";
+            this.PresentationModeToggle.ShowImage = true;
+            this.PresentationModeToggle.SuperTip = "Compile all LaTeX $$formulas$$ and protect them from changes (locks all text area" +
+                "s that contain formulas, etc.)";
+            this.PresentationModeToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PresentationModeToggle_Click);
             // 
             // separator1
             // 
             this.separator1.Name = "separator1";
             // 
-            // bakeButton
+            // FinalizeButton
             // 
-            this.bakeButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.bakeButton.Description = "Compile everything and remove all meta-information";
-            this.bakeButton.Label = "Bake LaTeX";
-            this.bakeButton.Name = "bakeButton";
-            this.bakeButton.OfficeImageId = "FileMarkAsFinal";
-            this.bakeButton.ShowImage = true;
+            this.FinalizeButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.FinalizeButton.Description = "Compile everything and remove all meta-information";
+            this.FinalizeButton.Label = "Finalize";
+            this.FinalizeButton.Name = "FinalizeButton";
+            this.FinalizeButton.OfficeImageId = "MenuPublish";
+            this.FinalizeButton.ScreenTip = "Finalize";
+            this.FinalizeButton.ShowImage = true;
+            this.FinalizeButton.SuperTip = "Compile all LaTeX $$formulas$$ and remove all metainformation from this addin fro" +
+                "m the presentation.";
+            this.FinalizeButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.FinalizeButton_Click);
             // 
             // inlineGroup
             // 
-            this.inlineGroup.Items.Add(this.automaticCompilationToggle);
-            this.inlineGroup.Items.Add(this.CompileSlide);
-            this.inlineGroup.Items.Add(this.DecompileSlide);
+            this.inlineGroup.Items.Add(this.AutomaticCompilationToggle);
+            this.inlineGroup.Items.Add(this.DecompileButton);
+            this.inlineGroup.Items.Add(this.CompileButton);
             this.inlineGroup.Label = "Inline Formulas";
             this.inlineGroup.Name = "inlineGroup";
             // 
-            // automaticCompilationToggle
+            // AutomaticCompilationToggle
             // 
-            this.automaticCompilationToggle.Checked = true;
-            this.automaticCompilationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.automaticCompilationToggle.Description = "Automatically compile LaTeX shortcodes";
-            this.automaticCompilationToggle.Image = ((System.Drawing.Image) (resources.GetObject("automaticCompilationToggle.Image")));
-            this.automaticCompilationToggle.Label = "Automatic Compilation";
-            this.automaticCompilationToggle.Name = "automaticCompilationToggle";
-            this.automaticCompilationToggle.ShowImage = true;
-            this.automaticCompilationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.automaticCompilationToggle_Click);
+            this.AutomaticCompilationToggle.Checked = true;
+            this.AutomaticCompilationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.AutomaticCompilationToggle.Description = "Automatically compile LaTeX shortcodes";
+            this.AutomaticCompilationToggle.Image = ((System.Drawing.Image) (resources.GetObject("AutomaticCompilationToggle.Image")));
+            this.AutomaticCompilationToggle.Label = "Automatic Preview";
+            this.AutomaticCompilationToggle.Name = "AutomaticCompilationToggle";
+            this.AutomaticCompilationToggle.ScreenTip = "Automatic Preview";
+            this.AutomaticCompilationToggle.ShowImage = true;
+            this.AutomaticCompilationToggle.SuperTip = "Compiles and Decompiles LaTeX $$formulas$$ automatically.";
+            this.AutomaticCompilationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.AutomaticCompilationToggle_Click);
             // 
-            // CompileSlide
+            // DecompileButton
             // 
-            this.CompileSlide.Description = "Compile the current selection/slide";
-            this.CompileSlide.Label = "Compile Selection";
-            this.CompileSlide.Name = "CompileSlide";
-            this.CompileSlide.OfficeImageId = "MacroPlay";
-            this.CompileSlide.ShowImage = true;
-            this.CompileSlide.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.button1_Click);
+            this.DecompileButton.Label = "Decompile Selection";
+            this.DecompileButton.Name = "DecompileButton";
+            this.DecompileButton.OfficeImageId = "MailMergeGoToPreviousRecord";
+            this.DecompileButton.ScreenTip = "Decompile Selection/Slide";
+            this.DecompileButton.ShowImage = true;
+            this.DecompileButton.SuperTip = "Decompiles all LaTeX $$formulas$$ in the selection or in the active slide, if not" +
+                "hing is selected.";
+            this.DecompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DecompileButton_Click);
             // 
-            // DecompileSlide
+            // CompileButton
             // 
-            this.DecompileSlide.Label = "Decompile Selection";
-            this.DecompileSlide.Name = "DecompileSlide";
-            this.DecompileSlide.OfficeImageId = "MailMergeGoToPreviousRecord";
-            this.DecompileSlide.ShowImage = true;
-            this.DecompileSlide.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DecompileSlide_Click);
+            this.CompileButton.Label = "Compile Selection";
+            this.CompileButton.Name = "CompileButton";
+            this.CompileButton.OfficeImageId = "MacroPlay";
+            this.CompileButton.ScreenTip = "Compile Selection/Slide";
+            this.CompileButton.ShowImage = true;
+            this.CompileButton.SuperTip = "Compiles all LaTeX $$formulas$$ in the selection or in the active slide, if nothi" +
+                "ng is selected.";
+            this.CompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CompileButton_Click);
+            // 
+            // tab1
+            // 
+            this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.tab1.ControlId.OfficeId = "TabDeveloper";
+            this.tab1.Groups.Add(this.LaTeXGroup);
+            this.tab1.Label = "Developer";
+            this.tab1.Name = "tab1";
+            // 
+            // LaTeXGroup
+            // 
+            this.LaTeXGroup.Items.Add(this.DeveloperTaskPaneToggle);
+            this.LaTeXGroup.Label = "LaTeX";
+            this.LaTeXGroup.Name = "LaTeXGroup";
+            // 
+            // DeveloperTaskPaneToggle
+            // 
+            this.DeveloperTaskPaneToggle.Checked = global::PowerPointLaTeX.Properties.Settings.Default.ShowDeveloperTaskPane;
+            this.DeveloperTaskPaneToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.DeveloperTaskPaneToggle.Label = "Developer Info";
+            this.DeveloperTaskPaneToggle.Name = "DeveloperTaskPaneToggle";
+            this.DeveloperTaskPaneToggle.OfficeImageId = "FileDocumentInspect";
+            this.DeveloperTaskPaneToggle.ShowImage = true;
+            this.DeveloperTaskPaneToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DeveloperTaskPaneToggle_Click);
             // 
             // LaTeXRibbon
             // 
             this.Name = "LaTeXRibbon";
             this.RibbonType = "Microsoft.PowerPoint.Presentation";
             this.Tabs.Add(this.LaTeX);
+            this.Tabs.Add(this.tab1);
             this.Load += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonUIEventArgs>(this.LaTeXRibbon_Load);
             this.LaTeX.ResumeLayout(false);
             this.LaTeX.PerformLayout();
@@ -138,6 +183,10 @@
             this.generalGroup.PerformLayout();
             this.inlineGroup.ResumeLayout(false);
             this.inlineGroup.PerformLayout();
+            this.tab1.ResumeLayout(false);
+            this.tab1.PerformLayout();
+            this.LaTeXGroup.ResumeLayout(false);
+            this.LaTeXGroup.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -146,14 +195,17 @@
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab LaTeX;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup inlineGroup;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton CompileSlide;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton DecompileSlide;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton CompileButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton DecompileButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup generalGroup;
-        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton offlineModeToggle;
-        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton automaticCompilationToggle;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton bakeButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton PresentationModeToggle;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AutomaticCompilationToggle;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton FinalizeButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton PreferencesButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup LaTeXGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton DeveloperTaskPaneToggle;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection

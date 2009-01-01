@@ -13,9 +13,9 @@ namespace PowerPointLaTeX
 
         internal bool AutomaticCompilation
         {
-            get { return Globals.Ribbons.LaTeXRibbon.automaticCompilationToggle.Checked; }
+            get { return Globals.Ribbons.LaTeXRibbon.AutomaticCompilationToggle.Checked; }
             set { 
-                Globals.Ribbons.LaTeXRibbon.automaticCompilationToggle.Checked = value;
+                Globals.Ribbons.LaTeXRibbon.AutomaticCompilationToggle.Checked = value;
                 ToggleChangedEventHandler handler = onAutomaticCompilationChanged;
                 if( handler != null ) {
                     handler(value);
@@ -25,9 +25,9 @@ namespace PowerPointLaTeX
 
         internal bool OfflineMode
         {
-            get { return Globals.Ribbons.LaTeXRibbon.offlineModeToggle.Checked; }
+            get { return Globals.Ribbons.LaTeXRibbon.PresentationModeToggle.Checked; }
             set {
-                Globals.Ribbons.LaTeXRibbon.offlineModeToggle.Checked = value;
+                Globals.Ribbons.LaTeXRibbon.PresentationModeToggle.Checked = value;
                 ToggleChangedEventHandler handler = onOfflineModeChanged;
                 if( handler != null ) {
                     handler(value);

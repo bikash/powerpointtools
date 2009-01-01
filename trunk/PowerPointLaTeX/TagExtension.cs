@@ -14,19 +14,36 @@ namespace PowerPointLaTeX
 
         private static void InternalPurgeTags(Tags tags, string prefix)
         {
-            int i = 0;
-            while (i < tags.Count)
+            int i = 1;
+            string namePrefix = TagPrefix + prefix;
+            while (i <= tags.Count)
             {
-                string name = TagPrefix + prefix;
-                if (tags.Name(i).StartsWith(name))
+                string name = tags.Name(i);
+                if (name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     tags.Delete(name);
                 }
                 else
                 {
-                    i += i + 1;
+                    i += 1;
                 }
             }
+        }
+
+        private static IEnumerable<string> InternalGetTagNames(Tags tags, string prefix)
+        {
+            List<string> names = new List<string>();
+            string namePrefix = TagPrefix + prefix;
+            for (int i = 1; i <= tags.Count; i++)
+            {
+                if (tags.Name(i).StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    string name = tags.Name(i).Substring(namePrefix.Length);
+                    names.Add(name);
+                }
+            }
+
+            return names;
         }
 
         public static void SetTag(this Shape shape, string name, string value)
@@ -44,8 +61,14 @@ namespace PowerPointLaTeX
             shape.Tags.Delete(TagPrefix + name);
         }
 
-        public static void PurgeTags(this Shape shape, string prefix) {
+        public static void PurgeTags(this Shape shape, string prefix)
+        {
             InternalPurgeTags(shape.Tags, prefix);
+        }
+
+        public static IEnumerable<string> GetTagNames(this Shape shape, string prefix)
+        {
+            return InternalGetTagNames(shape.Tags, prefix);
         }
 
         // TODO: wtf? how can I get rid of this duplicate code? [12/31/2008 Andreas]
@@ -69,6 +92,11 @@ namespace PowerPointLaTeX
             InternalPurgeTags(presentation.Tags, prefix);
         }
 
+        public static IEnumerable<string> GetTagNames(this Presentation presentation, string prefix)
+        {
+            return InternalGetTagNames(presentation.Tags, prefix);
+        }
+
         public static LaTeXTags LaTeXTags(this Shape shape)
         {
             return new LaTeXTags(shape);
@@ -83,7 +111,7 @@ namespace PowerPointLaTeX
     /*
         class TagProperty<T> where T : struct {
             private Shape shape;
-            private string name;
+            private string namePrefix;
 
             public static implicit operator T
         }*/

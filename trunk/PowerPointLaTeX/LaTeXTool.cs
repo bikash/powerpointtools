@@ -19,9 +19,13 @@ namespace PowerPointLaTeX
         public enum EquationType
         {
             None,
+            // has inline LaTeX codes (but not compiled)
             HasInlines,
+            // has compiled LaTeX codes
             HasCompiledInlines,
+            // a compiled LaTeX code (picture)
             Inline,
+            // an equation (not implemented atm)
             Equation
         }
 
@@ -35,18 +39,19 @@ namespace PowerPointLaTeX
             }
         }
 
-        internal Presentation ActivePresentation {
+        internal Presentation ActivePresentation
+        {
             get { return Application.ActivePresentation; }
         }
 
-        internal Slide ActiveSlide {
+        internal Slide ActiveSlide
+        {
             get { return Application.ActiveWindow.View.Slide as Slide; }
         }
 
         // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
         private Shape AddPictureFromData(Slide slide, byte[] data)
         {
-
             MemoryStream stream = new MemoryStream(data);
             Image image = Image.FromStream(stream);
 
@@ -69,16 +74,20 @@ namespace PowerPointLaTeX
         private Shape CompileLaTeXCode(Slide slide, Shape shape, string latexCode, TextRange codeRange)
         {
             // check the cache first
-            byte[] data = ActivePresentation.CacheTags()[latexCode];
-            if (data == null)
+            byte[] imageData;
+            if (ActivePresentation.CacheTags()[latexCode].IsCached())
+            {
+                imageData = ActivePresentation.CacheTags()[latexCode].Use();
+            }
+            else
             {
                 LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
                 Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
-                data = URLData.content;
+                imageData = URLData.content;
 
-                ActivePresentation.CacheTags()[latexCode] = data;
+                ActivePresentation.CacheTags()[latexCode].Store(imageData);
             }
-            Shape picture = AddPictureFromData(slide, data);
+            Shape picture = AddPictureFromData(slide, imageData);
 
             picture.AlternativeText = latexCode;
 
@@ -100,9 +109,21 @@ namespace PowerPointLaTeX
                         picture.Height *= scalingFactor;*/
 
 
-            //System.Drawing.Font font = new System.Drawing.Font(codeRange.Font.Name, fontSize, GraphicsUnit.Point);
+            /*
+              System.Drawing.Font font = new System.Drawing.Font(codeRange.Font.Name, fontSize, GraphicsUnit.Point);
+                         FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
+                         fontFamily.*/
+
             // base line: center (assume that its a one-line codeRange)
-            picture.Top = codeRange.BoundTop + fontSize - picture.Height;
+            if (fontSize > picture.Height)
+            {
+                picture.Top = codeRange.BoundTop + (fontSize - picture.Height);
+
+            }
+            else
+            {
+                picture.Top = codeRange.BoundTop + (fontSize - picture.Height) * 0.5f;
+            }
 
             // fill up text with spaces to "wrap around" the object
             codeRange.Text = "";
@@ -121,7 +142,8 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private bool IsEscapeCode(string code) {
+        private bool IsEscapeCode(string code)
+        {
             return code == "!";
         }
 
@@ -172,6 +194,12 @@ namespace PowerPointLaTeX
 
         public void CompileShape(Slide slide, Shape shape)
         {
+            // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc.)
+            if (shape.LaTeXTags().Type == EquationType.HasCompiledInlines)
+            {
+                return;
+            }
+
             if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
                 TextFrame textFrame = shape.TextFrame;
@@ -204,6 +232,9 @@ namespace PowerPointLaTeX
                     {
                         picture.Delete();
                     }
+
+                    // release the cache entry, too
+                    ActivePresentation.CacheTags()[latexCode].Release();
                 }
 
                 // add back the latex code
@@ -225,8 +256,9 @@ namespace PowerPointLaTeX
             }
         }
 
-        private void BakeShape(Slide slide, Shape shape)
+        private void FinalizeShape(Slide slide, Shape shape)
         {
+            CompileShape(slide, shape);
             shape.LaTeXTags().Clear();
         }
 
@@ -254,6 +286,14 @@ namespace PowerPointLaTeX
             }
         }
 
+        private void WalkPresentation(Presentation presentation, DoShape walkTextRange)
+        {
+            foreach (Slide slide in presentation.Slides)
+            {
+                WalkSlide(slide, walkTextRange);
+            }
+        }
+
         public void CompileSlide(Slide slide)
         {
             WalkSlide(slide, CompileShape);
@@ -264,13 +304,53 @@ namespace PowerPointLaTeX
             WalkSlide(slide, DecompileShape);
         }
 
+        public void CompilePresentation(Presentation presentation)
+        {
+            WalkPresentation(presentation, CompileShape);
+        }
+
         /// <summary>
         /// Removes all tags and all pictures that belong to inline formulas
         /// </summary>
         /// <param name="slide"></param>
-        public void BakeSlide(Slide slide)
+        public void FinalizePresentation(Presentation presentation)
         {
-            WalkSlide(slide, BakeShape);
+            WalkPresentation(presentation, FinalizeShape);
+            // purge the cache, too
+            presentation.CacheTags().PurgeAll();
+        }
+
+        public List<Shape> GetInlineShapes(Shape shape)
+        {
+            List<Shape> shapes = new List<Shape>();
+
+            Slide slide = shape.GetSlide();
+            foreach (LaTeXEntry entry in shape.LaTeXTags().Entries)
+            {
+                if (!IsEscapeCode(entry.Code))
+                {
+                    Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
+                    Trace.Assert(inlineShape != null);
+                    shapes.Add(inlineShape);
+                }
+            }
+            return shapes;
+        }
+
+        /// <summary>
+        /// from an inline shape
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        public Shape GetParentShape(Shape shape)
+        {
+            LaTeXTags tags = shape.LaTeXTags();
+            Debug.Assert(tags.Type == EquationType.Inline);
+            Slide slide = shape.GetSlide();
+
+            Shape parent = slide.Shapes.FindById(tags.ParentId);
+            Trace.Assert(parent != null);
+            return parent;
         }
 
         private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>
@@ -288,41 +368,6 @@ namespace PowerPointLaTeX
             selection.Unselect();
 
             return shapeRange;
-        }
-
-        public List<Shape> GetInlineShapes(Shape shape) {
-            List<Shape> shapes = new List<Shape>();
-
-            Slide slide = shape.GetSlide();
-            foreach( LaTeXEntry entry in shape.LaTeXTags().Entries) {
-                if (!IsEscapeCode(entry.Code))
-                {
-                    Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
-                    Trace.Assert(inlineShape != null);
-                    shapes.Add(inlineShape);
-                }
-            }
-            return shapes;
-        }
-
-        /// <summary>
-        /// from an inline shape
-        /// </summary>
-        /// <param name="shape"></param>
-        /// <returns></returns>
-        public Shape GetParentShape(Shape shape) {
-            LaTeXTags tags = shape.LaTeXTags();
-            Debug.Assert(tags.Type == EquationType.Inline);
-            Slide slide = shape.GetSlide();
-
-            Shape parent = slide.Shapes.FindById(tags.ParentId);
-            Trace.Assert(parent != null);
-            return parent;
-        }
-
-        public void SelectionWithoutInlines(Selection selection)
-        {
-            selection.FilterShapes(target => target.LaTeXTags().Type != EquationType.Inline);
         }
     }
 }
