@@ -8,113 +8,75 @@ using System.Runtime.InteropServices;
 
 namespace PowerPointLaTeX
 {
-    class ReflectionPropertyDescriptor : PropertyDescriptor
+    class ReflectionTypeConverter : TypeConverter
     {
-        private Object instance;
-        private PropertyInfo propertyInfo;
-        private object[] index;
+        private Type componentType;
 
-        public ReflectionPropertyDescriptor(Object instance, PropertyInfo propertyInfo, object[] index)
-            : base(propertyInfo.Name, null)
+        public ReflectionTypeConverter(Type componentType)
         {
-            this.instance = instance;
-            this.propertyInfo = propertyInfo;
-            this.index = index;
+            this.componentType = componentType;
         }
 
-        public override bool CanResetValue(object component)
+        public override bool GetPropertiesSupported(ITypeDescriptorContext context)
         {
-            return false;
+            return !componentType.IsValueType;
         }
 
-        public override string Category
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
-            get
+            PropertyInfo[] properties = componentType.GetProperties();
+            PropertyDescriptor[] propertyDescriptors = properties.Select(propertyInfo => new PropertyDescriptor(componentType, propertyInfo)).ToArray();
+            return new PropertyDescriptorCollection(propertyDescriptors, true);
+        }
+
+        class PropertyDescriptor : SimplePropertyDescriptor
+        {
+            private PropertyInfo propertyInfo;
+
+            public PropertyDescriptor(Type componentType, PropertyInfo propertyInfo)
+                : base(componentType, propertyInfo.Name, propertyInfo.PropertyType)
             {
-                return "Properties";
+                this.propertyInfo = propertyInfo;
             }
-        }
 
-        public override string Description
-        {
-            get
+            public override object GetValue(object component)
             {
-                return "Shows all properties of the object";
+                object value = "Not Available";
+                try
+                {
+                    value = propertyInfo.GetValue(component, null);
+                }
+                catch
+                {
+                }
+                return value;
             }
-        }
 
-        public override Type ComponentType
-        {
-            get { return propertyInfo.DeclaringType; }
-        }
-
-        public override object GetValue(object component)
-        {
-            try
-            {
-                return propertyInfo.GetValue(instance, index);
-            }
-            catch
+            public override void SetValue(object component, object value)
             {
             }
-            return "Not Available";
-        }
 
-        public override bool IsReadOnly
-        {
-            get { return true; }
-        }
-
-        public override Type PropertyType
-        {
-            get { return propertyInfo.PropertyType; }
-        }
-
-        public override void ResetValue(object component)
-        {
-        }
-
-        public override void SetValue(object component, object value)
-        {
-        }
-
-        public override bool ShouldSerializeValue(object component)
-        {
-            return false;
-        }
-
-        public override PropertyDescriptorCollection GetChildProperties(object instance, Attribute[] filter)
-        {
-            if (!propertyInfo.PropertyType.IsValueType)
+            public override string Category
             {
-                return FromObject(propertyInfo.GetValue(instance, index), filter);
+                get
+                {
+                    return "Properties";
+                }
             }
-            return null;
-        }
 
-        public override TypeConverter Converter
-        {
-            get
+            public override TypeConverter Converter
             {
-                return new ExpandableObjectConverter();
+                get
+                {
+                    return new ReflectionTypeConverter(PropertyType);
+                }
             }
-        }
 
-        public override bool IsBrowsable
-        {
-            get
+            public override PropertyDescriptorCollection GetChildProperties(object instance, Attribute[] filter)
             {
-                return propertyInfo.PropertyType.IsValueType;
+                return Converter.GetProperties(null, GetValue(instance), filter);
             }
-        }
-
-
-        public static PropertyDescriptorCollection FromObject(object instance, Attribute[] attributes)
-        {
-            Type instanceType = instance.GetType();
-            PropertyInfo[] properties = instanceType.GetProperties();
-            var propertyDescriptors = properties.Select(propertyInfo => new ReflectionPropertyDescriptor(instance, propertyInfo, null));
-            return new PropertyDescriptorCollection(propertyDescriptors.ToArray(), true);
         }
     }
+
 }

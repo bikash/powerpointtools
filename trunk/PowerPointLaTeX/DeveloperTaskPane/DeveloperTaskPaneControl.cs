@@ -38,7 +38,7 @@ namespace PowerPointLaTeX
         class ReflectionPropertyTab : PropertyTab {
             public override PropertyDescriptorCollection GetProperties(object component, Attribute[] attributes)
             {
-                return ReflectionPropertyDescriptor.FromObject(component, attributes);
+                return new ReflectionTypeConverter(component.GetType()).GetProperties(null, component, attributes);
             }
 
             public override string TabName

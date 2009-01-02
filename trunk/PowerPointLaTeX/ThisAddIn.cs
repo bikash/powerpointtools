@@ -109,7 +109,7 @@ namespace PowerPointLaTeX
                         object testAccess = oldTextShape.Parent;
                     }
                 }
-                catch (System.Runtime.InteropServices.COMException ex)
+                catch
                 {
                     oldTextShape = null;
                 }
