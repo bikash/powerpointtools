@@ -62,7 +62,10 @@ namespace PowerPointLaTeX
         }
 
         internal bool EnableAddIn {
-            return Tool.ActivePresentation.Final || !Properties.Settings.Default.EnableAddIn;
+            get
+            {
+                return ActivePresentation.Final || !Properties.Settings.Default.EnableAddIn;
+            }
         }
 
         // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
