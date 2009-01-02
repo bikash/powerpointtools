@@ -31,21 +31,30 @@ namespace PowerPointLaTeX
             DeveloperTaskPane = CustomTaskPanes.Add(new DeveloperTaskPaneControl(), DeveloperTaskPaneControl.Title);
             DeveloperTaskPane.Visible = Properties.Settings.Default.ShowDeveloperTaskPane;
 
-            // register events
+            // register events (if the addin is enabled)
+            if (Properties.Settings.Default.EnableAddIn)
+            {
+                RegisterApplicationEvents();
+            }
+
+            Properties.Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Default_PropertyChanged);
+
+            DeveloperTaskPane.VisibleChanged += new EventHandler(DeveloperTaskPane_VisibleChanged);
+        }
+
+        private void RegisterApplicationEvents()
+        {
             Application.PresentationSave += new EApplication_PresentationSaveEventHandler(Application_PresentationSave);
             Application.SlideShowBegin += new EApplication_SlideShowBeginEventHandler(Application_SlideShowBegin);
             Application.WindowBeforeDoubleClick += new EApplication_WindowBeforeDoubleClickEventHandler(Application_WindowBeforeDoubleClick);
             Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
-
-            Properties.Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Default_PropertyChanged);
-            DeveloperTaskPane.VisibleChanged += new EventHandler(DeveloperTaskPane_VisibleChanged);
         }
 
         void DeveloperTaskPane_VisibleChanged(object sender, EventArgs e)
         {
             // TODO: we dont want to update the settings when PowerPoint is exiting [1/2/2009 Andreas]
             // I have no idea how to check for that case :-/
-            
+
             Properties.Settings.Default.ShowDeveloperTaskPane = DeveloperTaskPane.Visible;
         }
 
@@ -54,6 +63,9 @@ namespace PowerPointLaTeX
             if (e.PropertyName == "ShowDeveloperTaskPane")
             {
                 DeveloperTaskPane.Visible = (bool) ((Properties.Settings) sender)[e.PropertyName];
+            }
+            else if (e.PropertyName == "EnableAddIn")
+            {
             }
         }
 
@@ -77,7 +89,7 @@ namespace PowerPointLaTeX
         private void Application_WindowSelectionChange(Selection Sel)
         {
             // an exception is thrown otherwise >_>
-            if (Tool.ActivePresentation.Final)
+            if (!Tool.EnableAddIn)
             {
                 return;
             }
@@ -116,13 +128,17 @@ namespace PowerPointLaTeX
 
                 if (oldTextShape != null && oldTextShape != textShape)
                 {
-                    Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
+                    Slide slide = oldTextShape.GetSlide();
+                    if (slide != null)
+                        Tool.CompileShape(slide, oldTextShape);
                 }
                 if (!Tool.ActivePresentation.SettingsTags().PresentationMode)
                 {
                     if (textShape != null)
                     {
-                        Tool.DecompileShape(Tool.ActiveSlide, textShape);
+                        Slide slide = textShape.GetSlide();
+                        if (slide != null)
+                            Tool.DecompileShape(slide, textShape);
                     }
                 }
             }
@@ -157,11 +173,17 @@ namespace PowerPointLaTeX
                                 Tool.CompilePresentation(Wn.Presentation);
                             }
                         }*/
-            
+
         }
 
         void Application_PresentationSave(Presentation presentation)
         {
+            // an exception is thrown otherwise >_>
+            if (!Tool.EnableAddIn)
+            {
+                return;
+            }
+
             // compile everything in case the plugin isnt available elsewhere
             Tool.CompilePresentation(presentation);
             // purge unused items from the cache to keep it smaller (thats the idea)

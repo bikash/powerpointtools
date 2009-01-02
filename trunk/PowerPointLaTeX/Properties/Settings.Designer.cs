@@ -34,5 +34,17 @@ namespace PowerPointLaTeX.Properties {
                 this["ShowDeveloperTaskPane"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableAddIn {
+            get {
+                return ((bool)(this["EnableAddIn"]));
+            }
+            set {
+                this["EnableAddIn"] = value;
+            }
+        }
     }
 }

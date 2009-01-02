@@ -61,6 +61,10 @@ namespace PowerPointLaTeX
             get { return Application.ActiveWindow.View.Slide as Slide; }
         }
 
+        internal bool EnableAddIn {
+            return Tool.ActivePresentation.Final || !Properties.Settings.Default.EnableAddIn;
+        }
+
         // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
         private Shape AddPictureFromData(Slide slide, byte[] data)
         {
@@ -168,7 +172,7 @@ namespace PowerPointLaTeX
             }
             else
             {
-                picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
+                picture.Top = codeRange.BoundTop + (fontHeight - picture.Height) * 0.5f;
             }
         }
 
@@ -419,6 +423,11 @@ namespace PowerPointLaTeX
             List<Shape> shapes = new List<Shape>();
 
             Slide slide = shape.GetSlide();
+            if (slide == null)
+            {
+                return shapes;
+            }
+
             foreach (LaTeXEntry entry in shape.LaTeXTags().Entries)
             {
                 if (!IsEscapeCode(entry.Code))
@@ -441,6 +450,7 @@ namespace PowerPointLaTeX
             LaTeXTags tags = shape.LaTeXTags();
             Debug.Assert(tags.Type == EquationType.Inline);
             Slide slide = shape.GetSlide();
+            Trace.Assert(slide != null);
 
             Shape parent = slide.Shapes.FindById(tags.ParentId);
             Trace.Assert(parent != null);

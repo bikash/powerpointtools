@@ -81,33 +81,31 @@ namespace PowerPointLaTeX
 
         private void CompileButton_Click(object sender, RibbonControlEventArgs e)
         {
+            // an exception is thrown otherwise >_>
+            if (!Tool.EnableAddIn)
+            {
+                return;
+            }
+
+            // unselect the current selection to avoid decompiling it straight away..
             Application.ActiveWindow.Selection.Unselect();
-            Tool.CompileSlide(Tool.ActiveSlide);
 
-
-            /*
-                        Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-                        Microsoft.Vbe.Interop.VBComponent component = presentation.VBProject.VBComponents.Add(Microsoft.Vbe.Interop.vbext_ComponentType.vbext_ct_StdModule);
-                        component.CodeModule.AddFromString(
-            @"
-            Sub Test__()
-                MsgBox ""Hello World""
-            End Sub
-            "
-                            );
-
-                        //Globals.ThisAddIn.Tool.CompileSlide(slide);
-                        Shape shape = slide.Shapes[1];
-                        shape.TextFrame.TextRange.Text = "Hello World";
-                        ActionSetting setting = shape.ActionSettings[PpMouseActivation.ppMouseClick];
-                        setting.Action = PpActionType.ppActionRunMacro;
-                        setting.Run = "Test__";*/
-
+            Slide slide = Tool.ActiveSlide;
+            if (slide != null)
+                Tool.CompileSlide(slide);
         }
 
         private void DecompileButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Tool.DecompileSlide(Tool.ActiveSlide);
+            // an exception is thrown otherwise >_>
+            if (!Tool.EnableAddIn)
+            {
+                return;
+            }
+
+            Slide slide = Tool.ActiveSlide;
+            if (slide != null)
+                Tool.DecompileSlide(slide);
         }
 
         private void AutomaticCompilationToggle_Click(object sender, RibbonControlEventArgs e)
@@ -122,6 +120,12 @@ namespace PowerPointLaTeX
 
         private void FinalizeButton_Click(object sender, RibbonControlEventArgs e)
         {
+            // an exception is thrown otherwise >_>
+            if (!Tool.EnableAddIn)
+            {
+                return;
+            }
+
             DialogResult result;
 
             // make sure the user really wants to do this
@@ -168,18 +172,5 @@ namespace PowerPointLaTeX
             Preferences preferences = new Preferences();
             preferences.ShowDialog();
         }
-
-        /*
-                   string latexCode = @"a \le b";
-                    string hexData = "";
-                           foreach (byte c in data.content) {
-                               hexData += c.ToString("X2");
-                           }
-                           //{\*\shppict }
-                           Clipboard.SetText(@"{\pict \pngblip " + hexData + "}", TextDataFormat.Rtf);
-                           //range.Paste();
-                           TextRange picture = range.PasteSpecial(PpPasteDataType.ppPasteRTF,Microsoft.Office.Core.MsoTriState.msoFalse,"",0,"",Microsoft.Office.Core.MsoTriState.msoFalse);
- 
-        */
     }
 }
