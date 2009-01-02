@@ -83,37 +83,66 @@ namespace PowerPointLaTeX
             return pictureRange[1];
         }
 
+        private bool RangesOverlap(TextRange rangeA, TextRange rangeB)
+        {
+            int startA = rangeA.Start;
+            int endA = startA + rangeA.Length - 1;
+            int startB = rangeB.Start;
+            int endB = startB + rangeB.Length - 1;
+            return !(endA < startB || endB < startA);
+        }
+
+        private bool ParagraphContainsRange(Shape shape, int paragraph, TextRange range)
+        {
+            TextRange paragraphRange = shape.TextFrame.TextRange.Paragraphs(paragraph, 1);
+            return RangesOverlap(paragraphRange, range);
+        }
+
+
         private Shape CompileLaTeXCode(Slide slide, Shape shape, string latexCode, TextRange codeRange)
         {
             // check the cache first
             byte[] imageData;
-            if (ActivePresentation.CacheTags()[latexCode].IsCached())
-            {
-                imageData = ActivePresentation.CacheTags()[latexCode].Use();
-            }
-            else
-            {
-                LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
-                Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
-                imageData = URLData.content;
-
-                ActivePresentation.CacheTags()[latexCode].Store(imageData);
-            }
+            imageData = GetImageForLaTeXCode(latexCode);
             Shape picture = AddPictureFromData(slide, imageData);
 
             picture.AlternativeText = latexCode;
-
-            //pictureRange.Width = range.BoundWidth;
-            //pictureRange.Height = range.BoundHeight;
+            picture.Name = "LaTeX: " + latexCode;
 
             // add tags to the picture
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().ParentId.value = shape.Id;
-          
-            // 1 Point = 1/72 Inches
-            // TODO: erm... [12/30/2008 Andreas]
 
+            FitFormulaIntoText(codeRange, picture);
+
+            // copy animations from the parent shape
+            Sequence sequence = slide.TimeLine.MainSequence;
+            var allEffect = from Effect e in sequence select e;
+            var effects =
+                from Effect effect in sequence
+                where effect.Shape == shape &&
+                (effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
+                    ParagraphContainsRange(shape, effect.Paragraph, codeRange))
+                select effect;
+
+            foreach (Effect effect in effects)
+            {
+                int index = effect.Index + 1;
+                Effect formulaEffect = sequence.Clone(effect, index);
+                formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
+                //formulaEffect = sequence.ConvertToTextUnitEffect(formulaEffect, MsoAnimTextUnitEffect.msoAnimTextUnitEffectMixed);
+                formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
+                formulaEffect.Paragraph = 0;
+                formulaEffect.Shape = picture;
+                // Effect formulaEffect = sequence.AddEffect(picture, effect.EffectType, MsoAnimateByLevel.msoAnimateLevelNone, MsoAnimTriggerType.msoAnimTriggerWithPrevious, index);
+            }
+
+            return picture;
+        }
+
+        private static void FitFormulaIntoText(TextRange codeRange, Shape picture)
+        {
             // interesting fact: text filled with spaces -> BoundHeight == EmSize
             codeRange.Text = " ";
             float fontHeight = codeRange.BoundHeight;
@@ -140,13 +169,25 @@ namespace PowerPointLaTeX
             else
             {
                 picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
-            }          
+            }
+        }
 
+        private byte[] GetImageForLaTeXCode(string latexCode)
+        {
+            byte[] imageData;
+            if (ActivePresentation.CacheTags()[latexCode].IsCached())
+            {
+                imageData = ActivePresentation.CacheTags()[latexCode].Use();
+            }
+            else
+            {
+                LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
+                Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
+                imageData = URLData.content;
 
-            // copy animations from the parent shape
-            // TODO: braindead API [12/31/2008 Andreas]
-
-            return picture;
+                ActivePresentation.CacheTags()[latexCode].Store(imageData);
+            }
+            return imageData;
         }
 
         private bool IsEscapeCode(string code)

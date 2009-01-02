@@ -11,9 +11,11 @@ namespace PowerPointLaTeX
         public delegate void ToggleChangedEventHandler(bool enabled);
         public static event ToggleChangedEventHandler ManualPreviewChanged = null;
         public static event ToggleChangedEventHandler PresentationModeChanged = null;
+        public static event ToggleChangedEventHandler AnimatorModeChanged = null;
 
         public AddInTagBool ManualPreview;
         public AddInTagBool PresentationMode;
+        public AddInTagBool AnimatorMode;
 
         public SettingsTags(Presentation presentation)
         {
@@ -21,9 +23,15 @@ namespace PowerPointLaTeX
 
             ManualPreview = new AddInTagBool(tags, "ManualPreview");
             PresentationMode = new AddInTagBool(tags, "PresentationMode");
+            AnimatorMode = new AddInTagBool(tags, "AnimatorMode");
 
             ManualPreview.ValueChanged += new ValueChangedEventHandler<bool>(AutomaticPreview_ValueChanged);
             PresentationMode.ValueChanged += new ValueChangedEventHandler<bool>(PresentationMode_ValueChanged);
+            AnimatorMode.ValueChanged += new ValueChangedEventHandler<bool>(AnimatorMode_ValueChanged);
+        }
+
+        void AnimatorMode_ValueChanged(object sender, bool value)
+        {
         }
 
         void PresentationMode_ValueChanged(object sender, bool value)
