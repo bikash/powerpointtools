@@ -43,6 +43,9 @@ namespace PowerPointLaTeX
 
         void DeveloperTaskPane_VisibleChanged(object sender, EventArgs e)
         {
+            // TODO: we dont want to update the settings when PowerPoint is exiting [1/2/2009 Andreas]
+            // I have no idea how to check for that case :-/
+            
             Properties.Settings.Default.ShowDeveloperTaskPane = DeveloperTaskPane.Visible;
         }
 
@@ -98,6 +101,19 @@ namespace PowerPointLaTeX
             // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
             if (!Tool.ActivePresentation.SettingsTags().ManualPreview)
             {
+                // check if the old shape still exists
+                try
+                {
+                    if (oldTextShape != null)
+                    {
+                        object testAccess = oldTextShape.Parent;
+                    }
+                }
+                catch (System.Runtime.InteropServices.COMException ex)
+                {
+                    oldTextShape = null;
+                }
+
                 if (oldTextShape != null && oldTextShape != textShape)
                 {
                     Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
@@ -130,13 +146,18 @@ namespace PowerPointLaTeX
 
         void Application_SlideShowBegin(SlideShowWindow Wn)
         {
+            // TODO: add a setting to enable or disable the behavior and code [1/2/2009 Andreas]
+            // its going to be too slow atm imo
+
             // check whether anything still needs to be compiled and ask if necessary
+            /*
             if( Tool.NeedsCompile( Wn.Presentation ) ) {
-                DialogResult result = MessageBox.Show("There are shapes that contain LaTeX code that hasn't been compiled yet. Do you want to compile everything now?", "PowerPointLaTeX", MessageBoxButtons.YesNo);
-                if( result == DialogResult.Yes) {
-                    Tool.CompilePresentation(Wn.Presentation);
-                }
-            }
+                            DialogResult result = MessageBox.Show("There are shapes that contain LaTeX code that hasn't been compiled yet. Do you want to compile everything now?", "PowerPointLaTeX", MessageBoxButtons.YesNo);
+                            if( result == DialogResult.Yes) {
+                                Tool.CompilePresentation(Wn.Presentation);
+                            }
+                        }*/
+            
         }
 
         void Application_PresentationSave(Presentation presentation)
@@ -151,7 +172,6 @@ namespace PowerPointLaTeX
         {
             Properties.Settings.Default.Save();
         }
-
 
         #region VSTO generated code
 

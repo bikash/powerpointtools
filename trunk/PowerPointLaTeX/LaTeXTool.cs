@@ -23,12 +23,14 @@ namespace PowerPointLaTeX
         Equation
     }
 
-    static class EquationTypeExtension {
+    static class EquationTypeExtension
+    {
         /// <summary>
         /// Returns whether the type hints that the shape contains addin-specific data
         /// </summary>
         /// <returns></returns>
-        internal static bool ContainsLaTeXCode(this EquationType type) {
+        internal static bool ContainsLaTeXCode(this EquationType type)
+        {
             return type != EquationType.None;
         }
     }
@@ -108,43 +110,38 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().ParentId.value = shape.Id;
-
-            // align the picture and remove the original text
+          
             // 1 Point = 1/72 Inches
-            float fontSize = codeRange.Font.Size;
             // TODO: erm... [12/30/2008 Andreas]
-            /*
-            float scalingFactor = fontSize / 50.0f;
-                        picture.Width *= scalingFactor;
-                        picture.Height *= scalingFactor;*/
 
+            // interesting fact: text filled with spaces -> BoundHeight == EmSize
+            codeRange.Text = " ";
+            float fontHeight = codeRange.BoundHeight;
+            FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
+            float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
-            /*
-              System.Drawing.Font font = new System.Drawing.Font(codeRange.Font.Name, fontSize, GraphicsUnit.Point);
-                         FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
-                         fontFamily.*/
+            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
+            // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
+            picture.Height *= scalingFactor;
 
-            // base line: center (assume that its a one-line codeRange)
-            if (fontSize > picture.Height)
+            // fill the text up with spaces to make it "wrap around" the formula
+            while (codeRange.BoundWidth < picture.Width)
             {
-                picture.Top = codeRange.BoundTop + (fontSize - picture.Height);
+                codeRange.Text += " ";
+            }
 
+            // align the picture
+            picture.Left = codeRange.BoundLeft;
+            if (baselineHeight >= picture.Height)
+            {
+                // baseline: center (assume that its a one-line codeRange)
+                picture.Top = codeRange.BoundTop + baselineHeight - picture.Height;
             }
             else
             {
-                picture.Top = codeRange.BoundTop + (fontSize - picture.Height) * 0.5f;
-            }
+                picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
+            }          
 
-            // fill up text with spaces to "wrap around" the object
-            codeRange.Text = "";
-            float width = 0;
-            while (width < picture.Width)
-            {
-                codeRange.Text += " ";
-                width = codeRange.BoundWidth;
-            }
-
-            picture.Left = codeRange.BoundLeft;
 
             // copy animations from the parent shape
             // TODO: braindead API [12/31/2008 Andreas]
@@ -276,38 +273,40 @@ namespace PowerPointLaTeX
             }
         }
 
-        private bool presentationNeedsCompile;
-        // TODO: use an exception, etc. to early-out [1/2/2009 Andreas]
-        private void ShapeNeedsCompileWalker(Slide slide, Shape shape) {
-            EquationType type = shape.LaTeXTags().Type;
-            if( type == EquationType.HasInlines ) {
-                presentationNeedsCompile = true;
-            }
-            if( type == EquationType.None ) {
-                // check it and assign a type if necessary
-                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    TextFrame textFrame = shape.TextFrame;
-                    if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                    {
-                        // search for a $$ - if there is one occurrence, it needs to be compiled
-                        if(textFrame.TextRange.Text.IndexOf("$$") != -1) {
-                            presentationNeedsCompile = true;
-                            // update the type, too
-                            shape.LaTeXTags().Type.value = EquationType.HasInlines;
-                        } else {
-                            shape.LaTeXTags().Type.value = EquationType.None;
-                        }
-                    }
-                }
-            }
-        }
+        /*
+          private bool presentationNeedsCompile;
+                 // TODO: use an exception, etc. to early-out [1/2/2009 Andreas]
+                 private void ShapeNeedsCompileWalker(Slide slide, Shape shape) {
+                     EquationType type = shape.LaTeXTags().Type;
+                     if( type == EquationType.HasInlines ) {
+                         presentationNeedsCompile = true;
+                     }
+                     if( type == EquationType.None ) {
+                         // check it and assign a type if necessary
+                         if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+                         {
+                             TextFrame textFrame = shape.TextFrame;
+                             if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                             {
+                                 // search for a $$ - if there is one occurrence, it needs to be compiled
+                                 if(textFrame.TextRange.Text.IndexOf("$$") != -1) {
+                                     presentationNeedsCompile = true;
+                                     // update the type, too
+                                     shape.LaTeXTags().Type.value = EquationType.HasInlines;
+                                 } else {
+                                     shape.LaTeXTags().Type.value = EquationType.None;
+                                 }
+                             }
+                         }
+                     }
+                 }
+        
+                 public bool NeedsCompile(Presentation presentation) {
+                     presentationNeedsCompile = false;
+                     WalkPresentation(presentation, ShapeNeedsCompileWalker);
+                     return presentationNeedsCompile;
+                 }*/
 
-        public bool NeedsCompile(Presentation presentation) {
-            presentationNeedsCompile = false;
-            WalkPresentation(presentation, ShapeNeedsCompileWalker);
-            return presentationNeedsCompile;
-        }
 
         private void FinalizeShape(Slide slide, Shape shape)
         {
