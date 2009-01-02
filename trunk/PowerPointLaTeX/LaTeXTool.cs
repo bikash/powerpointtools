@@ -13,8 +13,6 @@ namespace PowerPointLaTeX
     public enum EquationType
     {
         None,
-        // text has been parsed and no inline codes have been found (used to reduce parsing)
-        HasNoInlines,
         // has inline LaTeX codes (but not compiled)
         HasInlines,
         // has compiled LaTeX codes
@@ -31,7 +29,7 @@ namespace PowerPointLaTeX
         /// </summary>
         /// <returns></returns>
         internal static bool ContainsLaTeXCode(this EquationType type) {
-            return type != EquationType.None && type != EquationType.HasNoInlines;
+            return type != EquationType.None;
         }
     }
 
@@ -200,7 +198,7 @@ namespace PowerPointLaTeX
             }
 
             // update the type, too
-            shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.HasNoInlines;
+            shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
         }
 
         public void CompileShape(Slide slide, Shape shape)
@@ -298,7 +296,7 @@ namespace PowerPointLaTeX
                             // update the type, too
                             shape.LaTeXTags().Type.value = EquationType.HasInlines;
                         } else {
-                            shape.LaTeXTags().Type.value = EquationType.HasNoInlines;
+                            shape.LaTeXTags().Type.value = EquationType.None;
                         }
                     }
                 }

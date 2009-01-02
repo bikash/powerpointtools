@@ -84,24 +84,27 @@ namespace PowerPointLaTeX
         protected string name;
         protected Tags tags;
 
-        public abstract T value
+        public T value
         {
-            get;
-            set;
-        }
-
-        protected string rawValue
-        {
-            get
-            {
-                return tags.GetAddInTag(name);
+            get {
+                return FromString(tags.GetAddInTag(name));
             }
-            set
-            {
-                tags.SetAddInTag(name, value);
+            set {
+                if (!value.Equals(default(T)))
+                {
+                    tags.SetAddInTag(name, ToString(value));
+                } else
+                {
+                    tags.ClearAddInTag(name);
+                }
 
                 FireEvent();
             }
+        }
+
+        protected abstract T FromString(string rawValue);
+        protected virtual string ToString(T value) {
+            return value.ToString();
         }
 
         private void FireEvent()
@@ -134,120 +137,82 @@ namespace PowerPointLaTeX
 
     class AddInTagBool : AddInTagBase<bool>
     {
-        public override bool value
-        {
-            get
-            {
-                return Helper.ParseBool(rawValue);
-            }
-            set
-            {
-                rawValue = value.ToString();
-            }
-        }
-
         public AddInTagBool(Tags tags, string name)
             : base(tags, name)
         {
+        }
+
+        protected override bool FromString(string rawValue)
+        {
+            return Helper.ParseBool(rawValue);
         }
     }
 
     class AddInTagInt : AddInTagBase<int>
     {
-        public override int value
-        {
-            get
-            {
-                return Helper.ParseInt(rawValue);
-            }
-            set
-            {
-                rawValue = value.ToString();
-            }
-        }
-
         public AddInTagInt(Tags tags, string name)
             : base(tags, name)
         {
+        }
+
+        protected override int FromString(string rawValue)
+        {
+            return Helper.ParseInt(rawValue);
         }
     }
 
 
     class AddInTagEnum<T> : AddInTagBase<T>
     {
-        public override T value
-        {
-            get
-            {
-                T result = default(T);
-                try
-                {
-                    result = (T) Enum.Parse(typeof(T), rawValue);
-                }
-                catch
-                {
-                }
-                return result;
-            }
-            set
-            {
-                rawValue = value.ToString();
-            }
-        }
-
         public AddInTagEnum(Tags tags, string name)
             : base(tags, name)
         {
+        }
+
+        protected override T FromString(string rawValue)
+        {
+            T result = default(T);
+            try
+            {
+                result = (T) Enum.Parse(typeof(T), rawValue);
+            }
+            catch
+            {
+            }
+            return result;
         }
     }
 
     class AddInTagString : AddInTagBase<string>
     {
-        public override string value
-        {
-            get
-            {
-                return rawValue;
-            }
-            set
-            {
-                rawValue = value;
-            }
-        }
-
         public AddInTagString(Tags tags, string name)
             : base(tags, name)
         {
+        }
+
+        protected override string FromString(string rawValue)
+        {
+            return rawValue;
         }
     }
 
     class AddInTagByteArray : AddInTagBase<byte[]>
     {
-        public override byte[] value
-        {
-            get
-            {
-                return Convert.FromBase64String(rawValue);
-            }
-            set
-            {
-                rawValue = Convert.ToBase64String(value);
-            }
-        }
-
         public AddInTagByteArray(Tags tags, string name)
             : base(tags, name)
         {
         }
+
+        protected override byte[] FromString(string rawValue)
+        {
+            return Convert.FromBase64String(rawValue);
+        }
+
+        protected override string ToString(byte[] value)
+        {
+            return Convert.ToBase64String(value);
+        }
     }
-
-    /*
-        class TagProperty<T> where T : struct {
-            private Shape shape;
-            private string namePrefix;
-
-            public static implicit operator T
-        }*/
 
     // TODO: move this somewhere else, too [12/31/2008 Andreas]
     static class Helper
