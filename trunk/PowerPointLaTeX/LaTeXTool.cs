@@ -95,9 +95,9 @@ namespace PowerPointLaTeX
             //pictureRange.Height = range.BoundHeight;
 
             // add tags to the picture
-            picture.LaTeXTags().Code = latexCode;
-            picture.LaTeXTags().Type = EquationType.Inline;
-            picture.LaTeXTags().ParentId = shape.Id;
+            picture.LaTeXTags().Code.value = latexCode;
+            picture.LaTeXTags().Type.value = EquationType.Inline;
+            picture.LaTeXTags().ParentId.value = shape.Id;
 
             // align the picture and remove the original text
             // 1 Point = 1/72 Inches
@@ -166,29 +166,29 @@ namespace PowerPointLaTeX
                 string latexCode = range.Text.Substring(startIndex, length);
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
-                tagEntry.Code = latexCode;
+                tagEntry.Code.value = latexCode;
 
                 // escape $$!$$
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
                 if (!IsEscapeCode(latexCode))
                 {
                     Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
-                    tagEntry.ShapeId = picture.Id;
+                    tagEntry.ShapeId.value = picture.Id;
                 }
                 else
                 {
                     codeRange.Text = "$$";
                 }
 
-                tagEntry.StartIndex = codeRange.Start;
-                tagEntry.Length = codeRange.Length;
+                tagEntry.StartIndex.value = codeRange.Start;
+                tagEntry.Length.value = codeRange.Length;
 
                 startIndex = codeRange.Start + codeRange.Length - 1;
                 codeCount++;
             }
             if (codeCount > 0)
             {
-                shape.LaTeXTags().Type = EquationType.HasCompiledInlines;
+                shape.LaTeXTags().Type.value = EquationType.HasCompiledInlines;
             }
         }
 

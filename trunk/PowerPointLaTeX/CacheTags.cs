@@ -11,12 +11,11 @@ namespace PowerPointLaTeX
     {
         public class CacheEntry
         {
-            private string code;
-            private Presentation presentation;
+            private AddInTagInt refCounter;
+            private AddInTagByteArray content;
 
-            public CacheEntry(Presentation presentation, string code)
+            public CacheEntry(Tags tags, string code)
             {
-                this.presentation = presentation;
                 // because the tags system converts names to uppercase, we have to use a different format
                 // -> convert it to hex
                 StringBuilder hexData = new StringBuilder();
@@ -24,18 +23,26 @@ namespace PowerPointLaTeX
                 {
                     hexData.Append( c.ToString("X2") );
                 }
-                this.code = hexData.ToString();
+                string encodedCode = hexData.ToString();
+                refCounter = new AddInTagInt(tags, "RefCounter#" + encodedCode);
+                content = new AddInTagByteArray(tags, "CacheContent#" + code);
             }
 
+            public void Clear()
+            {
+                Debug.Assert(RefCounter <= 1);
+                refCounter.Clear();
+                content.Clear();
+            }
             public int RefCounter
             {
                 get
                 {
-                    return Helper.ParseIntToString(presentation.GetTag("RefCounter#" + code));
+                    return refCounter;
                 }
                 private set
                 {
-                    presentation.SetTag("RefCounter#" + code, value.ToString());
+                    refCounter.value = value;
                 }
             }
 
@@ -48,11 +55,11 @@ namespace PowerPointLaTeX
             {
                 get
                 {
-                    return Convert.FromBase64String(presentation.GetTag("CacheContent#" + code));
+                    return content;
                 }
                 private set
                 {
-                    presentation.SetTag("CacheContent#" + code, Convert.ToBase64String(value));
+                    content.value = value;
                 }
             }
 
@@ -78,34 +85,28 @@ namespace PowerPointLaTeX
                 return Content;
             }
 
-            public void Clear()
-            {
-                Debug.Assert(RefCounter <= 1);
-                presentation.ClearTag("RefCounter#" + code);
-                presentation.ClearTag("CacheContent#" + code);
-            }
         }
 
-        private Presentation presentation;
+        private Tags tags;
 
         public CacheTags(Presentation presentation)
         {
-            this.presentation = presentation;
+            tags = presentation.Tags;
         }
 
         public void PurgeAll()
         {
-            presentation.PurgeTags("RefCounter#");
-            presentation.PurgeTags("CacheContent#");
+            tags.PurgeAddInTags("RefCounter#");
+            tags.PurgeAddInTags("CacheContent#");
         }
 
         public void PurgeUnused()
         {
             string refCounterPrefix = "RefCounter#";
-            IEnumerable<string> names = presentation.GetTagNames(refCounterPrefix);
+            IEnumerable<string> names = tags.GetAddInNames(refCounterPrefix);
             foreach (string name in names)
             {
-                CacheEntry entry = new CacheEntry(presentation, name.Substring(refCounterPrefix.Length));
+                CacheEntry entry = new CacheEntry(tags, name.Substring(refCounterPrefix.Length));
                 if (entry.RefCounter <= 1)
                 {
                     entry.Clear();
@@ -115,7 +116,7 @@ namespace PowerPointLaTeX
 
         public CacheEntry this[string code]
         {
-            get { return new CacheEntry(presentation, code); }
+            get { return new CacheEntry(tags, code); }
         }
     }
 

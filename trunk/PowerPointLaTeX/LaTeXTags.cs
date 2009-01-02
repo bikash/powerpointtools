@@ -8,79 +8,37 @@ namespace PowerPointLaTeX
 {
     class LaTeXEntry
     {
-        private Shape shape;
-        private int index;
+        public AddInTagString Code;
+        public AddInTagInt StartIndex;
+        public AddInTagInt Length;
+        public AddInTagInt ShapeId;
 
-        public LaTeXEntry(Shape shape, int index)
+        public LaTeXEntry(Tags tags, int index)
         {
-            this.shape = shape;
-            this.index = index;
+            this.Code = new AddInTagString(tags, "Entry[" + index + "].Code");
+            this.StartIndex = new AddInTagInt(tags, "Entry[" + index + "].StartIndex");
+            this.Length = new AddInTagInt(tags, "Entry[" + index + "].Length");
+            this.ShapeId = new AddInTagInt(tags, "Entry[" + index + "].ShapeId");
         }
 
         public void Clear()
         {
-            shape.ClearTag("Entry[" + index + "].Code");
-            shape.ClearTag("Entry[" + index + "].StartIndex");
-            shape.ClearTag("Entry[" + index + "].Length");
-            shape.ClearTag("Entry[" + index + "].ShapeId");
-        }
-
-        public string Code
-        {
-            get
-            {
-                return shape.GetTag("Entry[" + index + "].Code");
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].Code", value);
-            }
-        }
-
-        public int StartIndex
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].StartIndex"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].StartIndex", value.ToString());
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].Length"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].Length", value.ToString());
-            }
-        }
-
-        public int ShapeId
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry[" + index + "].ShapeId"));
-            }
-            set
-            {
-                shape.SetTag("Entry[" + index + "].ShapeId", value.ToString());
-            }
+            Code.Clear();
+            StartIndex.Clear();
+            Length.Clear();
+            ShapeId.Clear();
         }
     }
 
     class LaTeXEntries : IEnumerable<LaTeXEntry>
     {
-        private Shape shape;
+        private Tags tags;
+        public AddInTagInt Length;
 
-        public LaTeXEntries(Shape shape)
+        public LaTeXEntries(Tags tags)
         {
-            this.shape = shape;
+            this.tags = tags;
+            this.Length = new AddInTagInt(tags, "Entry.Length");
         }
 
         public void Clear()
@@ -89,7 +47,7 @@ namespace PowerPointLaTeX
             {
                 this[i].Clear();
             }
-            shape.ClearTag("Entry.Length");
+            Length.Clear();
         }
 
         public LaTeXEntry this[int index]
@@ -98,21 +56,9 @@ namespace PowerPointLaTeX
             {
                 if (index >= Length)
                 {
-                    Length = index + 1;
+                    Length.value = index + 1;
                 }
-                return new LaTeXEntry(shape, index);
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("Entry.Length"));
-            }
-            set
-            {
-                shape.SetTag("Entry.Length", value.ToString());
+                return new LaTeXEntry(tags, index);
             }
         }
 
@@ -191,71 +137,26 @@ namespace PowerPointLaTeX
 
     class LaTeXTags
     {
-        private Shape shape;
+        public readonly AddInTagString Code;
+        public readonly AddInTagEnum<LaTeXTool.EquationType> Type;
+        public readonly AddInTagInt ParentId;
+        public readonly LaTeXEntries Entries;
 
         public LaTeXTags(Shape shape)
         {
-            this.shape = shape;
+            Tags tags = shape.Tags;
+            Code = new AddInTagString(tags, "Code");
+            Type = new AddInTagEnum<LaTeXTool.EquationType>(tags, "Type");
+            ParentId = new AddInTagInt(tags, "ParentId");
+            Entries = new LaTeXEntries(tags);
         }
 
         public void Clear()
         {
-            shape.ClearTag("Code");
-            shape.ClearTag("Type");
-            shape.ClearTag("ParentId");
+            Code.Clear();
+            Type.Clear();
+            ParentId.Clear();
             Entries.Clear();
-        }
-
-        public string Code
-        {
-            get
-            {
-                return shape.GetTag("Code");
-            }
-            set
-            {
-                shape.SetTag("Code", value);
-            }
-        }
-
-        public LaTeXTool.EquationType Type
-        {
-            get
-            {
-                LaTeXTool.EquationType type = LaTeXTool.EquationType.None;
-                try
-                {
-                    type = (LaTeXTool.EquationType) Enum.Parse(typeof(LaTeXTool.EquationType), shape.GetTag("Type"));
-                }
-                catch
-                {
-                }
-                return type;
-            }
-            set
-            {
-                shape.SetTag("Type", value.ToString());
-            }
-        }
-
-        public int ParentId
-        {
-            get
-            {
-                return Helper.ParseIntToString(shape.GetTag("ParentId"));
-            }
-            set
-            {
-                shape.SetTag("ParentId", value.ToString());
-            }
-        }
-
-        public LaTeXEntries Entries
-        {
-            get
-            {
-                return new LaTeXEntries(shape);
-            }
         }
     }
 }

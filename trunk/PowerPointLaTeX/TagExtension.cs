@@ -6,13 +6,11 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace PowerPointLaTeX
 {
-    // exceptions?
-    // TODO: change this to be object-centric (wrap the specific fields into objects) [12/31/2008 Andreas]
     static class TagExtension
     {
         private const string TagPrefix = "PowerPointLaTeX_";
 
-        private static void InternalPurgeTags(Tags tags, string prefix)
+        public static void PurgeAddInTags(this Tags tags, string prefix)
         {
             int i = 1;
             string namePrefix = TagPrefix + prefix;
@@ -30,7 +28,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        private static IEnumerable<string> InternalGetTagNames(Tags tags, string prefix)
+        public static IEnumerable<string> GetAddInNames(this Tags tags, string prefix)
         {
             List<string> names = new List<string>();
             string namePrefix = TagPrefix + prefix;
@@ -46,55 +44,19 @@ namespace PowerPointLaTeX
             return names;
         }
 
-        public static void SetTag(this Shape shape, string name, string value)
+        public static void SetAddInTag(this Tags tags, string name, string value)
         {
-            shape.Tags.Add(TagPrefix + name, value);
+            tags.Add(TagPrefix + name, value);
         }
 
-        public static string GetTag(this Shape shape, string name)
+        public static string GetAddInTag(this Tags tags, string name)
         {
-            return shape.Tags[TagPrefix + name];
+            return tags[TagPrefix + name];
         }
 
-        public static void ClearTag(this Shape shape, string name)
+        public static void ClearAddInTag(this Tags tags, string name)
         {
-            shape.Tags.Delete(TagPrefix + name);
-        }
-
-        public static void PurgeTags(this Shape shape, string prefix)
-        {
-            InternalPurgeTags(shape.Tags, prefix);
-        }
-
-        public static IEnumerable<string> GetTagNames(this Shape shape, string prefix)
-        {
-            return InternalGetTagNames(shape.Tags, prefix);
-        }
-
-        // TODO: wtf? how can I get rid of this duplicate code? [12/31/2008 Andreas]
-        public static void SetTag(this Presentation presentation, string name, string value)
-        {
-            presentation.Tags.Add(TagPrefix + name, value);
-        }
-
-        public static string GetTag(this Presentation presentation, string name)
-        {
-            return presentation.Tags[TagPrefix + name];
-        }
-
-        public static void ClearTag(this Presentation presentation, string name)
-        {
-            presentation.Tags.Delete(TagPrefix + name);
-        }
-
-        public static void PurgeTags(this Presentation presentation, string prefix)
-        {
-            InternalPurgeTags(presentation.Tags, prefix);
-        }
-
-        public static IEnumerable<string> GetTagNames(this Presentation presentation, string prefix)
-        {
-            return InternalGetTagNames(presentation.Tags, prefix);
+            tags.Delete(TagPrefix + name);
         }
 
         public static LaTeXTags LaTeXTags(this Shape shape)
@@ -105,6 +67,157 @@ namespace PowerPointLaTeX
         public static CacheTags CacheTags(this Presentation presentation)
         {
             return new CacheTags(presentation);
+        }
+    }
+
+    abstract class AddInTagBase<T>
+    {
+        public delegate void ValueChangedEventHandler(object sender, T value);
+        public event ValueChangedEventHandler ValueChanged;
+
+        protected string name;
+        protected Tags tags;
+
+        public abstract T value
+        {
+            get;
+            set;
+        }
+
+        public string rawValue
+        {
+            get
+            {
+                return tags.GetAddInTag(name);
+            }
+            set
+            {
+                tags.SetAddInTag(name, value);
+
+                // make it thread-safe
+                ValueChangedEventHandler handler = ValueChanged;
+                if (handler != null)
+                {
+                    handler(this, this.value);
+                }
+            }
+        }
+
+        public AddInTagBase(Tags tags, string name)
+        {
+            this.tags = tags;
+            this.name = name;
+        }
+
+        public static implicit operator T(AddInTagBase<T> property)
+        {
+            return property.value;
+        }
+
+        public void Clear()
+        {
+            tags.ClearAddInTag(name);
+        }
+    }
+
+    class AddInTagBool : AddInTagBase<bool>
+    {
+        public override bool value
+        {
+            get
+            {
+                return Helper.ParseBool(rawValue);
+            }
+            set
+            {
+                rawValue = value.ToString();
+            }
+        }
+
+        public AddInTagBool(Tags tags, string name)
+            : base(tags, name)
+        {
+        }
+    }
+
+    class AddInTagInt : AddInTagBase<int>
+    {
+        public override int value
+        {
+            get
+            {
+                return Helper.ParseInt(rawValue);
+            }
+            set
+            {
+                rawValue = value.ToString();
+            }
+        }
+
+        public AddInTagInt(Tags tags, string name)
+            : base(tags, name)
+        {
+        }
+    }
+
+
+    class AddInTagEnum<T> : AddInTagBase<T> 
+    {
+        public override T value
+        {
+            get
+            {
+                return (T) Enum.Parse(typeof(T), rawValue);
+            }
+            set
+            {
+                rawValue = value.ToString();
+            }
+        }
+
+        public AddInTagEnum(Tags tags, string name)
+            : base(tags, name)
+        {
+        }
+    }
+
+    class AddInTagString : AddInTagBase<string>
+    {
+        public override string value
+        {
+            get
+            {
+                return rawValue;
+            }
+            set
+            {
+                rawValue = value;
+            }
+        }
+
+        public AddInTagString(Tags tags, string name)
+            : base(tags, name)
+        {
+        }
+    }
+
+    class AddInTagByteArray : AddInTagBase<byte[]>
+    {
+        public override byte[] value
+        {
+            get
+            {
+                return Convert.FromBase64String(rawValue);
+            }
+            set
+            {
+                rawValue = Convert.ToBase64String(value);
+            }
+        }
+
+        public AddInTagByteArray(Tags tags, string name)
+            : base(tags, name)
+        {
         }
     }
 
@@ -119,12 +232,25 @@ namespace PowerPointLaTeX
     // TODO: move this somewhere else, too [12/31/2008 Andreas]
     static class Helper
     {
-        internal static int ParseIntToString(string text)
+        internal static int ParseInt(string text)
         {
             int value = 0;
             try
             {
                 value = int.Parse(text);
+            }
+            catch
+            {
+            }
+            return value;
+        }
+
+        internal static bool ParseBool(string text)
+        {
+            bool value = false;
+            try
+            {
+                value = bool.Parse(text);
             }
             catch
             {
