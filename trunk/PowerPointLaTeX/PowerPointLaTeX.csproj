@@ -243,7 +243,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ReflectionPropertyDescriptor.cs" />
     <Compile Include="SelectionExtension.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />
