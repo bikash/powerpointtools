@@ -183,10 +183,10 @@
   -->
   <ItemGroup>
     <Compile Include="CacheTags.cs" />
-    <Compile Include="DeveloperTaskPaneControl.cs">
+    <Compile Include="DeveloperTaskPane\DeveloperTaskPaneControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DeveloperTaskPaneControl.Designer.cs">
+    <Compile Include="DeveloperTaskPane\DeveloperTaskPaneControl.Designer.cs">
       <DependentUpon>DeveloperTaskPaneControl.cs</DependentUpon>
     </Compile>
     <Compile Include="LaTeXRibbon.cs">
@@ -206,7 +206,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="DeveloperTaskPaneControl.resx">
+    <EmbeddedResource Include="DeveloperTaskPane\DeveloperTaskPaneControl.resx">
       <DependentUpon>DeveloperTaskPaneControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -223,7 +223,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="TagsGrid.resx">
+    <EmbeddedResource Include="DeveloperTaskPane\TagsGrid.resx">
       <DependentUpon>TagsGrid.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -243,15 +243,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ReflectionPropertyDescriptor.cs" />
     <Compile Include="SelectionExtension.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="TagExtension.cs" />
-    <Compile Include="TagsGrid.cs">
+    <Compile Include="DeveloperTaskPane\TagsGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="TagsGrid.Designer.cs">
+    <Compile Include="DeveloperTaskPane\TagsGrid.Designer.cs">
       <DependentUpon>TagsGrid.cs</DependentUpon>
     </Compile>
     <Compile Include="ThisAddIn.cs">

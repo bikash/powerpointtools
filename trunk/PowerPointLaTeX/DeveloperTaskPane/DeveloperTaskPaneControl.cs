@@ -30,11 +30,46 @@ namespace PowerPointLaTeX
         {
             InitializeComponent();
 
+            domPropertyGrid.PropertyTabs.AddTabType(typeof(ReflectionPropertyTab), PropertyTabScope.Global);
+
             Globals.ThisAddIn.Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
+        }
+
+        class ReflectionPropertyTab : PropertyTab {
+            public override PropertyDescriptorCollection GetProperties(object component, Attribute[] attributes)
+            {
+                return ReflectionPropertyDescriptor.FromObject(component, attributes);
+            }
+
+            public override string TabName
+            {
+                get { return "Fields"; }
+            }
+
+            public override Bitmap Bitmap
+            {
+                get
+                {
+                    return new System.Drawing.Bitmap(16, 16);
+                }
+            }
+        }
+
+        class SelectionWrapper {
+            public Selection selection {
+                get;
+                private set;
+            }
+
+            public SelectionWrapper(Selection selection) {
+                this.selection = selection;
+            }
         }
 
         void Application_WindowSelectionChange(Selection Sel)
         {
+            domPropertyGrid.SelectedObject = new SelectionWrapper( Sel );
+
             ProcessSelection(Sel);
         }
 

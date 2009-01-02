@@ -37,15 +37,19 @@
             this.selectAll = new System.Windows.Forms.Button();
             this.useCurrentSelectionButton = new System.Windows.Forms.Button();
             this.GeneralPage = new System.Windows.Forms.TabPage();
+            this.domPage = new System.Windows.Forms.TabPage();
+            this.domPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.tabControl.SuspendLayout();
             this.TagsPage.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            this.domPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
             // 
             this.tabControl.Controls.Add(this.TagsPage);
+            this.tabControl.Controls.Add(this.domPage);
             this.tabControl.Controls.Add(this.GeneralPage);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
@@ -150,6 +154,24 @@
             this.GeneralPage.Text = "General";
             this.GeneralPage.UseVisualStyleBackColor = true;
             // 
+            // domPage
+            // 
+            this.domPage.Controls.Add(this.domPropertyGrid);
+            this.domPage.Location = new System.Drawing.Point(4, 22);
+            this.domPage.Name = "domPage";
+            this.domPage.Size = new System.Drawing.Size(392, 465);
+            this.domPage.TabIndex = 2;
+            this.domPage.Text = "DOM";
+            this.domPage.UseVisualStyleBackColor = true;
+            // 
+            // domPropertyGrid
+            // 
+            this.domPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.domPropertyGrid.Location = new System.Drawing.Point(0, 0);
+            this.domPropertyGrid.Name = "domPropertyGrid";
+            this.domPropertyGrid.Size = new System.Drawing.Size(392, 465);
+            this.domPropertyGrid.TabIndex = 0;
+            // 
             // DeveloperTaskPaneControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -163,6 +185,7 @@
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
+            this.domPage.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -178,5 +201,7 @@
         private System.Windows.Forms.Button refreshButton;
         private System.Windows.Forms.Button selectAll;
         private System.Windows.Forms.Button useCurrentSelectionButton;
+        private System.Windows.Forms.TabPage domPage;
+        private System.Windows.Forms.PropertyGrid domPropertyGrid;
     }
 }
