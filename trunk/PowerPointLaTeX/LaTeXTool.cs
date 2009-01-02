@@ -64,7 +64,7 @@ namespace PowerPointLaTeX
         internal bool EnableAddIn {
             get
             {
-                return ActivePresentation.Final || !Properties.Settings.Default.EnableAddIn;
+                return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn;
             }
         }
 
