@@ -138,7 +138,7 @@ namespace PowerPointLaTeX
     class LaTeXTags
     {
         public readonly AddInTagString Code;
-        public readonly AddInTagEnum<LaTeXTool.EquationType> Type;
+        public readonly AddInTagEnum<EquationType> Type;
         public readonly AddInTagInt ParentId;
         public readonly LaTeXEntries Entries;
 
@@ -146,7 +146,7 @@ namespace PowerPointLaTeX
         {
             Tags tags = shape.Tags;
             Code = new AddInTagString(tags, "Code");
-            Type = new AddInTagEnum<LaTeXTool.EquationType>(tags, "Type");
+            Type = new AddInTagEnum<EquationType>(tags, "Type");
             ParentId = new AddInTagInt(tags, "ParentId");
             Entries = new LaTeXEntries(tags);
         }

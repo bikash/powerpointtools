@@ -84,7 +84,7 @@ namespace PowerPointLaTeX
 
             IEnumerable<Shape> parentShapes =
                 from shape in shapes
-                where shape.LaTeXTags().Type == LaTeXTool.EquationType.Inline
+                where shape.LaTeXTags().Type == EquationType.Inline
                 select Tool.GetParentShape(shape);
             IEnumerable<Shape> shapeSuperset =
                 from parentShape in parentShapes.Union(shapes)
@@ -112,7 +112,8 @@ namespace PowerPointLaTeX
             }
             if (Tool.ActivePresentation.SettingsTags().PresentationMode)
             {
-                if (textShape.LaTeXTags().Type == LaTeXTool.EquationType.HasCompiledInlines)
+                // deselect shapes that contain formulas, etc.
+                if (textShape.LaTeXTags().Type.value.ContainsLaTeXCode())
                 {
                     textShape = null;
                     Sel.Unselect();
@@ -130,11 +131,18 @@ namespace PowerPointLaTeX
         void Application_SlideShowBegin(SlideShowWindow Wn)
         {
             // check whether anything still needs to be compiled and ask if necessary
-            //throw new NotImplementedException();
+            if( Tool.NeedsCompile( Wn.Presentation ) ) {
+                DialogResult result = MessageBox.Show("There are shapes that contain LaTeX code that hasn't been compiled yet. Do you want to compile everything now?", "PowerPointLaTeX", MessageBoxButtons.YesNo);
+                if( result == DialogResult.Yes) {
+                    Tool.CompilePresentation(Wn.Presentation);
+                }
+            }
         }
 
         void Application_PresentationSave(Presentation presentation)
         {
+            // compile everything in case the plugin isnt available elsewhere
+            Tool.CompilePresentation(presentation);
             // purge unused items from the cache to keep it smaller (thats the idea)
             presentation.CacheTags().PurgeUnused();
         }

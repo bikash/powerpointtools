@@ -10,25 +10,37 @@ using System.Windows.Forms;
 
 namespace PowerPointLaTeX
 {
+    public enum EquationType
+    {
+        None,
+        // text has been parsed and no inline codes have been found (used to reduce parsing)
+        HasNoInlines,
+        // has inline LaTeX codes (but not compiled)
+        HasInlines,
+        // has compiled LaTeX codes
+        HasCompiledInlines,
+        // a compiled LaTeX code (picture)
+        Inline,
+        // an equation (not implemented atm)
+        Equation
+    }
+
+    static class EquationTypeExtension {
+        /// <summary>
+        /// Returns whether the type hints that the shape contains addin-specific data
+        /// </summary>
+        /// <returns></returns>
+        internal static bool ContainsLaTeXCode(this EquationType type) {
+            return type != EquationType.None && type != EquationType.HasNoInlines;
+        }
+    }
+
     /// <summary>
     /// Contains all the important methods, etc.
     /// Instantiated by the add-in
     /// </summary>
     class LaTeXTool
     {
-        public enum EquationType
-        {
-            None,
-            // has inline LaTeX codes (but not compiled)
-            HasInlines,
-            // has compiled LaTeX codes
-            HasCompiledInlines,
-            // a compiled LaTeX code (picture)
-            Inline,
-            // an equation (not implemented atm)
-            Equation
-        }
-
         private delegate void DoShape(Slide slide, Shape shape);
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
@@ -186,10 +198,9 @@ namespace PowerPointLaTeX
                 startIndex = codeRange.Start + codeRange.Length - 1;
                 codeCount++;
             }
-            if (codeCount > 0)
-            {
-                shape.LaTeXTags().Type.value = EquationType.HasCompiledInlines;
-            }
+
+            // update the type, too
+            shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.HasNoInlines;
         }
 
         public void CompileShape(Slide slide, Shape shape)
@@ -212,6 +223,9 @@ namespace PowerPointLaTeX
 
         private void DecompileTextRange(Slide slide, Shape shape, TextRange range)
         {
+            // make sure this is always valid, otherwise the code will do stupid things
+            Debug.Assert(shape.LaTeXTags().Type == EquationType.HasCompiledInlines);
+
             LaTeXEntries entries = shape.LaTeXTags().Entries;
             int length = entries.Length;
             for (int i = length - 1; i >= 0; i--)
@@ -241,11 +255,19 @@ namespace PowerPointLaTeX
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
                 codeRange.Text = "$$" + latexCode + "$$";
             }
-            shape.LaTeXTags().Clear();
+
+            entries.Clear();
+            shape.LaTeXTags().Type.value = EquationType.HasInlines;
         }
 
         public void DecompileShape(Slide slide, Shape shape)
         {
+            // we don't need to decompile already shapes that aren't compiled
+            if (shape.LaTeXTags().Type != EquationType.HasCompiledInlines)
+            {
+                return;
+            }
+
             if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
                 TextFrame textFrame = shape.TextFrame;
@@ -254,6 +276,39 @@ namespace PowerPointLaTeX
                     DecompileTextRange(slide, shape, textFrame.TextRange);
                 }
             }
+        }
+
+        private bool presentationNeedsCompile;
+        // TODO: use an exception, etc. to early-out [1/2/2009 Andreas]
+        private void ShapeNeedsCompileWalker(Slide slide, Shape shape) {
+            EquationType type = shape.LaTeXTags().Type;
+            if( type == EquationType.HasInlines ) {
+                presentationNeedsCompile = true;
+            }
+            if( type == EquationType.None ) {
+                // check it and assign a type if necessary
+                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    TextFrame textFrame = shape.TextFrame;
+                    if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                    {
+                        // search for a $$ - if there is one occurrence, it needs to be compiled
+                        if(textFrame.TextRange.Text.IndexOf("$$") != -1) {
+                            presentationNeedsCompile = true;
+                            // update the type, too
+                            shape.LaTeXTags().Type.value = EquationType.HasInlines;
+                        } else {
+                            shape.LaTeXTags().Type.value = EquationType.HasNoInlines;
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool NeedsCompile(Presentation presentation) {
+            presentationNeedsCompile = false;
+            WalkPresentation(presentation, ShapeNeedsCompileWalker);
+            return presentationNeedsCompile;
         }
 
         private void FinalizeShape(Slide slide, Shape shape)
