@@ -16,15 +16,7 @@ namespace PowerPointLaTeX
 
             public CacheEntry(Tags tags, string code)
             {
-                // because the tags system converts names to uppercase, we have to use a different format
-                // -> convert it to hex
-                StringBuilder hexData = new StringBuilder();
-                foreach (byte c in code)
-                {
-                    hexData.Append( c.ToString("X2") );
-                }
-                string encodedCode = hexData.ToString();
-                refCounter = new AddInTagInt(tags, "RefCounter#" + encodedCode);
+                refCounter = new AddInTagInt(tags, "RefCounter#" + code);
                 content = new AddInTagByteArray(tags, "CacheContent#" + code);
             }
 
@@ -106,7 +98,7 @@ namespace PowerPointLaTeX
             IEnumerable<string> names = tags.GetAddInNames(refCounterPrefix);
             foreach (string name in names)
             {
-                CacheEntry entry = new CacheEntry(tags, name.Substring(refCounterPrefix.Length));
+                CacheEntry entry = new CacheEntry(tags, name);
                 if (entry.RefCounter <= 1)
                 {
                     entry.Clear();
@@ -116,7 +108,18 @@ namespace PowerPointLaTeX
 
         public CacheEntry this[string code]
         {
-            get { return new CacheEntry(tags, code); }
+            get {
+                // because the tags system converts names to uppercase, we have to use a different format
+                // -> convert it to hex
+                StringBuilder hexData = new StringBuilder();
+                foreach (byte c in code)
+                {
+                    hexData.Append(c.ToString("X2"));
+                }
+                string encodedCode = hexData.ToString();
+
+                return new CacheEntry(tags, encodedCode);
+            }
         }
     }
 

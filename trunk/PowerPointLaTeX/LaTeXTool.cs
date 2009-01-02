@@ -318,6 +318,7 @@ namespace PowerPointLaTeX
             WalkPresentation(presentation, FinalizeShape);
             // purge the cache, too
             presentation.CacheTags().PurgeAll();
+            presentation.SettingsTags().Clear();
         }
 
         public List<Shape> GetInlineShapes(Shape shape)

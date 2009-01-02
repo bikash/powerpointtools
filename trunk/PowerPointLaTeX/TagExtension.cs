@@ -68,12 +68,18 @@ namespace PowerPointLaTeX
         {
             return new CacheTags(presentation);
         }
+
+        public static SettingsTags SettingsTags(this Presentation presentation)
+        {
+            return new SettingsTags(presentation);
+        }
     }
+
+    delegate void ValueChangedEventHandler<T>(object sender, T value);
 
     abstract class AddInTagBase<T>
     {
-        public delegate void ValueChangedEventHandler(object sender, T value);
-        public event ValueChangedEventHandler ValueChanged;
+        public event ValueChangedEventHandler<T> ValueChanged;
 
         protected string name;
         protected Tags tags;
@@ -84,7 +90,7 @@ namespace PowerPointLaTeX
             set;
         }
 
-        public string rawValue
+        protected string rawValue
         {
             get
             {
@@ -94,12 +100,17 @@ namespace PowerPointLaTeX
             {
                 tags.SetAddInTag(name, value);
 
-                // make it thread-safe
-                ValueChangedEventHandler handler = ValueChanged;
-                if (handler != null)
-                {
-                    handler(this, this.value);
-                }
+                FireEvent();
+            }
+        }
+
+        private void FireEvent()
+        {
+            // make it thread-safe
+            ValueChangedEventHandler<T> handler = ValueChanged;
+            if (handler != null)
+            {
+                handler(this, this.value);
             }
         }
 
@@ -117,6 +128,7 @@ namespace PowerPointLaTeX
         public void Clear()
         {
             tags.ClearAddInTag(name);
+            FireEvent();
         }
     }
 
@@ -161,13 +173,21 @@ namespace PowerPointLaTeX
     }
 
 
-    class AddInTagEnum<T> : AddInTagBase<T> 
+    class AddInTagEnum<T> : AddInTagBase<T>
     {
         public override T value
         {
             get
             {
-                return (T) Enum.Parse(typeof(T), rawValue);
+                T result = default(T);
+                try
+                {
+                    result = (T) Enum.Parse(typeof(T), rawValue);
+                }
+                catch
+                {
+                }
+                return result;
             }
             set
             {

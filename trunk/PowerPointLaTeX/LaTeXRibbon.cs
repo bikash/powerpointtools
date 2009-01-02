@@ -30,19 +30,27 @@ namespace PowerPointLaTeX
             }
         }
 
-        private Settings Settings
-        {
-            get
-            {
-                return Globals.ThisAddIn.Settings;
-            }
-        }
-
         public LaTeXRibbon()
         {
             InitializeComponent();
 
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Default_PropertyChanged);
+
+            SettingsTags.ManualPreviewChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_ManualPreviewChanged);
+            SettingsTags.PresentationModeChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_PresentationModeChanged);
+        }
+
+        void SettingsTags_PresentationModeChanged(bool enabled)
+        {
+            PresentationModeToggle.Checked = enabled;
+        }
+
+        void SettingsTags_ManualPreviewChanged(bool enabled)
+        {
+            CompileButton.Enabled = enabled;
+            DecompileButton.Enabled = enabled;
+
+            AutomaticCompilationToggle.Checked = !enabled;
         }
 
         void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -67,16 +75,8 @@ namespace PowerPointLaTeX
             }
         }
 
-        void Settings_onAutomaticCompilationChanged(bool isChecked)
-        {
-            CompileButton.Enabled = !isChecked;
-            DecompileButton.Enabled = !isChecked;
-        }
-
         private void LaTeXRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-            Settings.onAutomaticCompilationChanged += new Settings.ToggleChangedEventHandler(Settings_onAutomaticCompilationChanged);
-            Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
         }
 
         private void CompileButton_Click(object sender, RibbonControlEventArgs e)
@@ -112,12 +112,12 @@ namespace PowerPointLaTeX
 
         private void AutomaticCompilationToggle_Click(object sender, RibbonControlEventArgs e)
         {
-            Settings.AutomaticCompilation = Settings.AutomaticCompilation;
+            Tool.ActivePresentation.SettingsTags().ManualPreview.value = !AutomaticCompilationToggle.Checked;
         }
 
         private void PresentationModeToggle_Click(object sender, RibbonControlEventArgs e)
         {
-            Settings.OfflineMode = Settings.OfflineMode;
+            Tool.ActivePresentation.SettingsTags().PresentationMode.value = PresentationModeToggle.Checked;
         }
 
         private void FinalizeButton_Click(object sender, RibbonControlEventArgs e)
@@ -161,6 +161,12 @@ namespace PowerPointLaTeX
         private void DeveloperTaskPaneToggle_Click(object sender, RibbonControlEventArgs e)
         {
             Properties.Settings.Default.ShowDeveloperTaskPane = DeveloperTaskPaneToggle.Checked;
+        }
+
+        private void PreferencesButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Preferences preferences = new Preferences();
+            preferences.ShowDialog();
         }
 
         /*

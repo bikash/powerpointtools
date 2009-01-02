@@ -72,15 +72,16 @@
             this.PreferencesButton.Name = "PreferencesButton";
             this.PreferencesButton.OfficeImageId = "MessageOptions";
             this.PreferencesButton.ShowImage = true;
+            this.PreferencesButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PreferencesButton_Click);
             // 
             // PresentationModeToggle
             // 
             this.PresentationModeToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.PresentationModeToggle.Description = "Compiles everything and protects it from changes";
-            this.PresentationModeToggle.Label = "Presentation Mode";
+            this.PresentationModeToggle.Label = "Protect Formulas";
             this.PresentationModeToggle.Name = "PresentationModeToggle";
             this.PresentationModeToggle.OfficeImageId = "ProtectDocument";
-            this.PresentationModeToggle.ScreenTip = "Presentation Mode";
+            this.PresentationModeToggle.ScreenTip = "Protect Formulas";
             this.PresentationModeToggle.ShowImage = true;
             this.PresentationModeToggle.SuperTip = "Compile all LaTeX $$formulas$$ and protect them from changes (locks all text area" +
                 "s that contain formulas, etc.)";

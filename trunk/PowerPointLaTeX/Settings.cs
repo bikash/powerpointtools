@@ -8,55 +8,46 @@ namespace PowerPointLaTeX
 {
     class SettingsTags
     {
-        public AddInTagBool AutomaticPreview;
+        public delegate void ToggleChangedEventHandler(bool enabled);
+        public static event ToggleChangedEventHandler ManualPreviewChanged = null;
+        public static event ToggleChangedEventHandler PresentationModeChanged = null;
+
+        public AddInTagBool ManualPreview;
         public AddInTagBool PresentationMode;
 
         public SettingsTags(Presentation presentation)
         {
             Tags tags = presentation.Tags;
-            AutomaticPreview = new AddInTagBool(tags, "AutomaticPreview");
+
+            ManualPreview = new AddInTagBool(tags, "ManualPreview");
             PresentationMode = new AddInTagBool(tags, "PresentationMode");
+
+            ManualPreview.ValueChanged += new ValueChangedEventHandler<bool>(AutomaticPreview_ValueChanged);
+            PresentationMode.ValueChanged += new ValueChangedEventHandler<bool>(PresentationMode_ValueChanged);
         }
 
-        public void Clear() {
-            AutomaticPreview.Clear();
+        void PresentationMode_ValueChanged(object sender, bool value)
+        {
+            ToggleChangedEventHandler handler = PresentationModeChanged;
+            if (handler != null)
+            {
+                handler(value);
+            }
+        }
+
+        void AutomaticPreview_ValueChanged(object sender, bool value)
+        {
+            ToggleChangedEventHandler handler = ManualPreviewChanged;
+            if (handler != null)
+            {
+                handler(value);
+            }
+        }
+
+        public void Clear()
+        {
+            ManualPreview.Clear();
             PresentationMode.Clear();
         }
-    }
-
-    class Settings
-    {
-        public delegate void ToggleChangedEventHandler(bool isChecked);
-        public event ToggleChangedEventHandler onAutomaticCompilationChanged = null;
-        public event ToggleChangedEventHandler onOfflineModeChanged = null;
-
-        internal bool AutomaticCompilation
-        {
-            get { return Globals.Ribbons.LaTeXRibbon.AutomaticCompilationToggle.Checked; }
-            set
-            {
-                Globals.Ribbons.LaTeXRibbon.AutomaticCompilationToggle.Checked = value;
-                ToggleChangedEventHandler handler = onAutomaticCompilationChanged;
-                if (handler != null)
-                {
-                    handler(value);
-                }
-            }
-        }
-
-        internal bool OfflineMode
-        {
-            get { return Globals.Ribbons.LaTeXRibbon.PresentationModeToggle.Checked; }
-            set
-            {
-                Globals.Ribbons.LaTeXRibbon.PresentationModeToggle.Checked = value;
-                ToggleChangedEventHandler handler = onOfflineModeChanged;
-                if (handler != null)
-                {
-                    handler(value);
-                }
-            }
-        }
-
     }
 }

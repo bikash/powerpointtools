@@ -21,22 +21,12 @@ namespace PowerPointLaTeX
             private set;
         }
 
-        internal Settings Settings
-        {
-            get;
-            private set;
-        }
-
         internal CustomTaskPane DeveloperTaskPane;
 
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Tool = new LaTeXTool();
-            Settings = new Settings();
-
-            Settings.AutomaticCompilation = true;
-            Settings.OfflineMode = false;
 
             DeveloperTaskPane = CustomTaskPanes.Add(new DeveloperTaskPaneControl(), DeveloperTaskPaneControl.Title);
             DeveloperTaskPane.Visible = Properties.Settings.Default.ShowDeveloperTaskPane;
@@ -83,6 +73,11 @@ namespace PowerPointLaTeX
 
         private void Application_WindowSelectionChange(Selection Sel)
         {
+            // an exception is thrown otherwise >_>
+            if (Tool.ActivePresentation.Final)
+            {
+                return;
+            }
 
             // automatically select the parent (and thus all children) of a inline objects
             List<Shape> shapes = Sel.GetShapesFromShapeSelection();
@@ -101,21 +96,24 @@ namespace PowerPointLaTeX
 
             Shape textShape = Sel.GetShapeFromTextSelection();
             // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
-            if (!Settings.OfflineMode)
+            if (!Tool.ActivePresentation.SettingsTags().ManualPreview)
             {
-                if (Settings.AutomaticCompilation)
+                if (oldTextShape != null && oldTextShape != textShape)
                 {
-                    if (oldTextShape != null && oldTextShape != textShape)
-                    {
-                        Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
-                    }
+                    Tool.CompileShape(oldTextShape.GetSlide(), oldTextShape);
+                }
+                if (!Tool.ActivePresentation.SettingsTags().PresentationMode)
+                {
                     if (textShape != null)
                     {
                         Tool.DecompileShape(Tool.ActiveSlide, textShape);
                     }
                 }
-            } else {
-                if( textShape.LaTeXTags().Type == LaTeXTool.EquationType.HasCompiledInlines ) {
+            }
+            if (Tool.ActivePresentation.SettingsTags().PresentationMode)
+            {
+                if (textShape.LaTeXTags().Type == LaTeXTool.EquationType.HasCompiledInlines)
+                {
                     textShape = null;
                     Sel.Unselect();
                 }
@@ -139,7 +137,6 @@ namespace PowerPointLaTeX
         {
             // purge unused items from the cache to keep it smaller (thats the idea)
             presentation.CacheTags().PurgeUnused();
-            //throw new NotImplementedException();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
