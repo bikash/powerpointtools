@@ -73,8 +73,21 @@ namespace PowerPointLaTeX
         {
             foreach (Slide slide in slides)
             {
-                tagsLayout.Controls.Add(new TagsGrid(String.Format("Shape {0} ({1}):", slide.Shapes.Title, slide.SlideID), slide.Tags));
+                tagsLayout.Controls.Add(new TagsGrid(String.Format("Shape {0} ({1}):", GetSlideTitle(slide), slide.SlideID), slide.Tags));
             }
+        }
+
+        private string GetSlideTitle(Slide slide)
+        {
+            string title = "<not available>";
+            try
+            {
+                title = slide.Shapes.Title.TextFrame.TextRange.Text;
+            }
+            catch
+            {
+            }
+            return title;
         }
 
         private void AddPresentationToSelection()
