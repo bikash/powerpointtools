@@ -148,6 +148,15 @@ namespace PowerPointLaTeX
             return picture;
         }
 
+        private static void FillTextRange(TextRange range, char character, float minWidth) {
+            range.Text = character.ToString();
+
+            while (range.BoundWidth < minWidth)
+            {
+                range.Text += character.ToString();
+            }
+        }
+
         private static void FitFormulaIntoText(TextRange codeRange, Shape picture)
         {
             // interesting fact: text filled with spaces -> BoundHeight == EmSize
@@ -160,14 +169,18 @@ namespace PowerPointLaTeX
             // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
             picture.Height *= scalingFactor;
 
-            // fill the text up with spaces to make it "wrap around" the formula
-            while (codeRange.BoundWidth < picture.Width)
-            {
-                codeRange.Text += " ";
-            }
+            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
 
             // align the picture
+
+            // fill the text up with spaces to make it "wrap around" the formula
+            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
+            
+            FillTextRange(codeRange, '#', picture.Width);
             picture.Left = codeRange.BoundLeft;
+            // this will probably break word-wrap?
+            FillTextRange(codeRange, ' ', picture.Width);
+
             if (baselineHeight >= picture.Height)
             {
                 // baseline: center (assume that its a one-line codeRange)

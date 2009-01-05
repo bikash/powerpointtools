@@ -171,15 +171,10 @@ namespace PowerPointLaTeX
 
         protected override T FromString(string rawValue)
         {
-            T result = default(T);
-            try
-            {
-                result = (T) Enum.Parse(typeof(T), rawValue);
+            if( Enum.IsDefined(typeof(T), rawValue)) {
+                return (T) Enum.Parse(typeof(T), rawValue);
             }
-            catch
-            {
-            }
-            return result;
+            return default(T);
         }
     }
 
@@ -219,28 +214,20 @@ namespace PowerPointLaTeX
     {
         internal static int ParseInt(string text)
         {
-            int value = 0;
-            try
-            {
-                value = int.Parse(text);
+            int value;
+            if( int.TryParse(text, out value)) {
+                return value;
             }
-            catch
-            {
-            }
-            return value;
+            return 0;
         }
 
         internal static bool ParseBool(string text)
         {
-            bool value = false;
-            try
-            {
-                value = bool.Parse(text);
+            bool value;
+            if( bool.TryParse(text, out value)) {
+                return value;
             }
-            catch
-            {
-            }
-            return value;
+            return false;
         }
     }
 }
