@@ -92,7 +92,7 @@ namespace PowerPointLazySlides
             lastTextShape = currentShape;
         }
 
-        private void LeaveTextShape(Shape shape)
+        public void LeaveTextShape(Shape shape)
         {
             // make sure we have a parent slide
             Slide slide = null;
@@ -116,34 +116,41 @@ namespace PowerPointLazySlides
             {
                 if (!shapeTags.ExcludeParentText)
                 {
-                    string markedText = GetMarkedText(shapeTags.ParentText);
                     // remove the [] around the original text
-                    TextRange inheritedRange = shape.TextFrame.TextRange.Characters(1, markedText.Length);
-                    // check whether the text has been modified
-                    if (inheritedRange.Text != markedText)
+                    TextRange inheritedRange = null;
+                    // search for the first ] and replace that
+                    TextRange range = shape.TextFrame.TextRange;
+                    // TODO: this depends on GetMarkedText [1/5/2009 Andreas]
+                    int startIndex = range.Text.IndexOf("[");
+                    int endIndex = range.Text.IndexOf("]");
+                    if (endIndex != -1 && startIndex == 0 && startIndex < endIndex)
                     {
-                        // not good..
-                        // search for the first ] and replace that
-                        TextRange range = shape.TextFrame.TextRange;
-                        // TODO: this depends on GetMarkedText [1/5/2009 Andreas]
-                        int startIndex = range.Text.IndexOf("[");
-                        int endIndex = range.Text.IndexOf("]");
-                        if (endIndex != -1 && startIndex != -1 && startIndex < endIndex)
-                        {
-                            inheritedRange = range.Characters(startIndex + 1, endIndex + 1);
-                        }
-                        else
-                        {
-                            // shit happens
-                            MessageBox.Show("End of inherited text couldn't be found. Disabling inherited text for this shape.");
-                            shapeTags.ExcludeParentText.value = true;
-                            inheritedRange = null;
-                        }
+                        inheritedRange = range.Characters(startIndex + 1, endIndex + 1);
+                    }
+                    else
+                    {
+                        // shit happens
+                        MessageBox.Show("End of inherited text couldn't be found. Disabling inherited text for this shape.");
+                        shapeTags.ExcludeParentText.value = true;
+
                     }
 
                     if (inheritedRange != null)
                     {
-                        inheritedRange.Text = shapeTags.ParentText;
+                        Slide parentSlide = FindSlideByLazySlideID(slide.LazySlideTags().ParentLazySlideId);
+                        if (parentSlide == null)
+                        {
+                            return;
+                        }
+
+                        Shape parentShape = FindShapeByLazySlideID(parentSlide, shapeTags.ParentLazySlideId);
+                        if (parentShape == null)
+                        {
+                            return;
+                        }
+
+                        TextRange parentRange = parentShape.TextFrame.TextRange;
+                        CopyText(parentRange, inheritedRange);
                     }
                 }
             }
@@ -188,11 +195,22 @@ namespace PowerPointLazySlides
             if (shapeTags.ExcludeParentText)
             {
                 // TODO: this code is duplicated from PropagateChanges.. [1/5/2009 Andreas]
-                string inheritedText = parentShape.TextFrame.TextRange.Text.TrimEnd();
-                shapeTags.ParentText.value = inheritedText;
-                shape.TextFrame.TextRange.InsertBefore(inheritedText);
-                
+                TextRange inheritedRange = parentShape.TextFrame.TextRange;
+                TextRange childRange = shape.TextFrame.TextRange.Characters(1, 0);
+                CopyText(inheritedRange, childRange);
+                shapeTags.ParentTextLength.value = childRange.Length;
+
                 shapeTags.ExcludeParentText.value = false;
+            }
+        }
+
+        public void CopyText(TextRange parentRange, TextRange childRange)
+        {
+            childRange.Text = "";
+            foreach (TextRange subRange in parentRange.Paragraphs(-1, -1))
+            {
+                TextRange childSubRange = childRange.InsertAfter(subRange.Text);
+                childSubRange.IndentLevel = subRange.IndentLevel;
             }
         }
 
@@ -218,7 +236,7 @@ namespace PowerPointLazySlides
                             }
                             else
                             {
-                                string inheritedText = shapeTags.ParentText;
+                                string inheritedText = shapeTags.ParentTextLength;
                                 TextRange inheritedRange = range.Characters(1, inheritedText.Length);
                                 inheritedRange.Text = "";
                             }
@@ -252,18 +270,16 @@ namespace PowerPointLazySlides
                 return;
             }
 
-            string text = parentShape.TextFrame.TextRange.Text.TrimEnd();
-            string oldText = childShapeTags.ParentText;
+            TextRange parentRange = parentShape.TextFrame.TextRange;
+            TextRange inheritedRange = childShape.TextFrame.TextRange.Characters(1, childShapeTags.ParentTextLength);
+            CopyText(parentRange, inheritedRange);
 
-            TextRange inheritedRange = childShape.TextFrame.TextRange.Characters(1, oldText.Length);
-            inheritedRange.Text = text;
-
-            childShapeTags.ParentText.value = text;
+            childShapeTags.ParentTextLength.value = inheritedRange.Length;
 
             PropagateChanges(childSlide, childShape);
         }
 
-        private void EnterTextShape(Shape shape)
+        public void EnterTextShape(Shape shape)
         {
             // make sure we have an active slide
             Slide slide = ActiveSlide;
@@ -283,16 +299,24 @@ namespace PowerPointLazySlides
             Debug.Assert(shapeTags.LazySlideId != 0);
             if (!shapeTags.ExcludeParentText)
             {
-                string parentText = shapeTags.ParentText;
-                // add [] around the text from the parent
-                TextRange inheritedRange = shape.TextFrame.TextRange.Characters(1, parentText.Length);
-                inheritedRange.Text = GetMarkedText(parentText);
-            }
-        }
+                Slide parentSlide = FindSlideByLazySlideID(slide.LazySlideTags().ParentLazySlideId);
+                if (parentSlide == null)
+                {
+                    return;
+                }
 
-        public string GetMarkedText(string text)
-        {
-            return "[" + text + "]";
+                Shape parentShape = FindShapeByLazySlideID(parentSlide, shapeTags.ParentLazySlideId);
+                if (parentShape == null)
+                {
+                    return;
+                }
+
+                TextRange parentRange = parentShape.TextFrame.TextRange;
+                TextRange inheritedRange = shape.TextFrame.TextRange.Characters(1, shapeTags.ParentTextLength);
+                CopyText(parentRange, inheritedRange);
+                inheritedRange.InsertBefore("[");
+                inheritedRange.InsertAfter("]");
+            }
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
@@ -383,8 +407,7 @@ namespace PowerPointLazySlides
             childTags.ParentLazySlideId.value = parentTags.LazySlideId;
             parentTags.ChildLazySlideId.value = childTags.LazySlideId;
 
-            // TODO: this code is duplicated from PropagateChanges.. [1/5/2009 Andreas]
-            childTags.ParentText.value = parentShape.TextFrame.TextRange.Text.TrimEnd();
+            childTags.ParentTextLength.value = parentShape.TextFrame.TextRange.Length;
         }
 
         #region VSTO generated code

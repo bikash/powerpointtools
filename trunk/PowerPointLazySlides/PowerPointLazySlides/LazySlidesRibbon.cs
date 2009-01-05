@@ -100,14 +100,15 @@ namespace PowerPointLazySlides
             }
 
             // TODO: hack? see the selec in the end [1/5/2009 Andreas]
-            selection.Unselect();
 
             if (IncludeInheritedTextToggle.Checked)
             {
                 AddIn.IncludeInheritedText(shape);
+                AddIn.EnterTextShape(shape);
             }
             else
             {
+                AddIn.LeaveTextShape(shape);
                 AddIn.ExcludeInheritedText(shape);
             }
         }

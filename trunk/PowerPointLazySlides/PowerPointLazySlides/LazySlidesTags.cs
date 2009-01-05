@@ -59,7 +59,7 @@ namespace PowerPointLazySlides
     class ShapeTags
     {
         public AddInTagBool ExcludeParentText;
-        public AddInTagString ParentText;
+        public AddInTagInt ParentTextLength;
 
         public AddInTagInt LazySlideId;
 
@@ -71,7 +71,7 @@ namespace PowerPointLazySlides
             Tags tags = shape.Tags;
 
             ExcludeParentText = new AddInTagBool(tags, "ExcludeParentText");
-            ParentText = new AddInTagString(tags, "ParentText");
+            ParentTextLength = new AddInTagInt(tags, "ParentTextLength");
 
             LazySlideId = new AddInTagInt(tags, "LazySlideId");
 
@@ -82,7 +82,7 @@ namespace PowerPointLazySlides
         public void Clear()
         {
             ExcludeParentText.Clear();
-            ParentText.Clear();
+            ParentTextLength.Clear();
 
             LazySlideId.Clear();
 
