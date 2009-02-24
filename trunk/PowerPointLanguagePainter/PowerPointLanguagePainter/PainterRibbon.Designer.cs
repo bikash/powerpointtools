@@ -32,7 +32,9 @@
             this.paintToggleButton = new Microsoft.Office.Tools.Ribbon.RibbonSplitButton();
             this.languageIDEnglishUS = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.languageIDGerman = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.languageIDFrench = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
+            this.languageIDSpanish = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             group1 = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             group1.SuspendLayout();
             this.tab1.SuspendLayout();
@@ -48,10 +50,11 @@
             // paintToggleButton
             // 
             this.paintToggleButton.ButtonType = Microsoft.Office.Tools.Ribbon.RibbonButtonType.ToggleButton;
-            this.paintToggleButton.Checked = global::PowerPointLanguagePainter.Properties.Settings.Default.EnablePainting;
             this.paintToggleButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.paintToggleButton.Items.Add(this.languageIDEnglishUS);
             this.paintToggleButton.Items.Add(this.languageIDGerman);
+            this.paintToggleButton.Items.Add(this.languageIDFrench);
+            this.paintToggleButton.Items.Add(this.languageIDSpanish);
             this.paintToggleButton.Label = "Paint Language";
             this.paintToggleButton.Name = "paintToggleButton";
             this.paintToggleButton.OfficeImageId = "Spelling";
@@ -71,6 +74,13 @@
             this.languageIDGerman.ShowImage = true;
             this.languageIDGerman.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDGerman_Click);
             // 
+            // languageIDFrench
+            // 
+            this.languageIDFrench.Label = "French";
+            this.languageIDFrench.Name = "languageIDFrench";
+            this.languageIDFrench.ShowImage = true;
+            this.languageIDFrench.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDFrench_Click);
+            // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
@@ -78,6 +88,13 @@
             this.tab1.Groups.Add(group1);
             this.tab1.Label = "TabHome";
             this.tab1.Name = "tab1";
+            // 
+            // languageIDSpanish
+            // 
+            this.languageIDSpanish.Label = "Spanish";
+            this.languageIDSpanish.Name = "languageIDSpanish";
+            this.languageIDSpanish.ShowImage = true;
+            this.languageIDSpanish.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDSpanish_Click);
             // 
             // PainterRibbon
             // 
@@ -98,6 +115,8 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton languageIDEnglishUS;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton languageIDGerman;
         private Microsoft.Office.Tools.Ribbon.RibbonSplitButton paintToggleButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton languageIDFrench;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton languageIDSpanish;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection

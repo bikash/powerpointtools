@@ -26,7 +26,7 @@ namespace PowerPointLanguagePainter
             if (Properties.Settings.Default.EnablePainting)
             {
                 // this paints only words
-                /*
+                /*                
                 TextRange textRange = Sel.TextRange;
                                 if( textRange != null ) {
                                     textRange.LanguageID = Properties.Settings.Default.LanguageID;

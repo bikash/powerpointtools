@@ -43,11 +43,15 @@ namespace PowerPointLanguagePainter
                     return "German";
                 case MsoLanguageID.msoLanguageIDEnglishUS:
                     return "English (US)";
+                case MsoLanguageID.msoLanguageIDFrench:
+                    return "French";
+                case MsoLanguageID.msoLanguageIDSpanish:
+                    return "Spanish";
             }
             return languageID.ToString();
         }
-
-
+        
+        // TODO: lots of duplicate one-liners - look into merging them [2/24/2009 Andreas]
         private void languageIDEnglishUS_Click(object sender, RibbonControlEventArgs e)
         {
             Properties.Settings.Default.LanguageID = MsoLanguageID.msoLanguageIDEnglishUS;
@@ -56,6 +60,16 @@ namespace PowerPointLanguagePainter
         private void languageIDGerman_Click(object sender, RibbonControlEventArgs e)
         {
             Properties.Settings.Default.LanguageID = MsoLanguageID.msoLanguageIDGerman;
+        }
+
+        private void languageIDFrench_Click(object sender, RibbonControlEventArgs e)
+        {
+            Properties.Settings.Default.LanguageID = MsoLanguageID.msoLanguageIDFrench;
+        }
+
+        private void languageIDSpanish_Click(object sender, RibbonControlEventArgs e)
+        {
+            Properties.Settings.Default.LanguageID = MsoLanguageID.msoLanguageIDSpanish;
         }
 
         private void paintToggleButton_Click(object sender, RibbonControlEventArgs e)
