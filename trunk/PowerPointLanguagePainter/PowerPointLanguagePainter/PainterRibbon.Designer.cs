@@ -33,8 +33,8 @@
             this.languageIDEnglishUS = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.languageIDGerman = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.languageIDFrench = new Microsoft.Office.Tools.Ribbon.RibbonButton();
-            this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.languageIDSpanish = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             group1 = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             group1.SuspendLayout();
             this.tab1.SuspendLayout();
@@ -58,6 +58,9 @@
             this.paintToggleButton.Label = "Paint Language";
             this.paintToggleButton.Name = "paintToggleButton";
             this.paintToggleButton.OfficeImageId = "Spelling";
+            this.paintToggleButton.ScreenTip = "Language Painter";
+            this.paintToggleButton.SuperTip = "If toggled, automatically sets the language of the current text to the one specif" +
+                "ied (in the drop-box below).";
             this.paintToggleButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.paintToggleButton_Click);
             // 
             // languageIDEnglishUS
@@ -81,6 +84,13 @@
             this.languageIDFrench.ShowImage = true;
             this.languageIDFrench.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDFrench_Click);
             // 
+            // languageIDSpanish
+            // 
+            this.languageIDSpanish.Label = "Spanish";
+            this.languageIDSpanish.Name = "languageIDSpanish";
+            this.languageIDSpanish.ShowImage = true;
+            this.languageIDSpanish.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDSpanish_Click);
+            // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
@@ -88,13 +98,6 @@
             this.tab1.Groups.Add(group1);
             this.tab1.Label = "TabHome";
             this.tab1.Name = "tab1";
-            // 
-            // languageIDSpanish
-            // 
-            this.languageIDSpanish.Label = "Spanish";
-            this.languageIDSpanish.Name = "languageIDSpanish";
-            this.languageIDSpanish.ShowImage = true;
-            this.languageIDSpanish.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.languageIDSpanish_Click);
             // 
             // PainterRibbon
             // 

@@ -16,6 +16,7 @@ namespace PowerPointLanguagePainter
             Properties.Settings.Default.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Default_PropertyChanged);
 
             UpdateLanguage();
+            paintToggleButton.Checked = Properties.Settings.Default.EnablePainting;
         }
 
         void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
