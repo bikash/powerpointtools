@@ -7,6 +7,7 @@ using System.IO;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace PowerPointLaTeX
 {
@@ -61,7 +62,8 @@ namespace PowerPointLaTeX
             get { return Application.ActiveWindow.View.Slide as Slide; }
         }
 
-        internal bool EnableAddIn {
+        internal bool EnableAddIn
+        {
             get
             {
                 return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn;
@@ -72,7 +74,15 @@ namespace PowerPointLaTeX
         private Shape AddPictureFromData(Slide slide, byte[] data)
         {
             MemoryStream stream = new MemoryStream(data);
-            Image image = Image.FromStream(stream);
+            Image image;
+            try
+            {
+                image = Image.FromStream(stream);
+            }
+            catch
+            {
+                return null;
+            }
 
             IDataObject oldClipboardContent = Clipboard.GetDataObject();
 
@@ -112,6 +122,10 @@ namespace PowerPointLaTeX
             byte[] imageData;
             imageData = GetImageForLaTeXCode(latexCode);
             Shape picture = AddPictureFromData(slide, imageData);
+            if (picture == null)
+            {
+                return null;
+            }
 
             picture.AlternativeText = latexCode;
             picture.Name = "LaTeX: " + latexCode;
@@ -121,7 +135,11 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().ParentId.value = shape.Id;
 
-            FitFormulaIntoText(codeRange, picture);
+            // disable wordwrap
+            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
+            FillTextRange(codeRange, ' ', picture.Width);
+
+            //FitFormulaIntoText(codeRange, picture);
 
             // copy animations from the parent shape
             Sequence sequence = slide.TimeLine.MainSequence;
@@ -148,7 +166,8 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private static void FillTextRange(TextRange range, char character, float minWidth) {
+        private static void FillTextRange(TextRange range, char character, float minWidth)
+        {
             range.Text = character.ToString();
 
             while (range.BoundWidth < minWidth)
@@ -159,24 +178,25 @@ namespace PowerPointLaTeX
 
         private static void FitFormulaIntoText(TextRange codeRange, Shape picture)
         {
+            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
+            // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
+            picture.Height *= scalingFactor;
+
+            // align the picture
+            FillTextRange(codeRange, ' ', picture.Width);
+        }
+
+        private static void AlignFormulaWithText(TextRange codeRange, Shape picture)
+        {
             // interesting fact: text filled with spaces -> BoundHeight == EmSize
             codeRange.Text = " ";
             float fontHeight = codeRange.BoundHeight;
             FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
             float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
-            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
-            // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
-            picture.Height *= scalingFactor;
-
-            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
-
-            // align the picture
-
             // fill the text up with spaces to make it "wrap around" the formula
+            FillTextRange(codeRange, '.', picture.Width);
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
-            
-            FillTextRange(codeRange, '#', picture.Width);
             picture.Left = codeRange.BoundLeft;
             // this will probably break word-wrap?
             FillTextRange(codeRange, ' ', picture.Width);
@@ -220,6 +240,10 @@ namespace PowerPointLaTeX
             int startIndex = 0;
 
             int codeCount = 0;
+
+            List<TextRange> pictureRanges = new List<TextRange>();
+            List<Shape> pictures = new List<Shape>();
+
             while ((startIndex = range.Text.IndexOf("$$", startIndex)) != -1)
             {
                 startIndex += 2;
@@ -232,6 +256,8 @@ namespace PowerPointLaTeX
 
                 int length = endIndex - startIndex;
                 string latexCode = range.Text.Substring(startIndex, length);
+                // TODO: move this into its own function [1/5/2009 Andreas]
+                latexCode = latexCode.Replace( (char)8217, '\'');
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
                 tagEntry.Code.value = latexCode;
@@ -241,7 +267,18 @@ namespace PowerPointLaTeX
                 if (!IsEscapeCode(latexCode))
                 {
                     Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
-                    tagEntry.ShapeId.value = picture.Id;
+                    if (picture != null)
+                    {
+                        tagEntry.ShapeId.value = picture.Id;
+
+                        FitFormulaIntoText(codeRange, picture);
+                        pictures.Add(picture);
+                        pictureRanges.Add(codeRange);
+                    }
+                    else
+                    {
+                        codeRange.Text = "$Formula Error$";
+                    }
                 }
                 else
                 {
@@ -255,7 +292,23 @@ namespace PowerPointLaTeX
                 codeCount++;
             }
 
-            // update the type, too
+            // TODO: doesnt work stupid piece of shit.. simply disable autofit instead.. [1/5/2009 Andreas]
+            /*
+                   (new Thread( delegate() {
+                            Thread.Sleep(100);
+                            for (int i = 0; i < pictures.Count; i++)
+                            {
+                                TextRange codeRange = pictureRanges[i];
+                                AlignFormulaWithText(codeRange, pictures[i]);
+                            }
+                        } )).Start();*/
+
+
+            for (int i = 0; i < pictures.Count; i++)
+            {
+                TextRange codeRange = pictureRanges[i];
+                AlignFormulaWithText(codeRange, pictures[i]);
+            }            // update the type, too
             shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
         }
 
@@ -295,11 +348,11 @@ namespace PowerPointLaTeX
                     // find the shape
                     Shape picture = slide.Shapes.FindById(shapeID);
 
-                    Debug.Assert(picture != null);
-                    Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
+                    //Debug.Assert(picture != null);
                     // fail gracefully
                     if (picture != null)
                     {
+                        Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
                         picture.Delete();
                     }
 
@@ -449,8 +502,11 @@ namespace PowerPointLaTeX
                 if (!IsEscapeCode(entry.Code))
                 {
                     Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
-                    Trace.Assert(inlineShape != null);
-                    shapes.Add(inlineShape);
+                    Debug.Assert(inlineShape != null);
+                    if (inlineShape != null)
+                    {
+                        shapes.Add(inlineShape);
+                    }
                 }
             }
             return shapes;
