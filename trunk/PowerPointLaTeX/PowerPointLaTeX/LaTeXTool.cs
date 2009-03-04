@@ -21,7 +21,9 @@ namespace PowerPointLaTeX
         // a compiled LaTeX code (picture)
         Inline,
         // an equation (not implemented atm)
-        Equation
+        Equation,
+        // the source (text) of an equation
+        EquationSource
     }
 
     static class EquationTypeExtension
@@ -70,8 +72,8 @@ namespace PowerPointLaTeX
             }
         }
 
-        // TODO: rename the stupid webservice faff! [12/30/2008 Andreas]
-        private Shape AddPictureFromData(Slide slide, byte[] data)
+        /// <returns>A valid picture shape from the data or null if creation failed</returns>
+        private Shape GetPictureShapeFromData(Slide slide, byte[] data)
         {
             MemoryStream stream = new MemoryStream(data);
             Image image;
@@ -115,40 +117,52 @@ namespace PowerPointLaTeX
             return RangesOverlap(paragraphRange, range);
         }
 
-
-        private Shape CompileLaTeXCode(Slide slide, Shape shape, string latexCode, TextRange codeRange)
+        private Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode)
         {
             // check the cache first
             byte[] imageData;
             imageData = GetImageForLaTeXCode(latexCode);
-            Shape picture = AddPictureFromData(slide, imageData);
+            Shape picture = GetPictureShapeFromData(currentSlide, imageData);
+
+            picture.AlternativeText = latexCode;
+            picture.Name = "LaTeX: " + latexCode;
+
+            return picture;
+        }
+
+        /// <summary>
+        /// Compile latexCode into an inline shape
+        /// </summary>
+        /// <param name="slide"></param>
+        /// <param name="textShape"></param>
+        /// <param name="latexCode"></param>
+        /// <param name="codeRange"></param>
+        /// <returns></returns>
+        private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
+        {
+            Shape picture = GetPictureShapeFromLaTeXCode(slide, latexCode);
             if (picture == null)
             {
                 return null;
             }
 
-            picture.AlternativeText = latexCode;
-            picture.Name = "LaTeX: " + latexCode;
-
             // add tags to the picture
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
-            picture.LaTeXTags().ParentId.value = shape.Id;
+            picture.LaTeXTags().ParentId.value = textShape.Id;
 
             // disable wordwrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
             FillTextRange(codeRange, ' ', picture.Width);
 
-            //FitFormulaIntoText(codeRange, picture);
-
-            // copy animations from the parent shape
+            // copy animations from the parent textShape
             Sequence sequence = slide.TimeLine.MainSequence;
             var allEffect = from Effect e in sequence select e;
             var effects =
                 from Effect effect in sequence
-                where effect.Shape == shape &&
+                where effect.Shape == textShape &&
                 (effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                    ParagraphContainsRange(shape, effect.Paragraph, codeRange))
+                    ParagraphContainsRange(textShape, effect.Paragraph, codeRange))
                 select effect;
 
             foreach (Effect effect in effects)
@@ -176,12 +190,14 @@ namespace PowerPointLaTeX
             }
         }
 
+        // TODO: rework this function [2/26/2009 Andreas]
         private static void FitFormulaIntoText(TextRange codeRange, Shape picture)
         {
             float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
             // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
             picture.Height *= scalingFactor;
 
+            // TODO: is this needed anymore? [2/26/2009 Andreas]
             // align the picture
             FillTextRange(codeRange, ' ', picture.Width);
         }
@@ -194,11 +210,11 @@ namespace PowerPointLaTeX
             FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
             float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
-            // fill the text up with spaces to make it "wrap around" the formula
+            // fill the text up with . to make it "wrap around" the formula
             FillTextRange(codeRange, '.', picture.Width);
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
             picture.Left = codeRange.BoundLeft;
-            // this will probably break word-wrap?
+            // this will probably break word-wrap? - yes, it does >_>
             FillTextRange(codeRange, ' ', picture.Width);
 
             if (baselineHeight >= picture.Height)
@@ -208,6 +224,7 @@ namespace PowerPointLaTeX
             }
             else
             {
+                // center the picture directly
                 picture.Top = codeRange.BoundTop + (fontHeight - picture.Height) * 0.5f;
             }
         }
@@ -222,6 +239,11 @@ namespace PowerPointLaTeX
             else
             {
                 LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
+                // TODO: replace all the null checks with exception handling? [2/26/2009 Andreas]
+                if (URLData.content == null)
+                {
+                    return null;
+                }
                 Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
                 imageData = URLData.content;
 
@@ -235,7 +257,7 @@ namespace PowerPointLaTeX
             return code == "!";
         }
 
-        private void CompileTextRange(Slide slide, Shape shape, TextRange range)
+        private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)
         {
             int startIndex = 0;
 
@@ -257,7 +279,7 @@ namespace PowerPointLaTeX
                 int length = endIndex - startIndex;
                 string latexCode = range.Text.Substring(startIndex, length);
                 // TODO: move this into its own function [1/5/2009 Andreas]
-                latexCode = latexCode.Replace( (char)8217, '\'');
+                latexCode = latexCode.Replace((char) 8217, '\'');
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
                 tagEntry.Code.value = latexCode;
@@ -266,7 +288,7 @@ namespace PowerPointLaTeX
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
                 if (!IsEscapeCode(latexCode))
                 {
-                    Shape picture = CompileLaTeXCode(slide, shape, latexCode, codeRange);
+                    Shape picture = CompileInlineLaTeXCode(slide, shape, latexCode, codeRange);
                     if (picture != null)
                     {
                         tagEntry.ShapeId.value = picture.Id;
@@ -292,7 +314,8 @@ namespace PowerPointLaTeX
                 codeCount++;
             }
 
-            // TODO: doesnt work stupid piece of shit.. simply disable autofit instead.. [1/5/2009 Andreas]
+            // TODO: this doesn't work - simply disable autofit instead.. [1/5/2009 Andreas]
+            // TODO: can we automate this? [2/26/2009 Andreas]
             /*
                    (new Thread( delegate() {
                             Thread.Sleep(100);
@@ -308,14 +331,18 @@ namespace PowerPointLaTeX
             {
                 TextRange codeRange = pictureRanges[i];
                 AlignFormulaWithText(codeRange, pictures[i]);
-            }            // update the type, too
+            }
+
+            // update the type, too
             shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
         }
 
         public void CompileShape(Slide slide, Shape shape)
         {
             // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc.)
-            if (shape.LaTeXTags().Type == EquationType.HasCompiledInlines)
+            // don't try to compile equations (or their sources) either
+            EquationType type = shape.LaTeXTags().Type;
+            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation || type == EquationType.EquationSource)
             {
                 return;
             }
@@ -325,7 +352,7 @@ namespace PowerPointLaTeX
                 TextFrame textFrame = shape.TextFrame;
                 if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
                 {
-                    CompileTextRange(slide, shape, textFrame.TextRange);
+                    CompileInlineTextRange(slide, shape, textFrame.TextRange);
                 }
             }
         }
@@ -487,6 +514,115 @@ namespace PowerPointLaTeX
             presentation.SettingsTags().Clear();
         }
 
+        public Shape CreateEmptyEquation()
+        {
+            Shape shape = ActiveSlide.Shapes.AddShape(Microsoft.Office.Core.MsoAutoShapeType.msoShapeRectangle, 100, 100, 100, 100);
+
+            LaTeXTags tags = shape.LaTeXTags();
+            tags.Type.value = EquationType.Equation;
+            tags.OriginalWidth.value = 100;
+            tags.OriginalHeight.value = 100;
+
+            return shape;
+        }
+
+        /// <summary>
+        /// Apply the changes of the source to the equation and delete the equation source shape
+        /// </summary>
+        public void ApplyEquationSource(Shape equationSource)
+        {
+            Shape oldEquation = GetParentShape(equationSource);
+
+            // recompile the code
+            //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
+            string latexCode = equationSource.TextFrame.TextRange.Text;
+            Slide slide = equationSource.GetSlide();
+            if (slide == null)
+            {
+                // TODO: what do we do in that case? [3/3/2009 Andreas]
+                return;
+            }
+
+            Shape equation = GetPictureShapeFromLaTeXCode(equationSource.GetSlide(), latexCode);
+            if (equation == null)
+            {
+                equation = CreateEmptyEquation();
+            }
+            else
+            {
+                LaTeXTags tags = equation.LaTeXTags();
+
+                tags.OriginalWidth.value = 100;
+                tags.OriginalHeight.value = 100;
+                equation.LaTeXTags().Type.value = EquationType.Equation;
+            }
+
+            equation.LaTeXTags().Code.value = latexCode;
+
+            equation.Top = oldEquation.Top;
+            equation.Left = oldEquation.Left;
+
+            // keep the equation's scale
+            // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
+            float widthScale = oldEquation.Width / oldEquation.LaTeXTags().OriginalWidth;
+            float heightScale = oldEquation.Height / oldEquation.LaTeXTags().OriginalHeight;
+            equation.Width *= widthScale;
+            if (widthScale > 0)
+            {
+                equation.Height *= heightScale / widthScale;
+            }
+
+            equationSource.Delete();
+            oldEquation.Delete();
+        }
+
+        /// <summary>
+        /// Get a "nice" shape width from the active slide's size
+        /// </summary>
+        private float GetNiceShapeWidth()
+        {
+            float width = 100;
+            try
+            {
+                width = ActiveSlide.Master.Width / 2;
+            }
+            catch
+            {
+            }
+            return width;
+        }
+
+        public Shape ShowEquationSource(Shape formula)
+        {
+            // I'm going to abuse the parent id for now in the formula to link to the source [3/3/2009 Andreas]
+            Trace.Assert(formula.LaTeXTags().ParentId == 0);
+
+            float width = GetNiceShapeWidth();
+            float top = formula.Top + formula.Height;
+            float left = formula.Left + (formula.Width - width) / 2;
+
+            Shape shape = ActiveSlide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, left, top, width, 100);
+
+            // visual setup
+            shape.Fill.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorLight2;
+            shape.Fill.Transparency = 0.5f;
+            shape.Fill.Solid();
+
+            // setup the LaTeX faff
+            shape.LaTeXTags().ParentId.value = formula.Id;
+            shape.LaTeXTags().Type.value = EquationType.EquationSource;
+            shape.TextFrame.TextRange.Text = formula.LaTeXTags().Code;
+
+            formula.LaTeXTags().ParentId.value = formula.Id;
+
+            // select the shape and enter text edit mode
+            // TODO: move this into its own function [3/3/2009 Andreas]
+            shape.Select(Microsoft.Office.Core.MsoTriState.msoTrue);
+            shape.TextFrame.TextRange.Characters(0, 0).Select();
+
+            return shape;
+        }
+
         public List<Shape> GetInlineShapes(Shape shape)
         {
             List<Shape> shapes = new List<Shape>();
@@ -520,7 +656,7 @@ namespace PowerPointLaTeX
         public Shape GetParentShape(Shape shape)
         {
             LaTeXTags tags = shape.LaTeXTags();
-            Debug.Assert(tags.Type == EquationType.Inline);
+            Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation || tags.Type == EquationType.EquationSource);
             Slide slide = shape.GetSlide();
             Trace.Assert(slide != null);
 

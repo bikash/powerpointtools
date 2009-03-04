@@ -86,6 +86,23 @@ namespace PowerPointLaTeX
             }
         }
 
+        private Dictionary<Presentation, IList<Shape>> oldShapesDict = new Dictionary<Presentation, IList<Shape>>();
+        private IList<Shape> oldShapes
+        {
+            get
+            {
+                if (!oldShapesDict.ContainsKey(Tool.ActivePresentation))
+                {
+                    return null;
+                }
+                return oldShapesDict[Tool.ActivePresentation];
+            }
+            set
+            {
+                oldShapesDict[Tool.ActivePresentation] = value;
+            }
+        }
+
         private void Application_WindowSelectionChange(Selection Sel)
         {
             // an exception is thrown otherwise >_>
@@ -94,21 +111,26 @@ namespace PowerPointLaTeX
                 return;
             }
 
-            // automatically select the parent (and thus all children) of a inline objects
-            List<Shape> shapes = Sel.GetShapesFromShapeSelection();
+            // shape selection handling
+            if (Sel.Type == PpSelectionType.ppSelectionShapes)
+            {
+                // automatically select the parent (and thus all children) of a inline objects
+                List<Shape> shapes = Sel.GetShapesFromShapeSelection();
 
-            IEnumerable<Shape> parentShapes =
-                from shape in shapes
-                where shape.LaTeXTags().Type == EquationType.Inline
-                select Tool.GetParentShape(shape);
-            IEnumerable<Shape> shapeSuperset =
-                from parentShape in parentShapes.Union(shapes)
-                from inlineShape in Tool.GetInlineShapes(parentShape)
-                select inlineShape;
+                IEnumerable<Shape> parentShapes =
+                    from shape in shapes
+                    where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource
+                    select Tool.GetParentShape(shape);
+                IEnumerable<Shape> shapeSuperset =
+                    from parentShape in parentShapes.Union(shapes)
+                    from inlineShape in Tool.GetInlineShapes(parentShape)
+                    select inlineShape;
 
-            Sel.SelectShapes(parentShapes, false);
-            Sel.SelectShapes(shapeSuperset, false);
+                Sel.SelectShapes(parentShapes, false);
+                Sel.SelectShapes(shapeSuperset, false);
+            }
 
+            // inline shape handling
             Shape textShape = Sel.GetShapeFromTextSelection();
             // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
             if (!Tool.ActivePresentation.SettingsTags().ManualPreview)
@@ -129,7 +151,8 @@ namespace PowerPointLaTeX
                 if (oldTextShape != null && oldTextShape != textShape)
                 {
                     Slide slide = oldTextShape.GetSlide();
-                    if (slide != null)
+                    // dont do anything in presentation mode
+                    if (slide != null && !Tool.ActivePresentation.SettingsTags().PresentationMode)
                         Tool.CompileShape(slide, oldTextShape);
                 }
                 if (!Tool.ActivePresentation.SettingsTags().PresentationMode)
@@ -144,14 +167,59 @@ namespace PowerPointLaTeX
             }
             if (Tool.ActivePresentation.SettingsTags().PresentationMode)
             {
-                // deselect shapes that contain formulas, etc.
-                if (textShape.LaTeXTags().Type.value.ContainsLaTeXCode())
+                // deselect shapes that contain compiled inlines
+                if (textShape.LaTeXTags().Type == EquationType.HasCompiledInlines)
                 {
                     textShape = null;
                     Sel.Unselect();
                 }
             }
             oldTextShape = textShape;
+
+            /// equation handling
+            {
+                List<Shape> shapes;
+                if (Sel.Type == PpSelectionType.ppSelectionShapes)
+                {
+                    shapes = Sel.GetShapesFromShapeSelection();
+                }
+                else
+                {
+                    shapes = new List<Shape>();
+                    if (Sel.Type == PpSelectionType.ppSelectionText)
+                    {
+                        shapes.Add(Sel.GetShapeFromTextSelection());
+                    }
+                }
+                if (!Tool.ActivePresentation.SettingsTags().PresentationMode)
+                {
+                    // if only one equation is selected, start editing it
+                    if (shapes.Count == 1 && shapes[0].LaTeXTags().Type == EquationType.Equation)
+                    {
+                        if (shapes[0].LaTeXTags().ParentId == 0)
+                        {
+                            Tool.ShowEquationSource(shapes[0]);
+                        }
+                    }
+                    
+                    if (oldShapes != null)
+                    {
+                        // figure out if any equation sources have been deselected
+                        // (if so, copy the changes and recompile the equation)
+                        foreach (Shape shape in oldShapes)
+                        {
+                            try
+                            {
+                                if (shape.LaTeXTags().Type == EquationType.EquationSource && !shapes.Contains(shape))
+                                    Tool.ApplyEquationSource(shape);
+                            }
+                            catch {}
+                        }
+                    }
+
+                }
+                oldShapes = shapes;
+            }
         }
 
         void Application_WindowBeforeDoubleClick(Selection Sel, ref bool Cancel)

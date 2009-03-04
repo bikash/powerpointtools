@@ -140,7 +140,10 @@ namespace PowerPointLaTeX
         public readonly AddInTagString Code;
         public readonly AddInTagEnum<EquationType> Type;
         public readonly AddInTagInt ParentId;
+        
         public readonly LaTeXEntries Entries;
+
+        public readonly AddInTagFloat OriginalWidth, OriginalHeight;
 
         public LaTeXTags(Shape shape)
         {
@@ -149,6 +152,9 @@ namespace PowerPointLaTeX
             Type = new AddInTagEnum<EquationType>(tags, "Type");
             ParentId = new AddInTagInt(tags, "ParentId");
             Entries = new LaTeXEntries(tags);
+
+            OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
+            OriginalHeight = new AddInTagFloat(tags, "OriginalHeight");
         }
 
         public void Clear()
@@ -157,6 +163,8 @@ namespace PowerPointLaTeX
             Type.Clear();
             ParentId.Clear();
             Entries.Clear();
+            OriginalWidth.Clear();
+            OriginalHeight.Clear();
         }
     }
 }

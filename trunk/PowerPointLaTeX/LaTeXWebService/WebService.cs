@@ -23,6 +23,11 @@ namespace LaTeXWebService
             return webServiceURL + HttpUtility.HtmlEncode(latexCode);
         }
 
+        /// <summary>
+        /// Read the url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>Null if not everything could be read</returns>
         private static URLData getURLData(string url) {
             WebRequest request = HttpWebRequest.Create(url);
             request.Timeout = 3000;
@@ -33,7 +38,10 @@ namespace LaTeXWebService
             Byte[] bytes = new Byte[response.ContentLength];
             int numBytesRead = responseStream.Read(bytes, 0, (int)response.ContentLength);
 
-            //Trace.Assert(numBytesRead == response.ContentLength);
+            // just return null if we can't read the whole packet for some reason (e.g. connection drop or similar)
+            if( numBytesRead != response.ContentLength ) {
+                return new URLData();
+            }
 
             URLData data = new URLData();
             data.content = bytes.Take(numBytesRead).ToArray();

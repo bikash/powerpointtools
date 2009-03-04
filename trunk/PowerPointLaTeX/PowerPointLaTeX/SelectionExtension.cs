@@ -23,7 +23,7 @@ namespace PowerPointLaTeX
         }
 
         /// <summary>
-        /// Get a shapes of all selected shapes (included ones that are selected indirectly through text selections)
+        /// Get a shapes of all selected shapes (excluding the shape selected through text selections)
         /// Slides don't select all shapes though.
         /// </summary>
         /// <param name="selection"></param>

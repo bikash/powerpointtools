@@ -161,6 +161,19 @@ namespace PowerPointLaTeX
         }
     }
 
+    class AddInTagFloat : AddInTagBase<float>
+    {
+        public AddInTagFloat(Tags tags, string name)
+            : base(tags, name)
+        {
+        }
+
+        protected override float FromString(string rawValue)
+        {
+            return Helper.ParseFloat(rawValue);
+        }
+    }
+
 
     class AddInTagEnum<T> : AddInTagBase<T>
     {
@@ -219,6 +232,16 @@ namespace PowerPointLaTeX
                 return value;
             }
             return 0;
+        }
+
+        internal static float ParseFloat(string text)
+        {
+            float value;
+            if (float.TryParse(text, out value))
+            {
+                return value;
+            }
+            return 0.0f;
         }
 
         internal static bool ParseBool(string text)

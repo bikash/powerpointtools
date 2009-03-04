@@ -39,12 +39,15 @@
             this.AutomaticCompilationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.DecompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.CompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.equationGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
+            this.CreateFormula = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.LaTeXGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DeveloperTaskPaneToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.LaTeX.SuspendLayout();
             this.generalGroup.SuspendLayout();
             this.inlineGroup.SuspendLayout();
+            this.equationGroup.SuspendLayout();
             this.tab1.SuspendLayout();
             this.LaTeXGroup.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +56,7 @@
             // 
             this.LaTeX.Groups.Add(this.generalGroup);
             this.LaTeX.Groups.Add(this.inlineGroup);
+            this.LaTeX.Groups.Add(this.equationGroup);
             this.LaTeX.Label = "LaTeX";
             this.LaTeX.Name = "LaTeX";
             // 
@@ -147,6 +151,20 @@
                 "ng is selected.";
             this.CompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CompileButton_Click);
             // 
+            // equationGroup
+            // 
+            this.equationGroup.Items.Add(this.CreateFormula);
+            this.equationGroup.Label = "Equations";
+            this.equationGroup.Name = "equationGroup";
+            // 
+            // CreateFormula
+            // 
+            this.CreateFormula.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.CreateFormula.Label = "New Formula";
+            this.CreateFormula.Name = "CreateFormula";
+            this.CreateFormula.ShowImage = true;
+            this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CreateFormula_Click);
+            // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
@@ -184,6 +202,8 @@
             this.generalGroup.PerformLayout();
             this.inlineGroup.ResumeLayout(false);
             this.inlineGroup.PerformLayout();
+            this.equationGroup.ResumeLayout(false);
+            this.equationGroup.PerformLayout();
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
             this.LaTeXGroup.ResumeLayout(false);
@@ -207,6 +227,8 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup LaTeXGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton DeveloperTaskPaneToggle;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup equationGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton CreateFormula;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection

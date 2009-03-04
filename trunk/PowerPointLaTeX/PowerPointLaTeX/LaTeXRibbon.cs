@@ -172,5 +172,10 @@ namespace PowerPointLaTeX
             Preferences preferences = new Preferences();
             preferences.ShowDialog();
         }
+
+        private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
+        {
+            Tool.CreateEmptyEquation();
+        }
     }
 }
