@@ -21,6 +21,9 @@ namespace PowerPointLaTeX
             itemName.Text = name;
             this.tags = tags;
 
+            this.Dock = DockStyle.Fill;
+            this.AutoSize = true;
+
             RefreshTags();
         }
 

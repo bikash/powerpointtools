@@ -157,27 +157,41 @@ namespace PowerPointLaTeX
 
             // copy animations from the parent textShape
             Sequence sequence = slide.TimeLine.MainSequence;
-            var allEffect = from Effect e in sequence select e;
             var effects =
                 from Effect effect in sequence
                 where effect.Shape == textShape &&
-                (effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
+                ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
                     ParagraphContainsRange(textShape, effect.Paragraph, codeRange))
+                    || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                 select effect;
 
+            CopyEffectsTo(picture, true, sequence, effects);
+
+            return picture;
+        }
+
+        private static void CopyEffectsTo(Shape target, bool setToWithPrevious, Sequence sequence, IEnumerable<Effect> effects)
+        {
             foreach (Effect effect in effects)
             {
                 int index = effect.Index + 1;
                 Effect formulaEffect = sequence.Clone(effect, index);
-                formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
+                try
+                {
+                    formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
+                }
+                catch {}
                 //formulaEffect = sequence.ConvertToTextUnitEffect(formulaEffect, MsoAnimTextUnitEffect.msoAnimTextUnitEffectMixed);
-                formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
-                formulaEffect.Paragraph = 0;
-                formulaEffect.Shape = picture;
+                if( setToWithPrevious )
+                    formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
+                try
+                {
+                    formulaEffect.Paragraph = 0;
+                }
+                catch {}
+                formulaEffect.Shape = target;
                 // Effect formulaEffect = sequence.AddEffect(picture, effect.EffectType, MsoAnimateByLevel.msoAnimateLevelNone, MsoAnimTriggerType.msoAnimTriggerWithPrevious, index);
             }
-
-            return picture;
         }
 
         private static void FillTextRange(TextRange range, char character, float minWidth)
@@ -517,6 +531,10 @@ namespace PowerPointLaTeX
         public Shape CreateEmptyEquation()
         {
             Shape shape = ActiveSlide.Shapes.AddShape(Microsoft.Office.Core.MsoAutoShapeType.msoShapeRectangle, 100, 100, 100, 100);
+            shape.Fill.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorBackground1;
+            shape.Fill.Solid();
+
+            shape.Line.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
 
             LaTeXTags tags = shape.LaTeXTags();
             tags.Type.value = EquationType.Equation;
@@ -531,30 +549,41 @@ namespace PowerPointLaTeX
         /// </summary>
         public void ApplyEquationSource(Shape equationSource)
         {
-            Shape oldEquation = GetParentShape(equationSource);
-
             // recompile the code
             //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
-            string latexCode = equationSource.TextFrame.TextRange.Text;
-            Slide slide = equationSource.GetSlide();
+            string latexCode = equationSource.TextFrame.TextRange.Text;        
+            Shape oldEquation = GetParentShape(equationSource);
+
+            equationSource.Delete();
+            if( oldEquation == null ) {
+                // TODO: error handling? [3/5/2009 Andreas]
+                return;
+            }
+
+            Slide slide = oldEquation.GetSlide();
             if (slide == null)
             {
                 // TODO: what do we do in that case? [3/3/2009 Andreas]
                 return;
             }
 
-            Shape equation = GetPictureShapeFromLaTeXCode(equationSource.GetSlide(), latexCode);
-            if (equation == null)
+            Shape equation = null;
+            if (latexCode.Trim() != "")
             {
-                equation = CreateEmptyEquation();
+                equation = GetPictureShapeFromLaTeXCode(slide, latexCode);
             }
-            else
+
+            if (equation != null)
             {
                 LaTeXTags tags = equation.LaTeXTags();
 
-                tags.OriginalWidth.value = 100;
-                tags.OriginalHeight.value = 100;
-                equation.LaTeXTags().Type.value = EquationType.Equation;
+                tags.OriginalWidth.value = equation.Width;
+                tags.OriginalHeight.value = equation.Height;
+                tags.Type.value = EquationType.Equation;
+            }
+            else
+            {
+                equation = CreateEmptyEquation();
             }
 
             equation.LaTeXTags().Code.value = latexCode;
@@ -566,13 +595,20 @@ namespace PowerPointLaTeX
             // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
             float widthScale = oldEquation.Width / oldEquation.LaTeXTags().OriginalWidth;
             float heightScale = oldEquation.Height / oldEquation.LaTeXTags().OriginalHeight;
+            equation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
             equation.Width *= widthScale;
-            if (widthScale > 0)
-            {
-                equation.Height *= heightScale / widthScale;
-            }
+            equation.Height *= heightScale;
 
-            equationSource.Delete();
+            // copy animations over from the old equation
+            Sequence sequence = slide.TimeLine.MainSequence;
+            var effects =
+                from Effect effect in sequence
+                where effect.Shape == oldEquation
+                select effect;
+
+            CopyEffectsTo(equation, false, sequence, effects);
+
+            // delete the old equation
             oldEquation.Delete();
         }
 
@@ -608,12 +644,18 @@ namespace PowerPointLaTeX
             shape.Fill.Transparency = 0.5f;
             shape.Fill.Solid();
 
+            shape.Line.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorDark1;
+            shape.Line.Style = Microsoft.Office.Core.MsoLineStyle.msoLineSingle;
+            shape.Line.Weight = 2.0f;
+            shape.Line.DashStyle = Microsoft.Office.Core.MsoLineDashStyle.msoLineSolid;
+            shape.Line.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+
             // setup the LaTeX faff
             shape.LaTeXTags().ParentId.value = formula.Id;
             shape.LaTeXTags().Type.value = EquationType.EquationSource;
             shape.TextFrame.TextRange.Text = formula.LaTeXTags().Code;
 
-            formula.LaTeXTags().ParentId.value = formula.Id;
+            formula.LaTeXTags().ParentId.value = shape.Id;
 
             // select the shape and enter text edit mode
             // TODO: move this into its own function [3/3/2009 Andreas]

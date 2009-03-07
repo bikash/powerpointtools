@@ -30,9 +30,9 @@
         {
             this.layout = new System.Windows.Forms.TableLayoutPanel();
             this.tagsGridView = new System.Windows.Forms.DataGridView();
+            this.itemName = new System.Windows.Forms.Label();
             this.nameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.valueColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.itemName = new System.Windows.Forms.Label();
             this.layout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) (this.tagsGridView)).BeginInit();
             this.SuspendLayout();
@@ -66,6 +66,7 @@
             this.tagsGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tagsGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.tagsGridView.Location = new System.Drawing.Point(3, 29);
+            this.tagsGridView.MinimumSize = new System.Drawing.Size(200, 0);
             this.tagsGridView.MultiSelect = false;
             this.tagsGridView.Name = "tagsGridView";
             this.tagsGridView.ReadOnly = true;
@@ -74,20 +75,6 @@
             this.tagsGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.tagsGridView.Size = new System.Drawing.Size(200, 264);
             this.tagsGridView.TabIndex = 11;
-            // 
-            // nameColumn
-            // 
-            this.nameColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.nameColumn.HeaderText = "Name";
-            this.nameColumn.Name = "nameColumn";
-            this.nameColumn.ReadOnly = true;
-            // 
-            // valueColumn
-            // 
-            this.valueColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.valueColumn.HeaderText = "Value";
-            this.valueColumn.Name = "valueColumn";
-            this.valueColumn.ReadOnly = true;
             // 
             // itemName
             // 
@@ -99,6 +86,22 @@
             this.itemName.Size = new System.Drawing.Size(200, 26);
             this.itemName.TabIndex = 0;
             this.itemName.Text = "label1\r\nasdsad";
+            // 
+            // nameColumn
+            // 
+            this.nameColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.nameColumn.FillWeight = 100.5076F;
+            this.nameColumn.HeaderText = "Name";
+            this.nameColumn.Name = "nameColumn";
+            this.nameColumn.ReadOnly = true;
+            // 
+            // valueColumn
+            // 
+            this.valueColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.valueColumn.FillWeight = 99.49239F;
+            this.valueColumn.HeaderText = "Value";
+            this.valueColumn.Name = "valueColumn";
+            this.valueColumn.ReadOnly = true;
             // 
             // TagsGrid
             // 
@@ -121,8 +124,8 @@
 
         private System.Windows.Forms.TableLayoutPanel layout;
         private System.Windows.Forms.DataGridView tagsGridView;
+        private System.Windows.Forms.Label itemName;
         private System.Windows.Forms.DataGridViewTextBoxColumn nameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn valueColumn;
-        private System.Windows.Forms.Label itemName;
     }
 }

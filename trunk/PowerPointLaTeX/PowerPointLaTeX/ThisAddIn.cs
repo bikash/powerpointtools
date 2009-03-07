@@ -119,7 +119,7 @@ namespace PowerPointLaTeX
 
                 IEnumerable<Shape> parentShapes =
                     from shape in shapes
-                    where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource
+                    where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource || (shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().ParentId != 0)
                     select Tool.GetParentShape(shape);
                 IEnumerable<Shape> shapeSuperset =
                     from parentShape in parentShapes.Union(shapes)
@@ -128,6 +128,9 @@ namespace PowerPointLaTeX
 
                 Sel.SelectShapes(parentShapes, false);
                 Sel.SelectShapes(shapeSuperset, false);
+
+                if (shapes.Union(parentShapes).Union(shapeSuperset).ToList().Count != shapes.Count)
+                    return;
             }
 
             // inline shape handling
@@ -201,7 +204,7 @@ namespace PowerPointLaTeX
                             Tool.ShowEquationSource(shapes[0]);
                         }
                     }
-                    
+
                     if (oldShapes != null)
                     {
                         // figure out if any equation sources have been deselected
@@ -211,9 +214,11 @@ namespace PowerPointLaTeX
                             try
                             {
                                 if (shape.LaTeXTags().Type == EquationType.EquationSource && !shapes.Contains(shape))
+                                {
                                     Tool.ApplyEquationSource(shape);
+                                }
                             }
-                            catch {}
+                            catch { }
                         }
                     }
 
