@@ -53,6 +53,38 @@ namespace PowerPointLaTeX
             return shape;
         }
 
+        /// <summary>
+        /// Get the shapes from the current selection.
+        /// Text and shape selections are straight-forward
+        /// A slide selection returns all shapes of the selected slides.
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <returns></returns>
+        static internal List<Shape> GetShapes(this Selection selection) {
+            List<Shape> shapes;
+            if (selection.Type == PpSelectionType.ppSelectionShapes)
+            {
+                shapes = selection.GetShapesFromShapeSelection();
+            }
+            else
+            {
+                shapes = new List<Shape>();
+                if (selection.Type == PpSelectionType.ppSelectionText)
+                {
+                    shapes.Add(selection.GetShapeFromTextSelection());
+                }
+                else if (selection.Type == PpSelectionType.ppSelectionSlides)
+                {
+                    foreach( Slide slide in selection.SlideRange ) {
+                        foreach( Shape shape in slide.Shapes) {
+                            shapes.Add(shape);
+                        }
+                    }
+                }
+            }
+            return shapes;
+        }
+
         static internal void FilterShapes(this Selection selection, System.Predicate<Shape> predicate)
         {
             if (selection.Type != PpSelectionType.ppSelectionShapes)
