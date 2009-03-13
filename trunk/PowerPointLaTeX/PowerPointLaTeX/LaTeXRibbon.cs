@@ -38,14 +38,27 @@ namespace PowerPointLaTeX
 
             SettingsTags.ManualPreviewChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_ManualPreviewChanged);
             SettingsTags.PresentationModeChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_PresentationModeChanged);
+            SettingsTags.ManualEquationEditingChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_ManualEquationEditingChanged);
         }
 
-        void SettingsTags_PresentationModeChanged(bool enabled)
+        public void RegisterApplicationEvents()
+        {
+            // hook our(the ribbon) event listeners into the application
+            Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
+            Application.WindowActivate += new EApplication_WindowActivateEventHandler(Application_WindowActivate);
+        }
+
+        private void SettingsTags_ManualEquationEditingChanged(bool enabled)
+        {
+            AutoEditEquationToggle.Checked = !enabled;
+        }
+
+        private void SettingsTags_PresentationModeChanged(bool enabled)
         {
             PresentationModeToggle.Checked = enabled;
         }
 
-        void SettingsTags_ManualPreviewChanged(bool enabled)
+        private void SettingsTags_ManualPreviewChanged(bool enabled)
         {
             CompileButton.Enabled = enabled;
             DecompileButton.Enabled = enabled;
@@ -53,7 +66,7 @@ namespace PowerPointLaTeX
             AutomaticCompilationToggle.Checked = !enabled;
         }
 
-        void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ShowDeveloperTaskPane")
             {
@@ -61,7 +74,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        void Application_WindowSelectionChange(Selection Sel)
+        private void Application_WindowSelectionChange(Selection Sel)
         {
             if (Sel.Type == PpSelectionType.ppSelectionNone)
             {
@@ -73,6 +86,14 @@ namespace PowerPointLaTeX
                 CompileButton.Label.Replace("Slide", "Selection");
                 DecompileButton.Label.Replace("Slide", "Selection");
             }
+        }
+
+        private void Application_WindowActivate(Presentation Pres, DocumentWindow Wn)
+        {
+            SettingsTags tags = Pres.SettingsTags();
+            AutoEditEquationToggle.Checked = !tags.ManualEquationEditing;
+            AutomaticCompilationToggle.Checked = !tags.ManualPreview;
+            PresentationModeToggle.Checked = tags.PresentationMode;
         }
 
         private void LaTeXRibbon_Load(object sender, RibbonUIEventArgs e)
@@ -87,12 +108,27 @@ namespace PowerPointLaTeX
                 return;
             }
 
-            // unselect the current selection to avoid decompiling it straight away..
+            Selection selection = Application.ActiveWindow.Selection;
+            List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
+
+            // deselect the current selection to avoid decompiling it straight away..
             Application.ActiveWindow.Selection.Unselect();
 
             Slide slide = Tool.ActiveSlide;
             if (slide != null)
-                Tool.CompileSlide(slide);
+            {
+                if (shapes.Count == 0)
+                {
+                    Tool.CompileSlide(slide);
+                }
+                else
+                {
+                    foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
+                    {
+                        Tool.CompileShape(slide, shape);
+                    }
+                }
+            }
         }
 
         private void DecompileButton_Click(object sender, RibbonControlEventArgs e)
@@ -103,9 +139,25 @@ namespace PowerPointLaTeX
                 return;
             }
 
+            // TODO: this is copy from CompileButton - find a way to merge the two [3/12/2009 Andreas]
+            Selection selection = Application.ActiveWindow.Selection;
+            List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
+
             Slide slide = Tool.ActiveSlide;
             if (slide != null)
-                Tool.DecompileSlide(slide);
+            {
+                if (shapes.Count == 0)
+                {
+                    Tool.DecompileSlide(slide);
+                }
+                else
+                {
+                    foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
+                    {
+                        Tool.DecompileShape(slide, shape);
+                    }
+                }
+            }
         }
 
         private void AutomaticCompilationToggle_Click(object sender, RibbonControlEventArgs e)
@@ -154,7 +206,7 @@ namespace PowerPointLaTeX
                 }
                 Debug.Assert(dialog.SelectedItems.Count == 1);
                 string filename = dialog.SelectedItems.Item(1);
-                // dont embed fonts..
+                // don't embed fonts..
                 Tool.ActivePresentation.SaveCopyAs(filename, PpSaveAsFileType.ppSaveAsDefault, MsoTriState.msoFalse);
             }
 
@@ -176,6 +228,16 @@ namespace PowerPointLaTeX
         private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
         {
             Tool.CreateEmptyEquation();
+        }
+
+        private void ShowEquationCode_Click(object sender, RibbonControlEventArgs e)
+        {
+            //Tool.ActivePresentation.Se
+        }
+
+        private void AutoEditEquationToggle_Click(object sender, RibbonControlEventArgs e)
+        {
+            Tool.ActivePresentation.SettingsTags().ManualEquationEditing.value = !AutoEditEquationToggle.Checked;
         }
     }
 }

@@ -40,12 +40,12 @@
             this.DecompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.CompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.equationGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
+            this.AutoEditEquationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.CreateFormula = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.ShowEquationCode = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.LaTeXGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DeveloperTaskPaneToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
-            this.AutoEditEquationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
-            this.ShowEquationCode = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.LaTeX.SuspendLayout();
             this.generalGroup.SuspendLayout();
             this.inlineGroup.SuspendLayout();
@@ -161,6 +161,15 @@
             this.equationGroup.Label = "Equations";
             this.equationGroup.Name = "equationGroup";
             // 
+            // AutoEditEquationToggle
+            // 
+            this.AutoEditEquationToggle.Checked = true;
+            this.AutoEditEquationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.AutoEditEquationToggle.Label = "Auto-Edit Equations";
+            this.AutoEditEquationToggle.Name = "AutoEditEquationToggle";
+            this.AutoEditEquationToggle.ShowImage = true;
+            this.AutoEditEquationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.AutoEditEquationToggle_Click);
+            // 
             // CreateFormula
             // 
             this.CreateFormula.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -168,6 +177,14 @@
             this.CreateFormula.Name = "CreateFormula";
             this.CreateFormula.ShowImage = true;
             this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CreateFormula_Click);
+            // 
+            // ShowEquationCode
+            // 
+            this.ShowEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.ShowEquationCode.Label = "Show Equation Code";
+            this.ShowEquationCode.Name = "ShowEquationCode";
+            this.ShowEquationCode.ShowImage = true;
+            this.ShowEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.ShowEquationCode_Click);
             // 
             // tab1
             // 
@@ -192,20 +209,6 @@
             this.DeveloperTaskPaneToggle.OfficeImageId = "FileDocumentInspect";
             this.DeveloperTaskPaneToggle.ShowImage = true;
             this.DeveloperTaskPaneToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DeveloperTaskPaneToggle_Click);
-            // 
-            // AutoEditEquationToggle
-            // 
-            this.AutoEditEquationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.AutoEditEquationToggle.Label = "Auto-Edit Equations";
-            this.AutoEditEquationToggle.Name = "AutoEditEquationToggle";
-            this.AutoEditEquationToggle.ShowImage = true;
-            // 
-            // ShowEquationCode
-            // 
-            this.ShowEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.ShowEquationCode.Label = "Show Equation Code";
-            this.ShowEquationCode.Name = "ShowEquationCode";
-            this.ShowEquationCode.ShowImage = true;
             // 
             // LaTeXRibbon
             // 
