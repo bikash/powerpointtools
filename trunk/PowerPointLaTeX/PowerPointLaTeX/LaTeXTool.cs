@@ -45,15 +45,18 @@ namespace PowerPointLaTeX
         EquationSource
     }
 
-    static class EquationTypeExtension
+    static class EquationTypeShapeExtension
     {
-        /// <summary>
-        /// Returns whether the type hints that the shape contains addin-specific data
-        /// </summary>
-        /// <returns></returns>
-        internal static bool ContainsLaTeXCode(this EquationType type)
-        {
-            return type != EquationType.None;
+        internal static bool IsEquation(this Shape shape) {
+            return shape.LaTeXTags().Type == EquationType.Equation;
+        }
+
+        internal static bool IsCompiledEquation( this Shape shape ) {
+            return shape.IsEquation() && shape.LaTeXTags().LinkID == 0;
+        }
+
+        internal static bool IsUncompiledEquation( this Shape shape ) {
+            return shape.IsEquation() && shape.LaTeXTags().LinkID != 0;
         }
     }
 
@@ -288,17 +291,6 @@ namespace PowerPointLaTeX
         private static bool IsEscapeCode(string code)
         {
             return code == "!";
-        }
-
-        public static bool IsShapeUncompiledEquation(Shape shape) {
-            try {
-                if( shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().LinkID != 0 ) {
-                    return true;
-                }
-            }
-            catch {
-            }
-            return false;
         }
 
         private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)

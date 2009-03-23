@@ -256,7 +256,7 @@ namespace PowerPointLaTeX
             List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
             foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
             {
-                if( shape.LaTeXTags().Type == EquationType.Equation && !LaTeXTool.IsShapeUncompiledEquation(shape)) {
+                if( shape.IsCompiledEquation()) {
                     Tool.ShowEquationSource(shape);
                 }
             }
