@@ -285,9 +285,21 @@ namespace PowerPointLaTeX
             return imageData;
         }
 
-        private bool IsEscapeCode(string code)
+        private static bool IsEscapeCode(string code)
         {
             return code == "!";
+        }
+
+        // TODO: rename ParentID to LinkID [3/14/2009 Andreas]
+        public static bool IsShapeUncompiledEquation(Shape shape) {
+            try {
+                if( shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().ParentId != 0 ) {
+                    return true;
+                }
+            }
+            catch {
+            }
+            return false;
         }
 
         private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)

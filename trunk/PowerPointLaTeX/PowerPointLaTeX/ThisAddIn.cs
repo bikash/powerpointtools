@@ -195,7 +195,7 @@ namespace PowerPointLaTeX
             oldTextShape = textShape;
 
             /// equation handling
-            if( Tool.ActivePresentation.SettingsTags().ManualEquationEditing)
+            if( !Tool.ActivePresentation.SettingsTags().ManualEquationEditing)
             {
                 List<Shape> shapes;
                 if (Sel.Type == PpSelectionType.ppSelectionShapes)

@@ -251,7 +251,15 @@ namespace PowerPointLaTeX
 
         private void ShowEquationCode_Click(object sender, RibbonControlEventArgs e)
         {
-            //Tool.ActivePresentation.Se
+            // get the currently selected shape
+            Selection selection = Application.ActiveWindow.Selection;
+            List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
+            foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
+            {
+                if( shape.LaTeXTags().Type == EquationType.Equation && !LaTeXTool.IsShapeUncompiledEquation(shape)) {
+                    Tool.ShowEquationSource(shape);
+                }
+            }
         }
 
         private void AutoEditEquationToggle_Click(object sender, RibbonControlEventArgs e)
