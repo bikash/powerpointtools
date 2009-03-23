@@ -168,7 +168,7 @@ namespace PowerPointLaTeX
             // add tags to the picture
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
-            picture.LaTeXTags().ParentId.value = textShape.Id;
+            picture.LaTeXTags().LinkID.value = textShape.Id;
 
             // disable wordwrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
@@ -290,10 +290,9 @@ namespace PowerPointLaTeX
             return code == "!";
         }
 
-        // TODO: rename ParentID to LinkID [3/14/2009 Andreas]
         public static bool IsShapeUncompiledEquation(Shape shape) {
             try {
-                if( shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().ParentId != 0 ) {
+                if( shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().LinkID != 0 ) {
                     return true;
                 }
             }
@@ -583,7 +582,7 @@ namespace PowerPointLaTeX
             // recompile the code
             //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
             string latexCode = equationSource.TextFrame.TextRange.Text;        
-            Shape oldEquation = GetParentShape(equationSource);
+            Shape oldEquation = GetLinkShape(equationSource);
 
             equationSource.Delete();
             if( oldEquation == null ) {
@@ -662,7 +661,7 @@ namespace PowerPointLaTeX
         public Shape ShowEquationSource(Shape formula)
         {
             // I'm going to abuse the parent id for now in the formula to link to the source [3/3/2009 Andreas]
-            Trace.Assert(formula.LaTeXTags().ParentId == 0);
+            Trace.Assert(formula.LaTeXTags().LinkID == 0);
 
             float width = GetNiceShapeWidth();
             float top = formula.Top + formula.Height;
@@ -682,11 +681,11 @@ namespace PowerPointLaTeX
             shape.Line.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
 
             // setup the LaTeX faff
-            shape.LaTeXTags().ParentId.value = formula.Id;
+            shape.LaTeXTags().LinkID.value = formula.Id;
             shape.LaTeXTags().Type.value = EquationType.EquationSource;
             shape.TextFrame.TextRange.Text = formula.LaTeXTags().Code;
 
-            formula.LaTeXTags().ParentId.value = shape.Id;
+            formula.LaTeXTags().LinkID.value = shape.Id;
 
             // select the shape and enter text edit mode
             // TODO: move this into its own function [3/3/2009 Andreas]
@@ -722,18 +721,18 @@ namespace PowerPointLaTeX
         }
 
         /// <summary>
-        /// from an inline shape
+        /// get the shape specified by the LinkID field in LaTeXTags()
         /// </summary>
         /// <param name="shape"></param>
         /// <returns></returns>
-        public Shape GetParentShape(Shape shape)
+        public Shape GetLinkShape(Shape shape)
         {
             LaTeXTags tags = shape.LaTeXTags();
             Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation || tags.Type == EquationType.EquationSource);
             Slide slide = shape.GetSlide();
             Trace.Assert(slide != null);
 
-            Shape parent = slide.Shapes.FindById(tags.ParentId);
+            Shape parent = slide.Shapes.FindById(tags.LinkID);
             Trace.Assert(parent != null);
             return parent;
         }

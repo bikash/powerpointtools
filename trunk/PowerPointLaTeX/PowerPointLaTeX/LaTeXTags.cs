@@ -158,7 +158,7 @@ namespace PowerPointLaTeX
     {
         public readonly AddInTagString Code;
         public readonly AddInTagEnum<EquationType> Type;
-        public readonly AddInTagInt ParentId;
+        public readonly AddInTagInt LinkID;
         
         public readonly LaTeXEntries Entries;
 
@@ -169,7 +169,7 @@ namespace PowerPointLaTeX
             Tags tags = shape.Tags;
             Code = new AddInTagString(tags, "Code");
             Type = new AddInTagEnum<EquationType>(tags, "Type");
-            ParentId = new AddInTagInt(tags, "ParentId");
+            LinkID = new AddInTagInt(tags, "LinkID");
             Entries = new LaTeXEntries(tags);
 
             OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
@@ -180,7 +180,7 @@ namespace PowerPointLaTeX
         {
             Code.Clear();
             Type.Clear();
-            ParentId.Clear();
+            LinkID.Clear();
             Entries.Clear();
             OriginalWidth.Clear();
             OriginalHeight.Clear();

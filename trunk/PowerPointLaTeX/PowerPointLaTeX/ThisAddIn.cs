@@ -134,8 +134,8 @@ namespace PowerPointLaTeX
 
                 IEnumerable<Shape> parentShapes =
                     from shape in shapes
-                    where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource || (shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().ParentId != 0)
-                    select Tool.GetParentShape(shape);
+                    where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource || (shape.LaTeXTags().Type == EquationType.Equation && shape.LaTeXTags().LinkID != 0)
+                    select Tool.GetLinkShape(shape);
                 IEnumerable<Shape> shapeSuperset =
                     from parentShape in parentShapes.Union(shapes)
                     from inlineShape in Tool.GetInlineShapes(parentShape)
@@ -215,7 +215,7 @@ namespace PowerPointLaTeX
                     // if only one equation is selected, start editing it
                     if (shapes.Count == 1 && shapes[0].LaTeXTags().Type == EquationType.Equation)
                     {
-                        if (shapes[0].LaTeXTags().ParentId == 0)
+                        if (shapes[0].LaTeXTags().LinkID == 0)
                         {
                             Tool.ShowEquationSource(shapes[0]);
                         }
