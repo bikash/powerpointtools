@@ -55,7 +55,7 @@ namespace PowerPointLaTeX
             return shape.IsEquation() && shape.LaTeXTags().LinkID == 0;
         }
 
-        internal static bool IsUncompiledEquation( this Shape shape ) {
+        internal static bool IsDecompiledEquation( this Shape shape ) {
             return shape.IsEquation() && shape.LaTeXTags().LinkID != 0;
         }
     }
