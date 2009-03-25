@@ -184,8 +184,10 @@ namespace PowerPointLaTeX
             // 
             this.AutoEditEquationToggle.Checked = true;
             this.AutoEditEquationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.AutoEditEquationToggle.Image = ((System.Drawing.Image) (resources.GetObject("AutoEditEquationToggle.Image")));
             this.AutoEditEquationToggle.Label = "Auto-Edit Equations";
             this.AutoEditEquationToggle.Name = "AutoEditEquationToggle";
+            this.AutoEditEquationToggle.OfficeImageId = "FunctionWizard";
             this.AutoEditEquationToggle.ShowImage = true;
             this.AutoEditEquationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.AutoEditEquationToggle_Click);
             // 
@@ -194,6 +196,7 @@ namespace PowerPointLaTeX
             this.CreateFormula.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.CreateFormula.Label = "New Formula";
             this.CreateFormula.Name = "CreateFormula";
+            this.CreateFormula.OfficeImageId = "FunctionWizard";
             this.CreateFormula.ShowImage = true;
             this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CreateFormula_Click);
             // 
@@ -202,6 +205,7 @@ namespace PowerPointLaTeX
             this.ShowEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.ShowEquationCode.Label = "Show Equation Code";
             this.ShowEquationCode.Name = "ShowEquationCode";
+            this.ShowEquationCode.OfficeImageId = "WordArtEditTextClassic";
             this.ShowEquationCode.ShowImage = true;
             this.ShowEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.ShowEquationCode_Click);
             // 

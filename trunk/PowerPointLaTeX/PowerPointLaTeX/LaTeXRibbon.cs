@@ -246,7 +246,8 @@ namespace PowerPointLaTeX
 
         private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
         {
-            Tool.CreateEmptyEquation();
+            Microsoft.Office.Interop.PowerPoint.Shape equation = Tool.CreateEmptyEquation();
+            equation.Select(MsoTriState.msoTrue);
         }
 
         private void ShowEquationCode_Click(object sender, RibbonControlEventArgs e)
