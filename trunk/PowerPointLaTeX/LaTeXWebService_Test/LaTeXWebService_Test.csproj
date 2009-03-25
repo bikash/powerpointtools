@@ -68,12 +68,6 @@
     <Content Include="AuthoringTests.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LaTeXWebService\LaTeXWebService.csproj">
-      <Project>{0FB3DD7B-A704-45BA-B7FB-73F8A96BED7F}</Project>
-      <Name>LaTeXWebService</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Shadow Include="Test References\LaTeXWebService.accessor" />
   </ItemGroup>
   <ItemGroup>

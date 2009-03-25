@@ -47,15 +47,18 @@ namespace PowerPointLaTeX
 
     static class EquationTypeShapeExtension
     {
-        internal static bool IsEquation(this Shape shape) {
+        internal static bool IsEquation(this Shape shape)
+        {
             return shape.LaTeXTags().Type == EquationType.Equation;
         }
 
-        internal static bool IsCompiledEquation( this Shape shape ) {
+        internal static bool IsCompiledEquation(this Shape shape)
+        {
             return shape.IsEquation() && shape.LaTeXTags().LinkID == 0;
         }
 
-        internal static bool IsDecompiledEquation( this Shape shape ) {
+        internal static bool IsDecompiledEquation(this Shape shape)
+        {
             return shape.IsEquation() && shape.LaTeXTags().LinkID != 0;
         }
     }
@@ -108,6 +111,7 @@ namespace PowerPointLaTeX
                 return null;
             }
 
+
             IDataObject oldClipboardContent = Clipboard.GetDataObject();
 
             Clipboard.Clear();
@@ -142,8 +146,7 @@ namespace PowerPointLaTeX
         private Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode)
         {
             // check the cache first
-            byte[] imageData;
-            imageData = GetImageForLaTeXCode(latexCode);
+            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
             Shape picture = GetPictureShapeFromData(currentSlide, imageData);
 
             picture.AlternativeText = latexCode;
@@ -202,15 +205,15 @@ namespace PowerPointLaTeX
                 {
                     formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
                 }
-                catch {}
+                catch { }
                 //formulaEffect = sequence.ConvertToTextUnitEffect(formulaEffect, MsoAnimTextUnitEffect.msoAnimTextUnitEffectMixed);
-                if( setToWithPrevious )
+                if (setToWithPrevious)
                     formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
                 try
                 {
                     formulaEffect.Paragraph = 0;
                 }
-                catch {}
+                catch { }
                 formulaEffect.Shape = target;
                 // Effect formulaEffect = sequence.AddEffect(picture, effect.EffectType, MsoAnimateByLevel.msoAnimateLevelNone, MsoAnimTriggerType.msoAnimTriggerWithPrevious, index);
             }
@@ -265,7 +268,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        private byte[] GetImageForLaTeXCode(string latexCode)
+        private byte[] GetImageDataForLaTeXCode(string latexCode)
         {
             byte[] imageData;
             if (ActivePresentation.CacheTags()[latexCode].IsCached())
@@ -274,14 +277,11 @@ namespace PowerPointLaTeX
             }
             else
             {
-                LaTeXWebService.WebService.URLData URLData = LaTeXWebService.WebService.compileLaTeX(latexCode);
-                // TODO: replace all the null checks with exception handling? [2/26/2009 Andreas]
-                if (URLData.content == null)
+                imageData = Globals.ThisAddIn.LaTeXServices.Service.GetImageDataForLaTeXCode(latexCode);
+                if (imageData == null)
                 {
                     return null;
                 }
-                Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
-                imageData = URLData.content;
 
                 ActivePresentation.CacheTags()[latexCode].Store(imageData);
             }
@@ -573,11 +573,12 @@ namespace PowerPointLaTeX
         {
             // recompile the code
             //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
-            string latexCode = equationSource.TextFrame.TextRange.Text;        
+            string latexCode = equationSource.TextFrame.TextRange.Text;
             Shape oldEquation = GetLinkShape(equationSource);
 
             equationSource.Delete();
-            if( oldEquation == null ) {
+            if (oldEquation == null)
+            {
                 // TODO: error handling? [3/5/2009 Andreas]
                 return;
             }

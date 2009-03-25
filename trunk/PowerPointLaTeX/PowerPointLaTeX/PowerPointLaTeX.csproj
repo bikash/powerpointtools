@@ -99,6 +99,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <!--
     This section defines properties that are set when the "Release" configuration is selected.
@@ -170,6 +171,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <!--
     This section defines the user source files that are part of the project.
@@ -244,6 +246,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SelectionExtension.cs" />
+    <Compile Include="ILaTeXService.cs" />
+    <Compile Include="LaTeXServics.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
@@ -263,13 +267,8 @@
     <Compile Include="ThisAddIn.Designer.cs">
       <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
     </Compile>
+    <Compile Include="WebService.cs" />
     <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LaTeXWebService\LaTeXWebService.csproj">
-      <Project>{0FB3DD7B-A704-45BA-B7FB-73F8A96BED7F}</Project>
-      <Name>LaTeXWebService</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

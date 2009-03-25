@@ -40,11 +40,18 @@ namespace PowerPointLaTeX
             private set;
         }
 
+        internal LaTeXServics LaTeXServices
+        {
+            get;
+            private set;
+        }
+
         internal CustomTaskPane DeveloperTaskPane;
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Tool = new LaTeXTool();
+            LaTeXServices = new LaTeXServics();
 
             DeveloperTaskPane = CustomTaskPanes.Add(new DeveloperTaskPaneControl(), DeveloperTaskPaneControl.Title);
             DeveloperTaskPane.Visible = Properties.Settings.Default.ShowDeveloperTaskPane;
