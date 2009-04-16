@@ -97,6 +97,7 @@ namespace PowerPointLaTeX
             this.PreferencesButton.Name = "PreferencesButton";
             this.PreferencesButton.OfficeImageId = "MessageOptions";
             this.PreferencesButton.ShowImage = true;
+            this.PreferencesButton.Visible = false;
             this.PreferencesButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PreferencesButton_Click);
             // 
             // PresentationModeToggle
