@@ -69,6 +69,8 @@ namespace PowerPointLaTeX
     /// </summary>
     class LaTeXTool
     {
+        private const char NoneBreakingSpace = (char) 160;
+
         private delegate void DoShape(Slide slide, Shape shape);
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
@@ -176,9 +178,17 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().LinkID.value = textShape.Id;
 
-            // disable wordwrap
+            // scale the picture to fit the font size
+            // TODO: magic numbers? [4/17/2009 Andreas]
+            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
+            picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
+            picture.Height *= scalingFactor;
+            picture.Width *= scalingFactor;
+
+            // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
-            FillTextRange(codeRange, ' ', picture.Width);
+            // fill the text up with none breaking space to make it "wrap around" the formula
+            FillTextRange(codeRange, NoneBreakingSpace, picture.Width);
 
             // copy animations from the parent textShape
             Sequence sequence = slide.TimeLine.MainSequence;
@@ -223,38 +233,26 @@ namespace PowerPointLaTeX
         {
             range.Text = character.ToString();
 
-            while (range.BoundWidth < minWidth)
+            // line-breaks are futile, so break if one happen 
+            float oldHeight = range.BoundHeight;
+            while (range.BoundWidth < minWidth && oldHeight == range.BoundHeight)
             {
                 range.Text += character.ToString();
             }
-        }
-
-        // TODO: rework this function [2/26/2009 Andreas]
-        private static void FitFormulaIntoText(TextRange codeRange, Shape picture)
-        {
-            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
-            // NOTE: PowerPoint scales both Width and Height if you scale one of them >_< [1/2/2009 Andreas]
-            picture.Height *= scalingFactor;
-
-            // TODO: is this needed anymore? [2/26/2009 Andreas]
-            // align the picture
-            FillTextRange(codeRange, ' ', picture.Width);
+            if( oldHeight != range.BoundHeight ) {
+                range.Text = range.Text.Remove(0, 1);
+            }
         }
 
         private static void AlignFormulaWithText(TextRange codeRange, Shape picture)
         {
-            // interesting fact: text filled with spaces -> BoundHeight == EmSize
-            codeRange.Text = " ";
+            // interesting fact: text filled with (at most one line of none-breaking) spaces -> BoundHeight == EmSize
+            //codeRange.Text = " ";
             float fontHeight = codeRange.BoundHeight;
             FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
             float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
-            // fill the text up with . to make it "wrap around" the formula
-            FillTextRange(codeRange, '.', picture.Width);
-            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
             picture.Left = codeRange.BoundLeft;
-            // this will probably break word-wrap? - yes, it does >_>
-            FillTextRange(codeRange, ' ', picture.Width);
 
             if (baselineHeight >= picture.Height)
             {
@@ -329,7 +327,6 @@ namespace PowerPointLaTeX
                     {
                         tagEntry.ShapeId.value = picture.Id;
 
-                        FitFormulaIntoText(codeRange, picture);
                         pictures.Add(picture);
                         pictureRanges.Add(codeRange);
                     }
@@ -362,7 +359,7 @@ namespace PowerPointLaTeX
                             }
                         } )).Start();*/
 
-
+            // now that everything has been converted we can position the formulas (pictures) in the text area
             for (int i = 0; i < pictures.Count; i++)
             {
                 TextRange codeRange = pictureRanges[i];
