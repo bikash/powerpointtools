@@ -1,4 +1,5 @@
 #summary A short description of the LanguagePainter add-in.
+#labels Featured
 
 = Introduction =
 
@@ -11,5 +12,7 @@ While it is nice if you are used to the language's specific keyboard layout it i
 = Details =
 
 When you install the add-in, it will add a new toggle button to the Home ribbon:
+
 [http://blog.blackhc.net/wp-content/uploads/2009/04/pplangpainter1-1024x112.jpg]
+
 If you toggle the "Paint {{{[...]}}}" button, it will automatically set the text you're editing to the language specified (regardless of your keyboard layout, etc.). If you click on the lower half of the button, a combo menu will pop up offering you several language choices - at the moment English (US), German, French and Spanish are supported.
