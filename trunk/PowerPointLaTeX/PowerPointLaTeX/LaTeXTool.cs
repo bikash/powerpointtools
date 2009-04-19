@@ -149,6 +149,10 @@ namespace PowerPointLaTeX
         {
             // check the cache first
             byte[] imageData = GetImageDataForLaTeXCode(latexCode);
+            if( imageData == null ) {
+                return null;
+            }
+
             Shape picture = GetPictureShapeFromData(currentSlide, imageData);
 
             picture.AlternativeText = latexCode;
@@ -579,6 +583,8 @@ namespace PowerPointLaTeX
                 // TODO: error handling? [3/5/2009 Andreas]
                 return;
             }
+            // reset the link straight-away (in case we fail and keep the old equation shape)
+            oldEquation.LaTeXTags().LinkID.value = 0;
 
             Slide slide = oldEquation.GetSlide();
             if (slide == null)
