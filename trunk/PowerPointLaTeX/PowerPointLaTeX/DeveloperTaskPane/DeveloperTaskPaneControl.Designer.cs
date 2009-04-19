@@ -50,12 +50,12 @@ namespace PowerPointLaTeX
             this.tabControl = new System.Windows.Forms.TabControl();
             this.TagsPage = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tagsLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.refreshButton = new System.Windows.Forms.Button();
             this.selectAll = new System.Windows.Forms.Button();
             this.useCurrentSelectionButton = new System.Windows.Forms.Button();
             this.GeneralPage = new System.Windows.Forms.TabPage();
+            this.tagsLayout = new System.Windows.Forms.TableLayoutPanel();
             this.tabControl.SuspendLayout();
             this.TagsPage.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -88,8 +88,8 @@ namespace PowerPointLaTeX
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.tagsLayout, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.tagsLayout, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -98,18 +98,6 @@ namespace PowerPointLaTeX
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(305, 392);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // tagsLayout
-            // 
-            this.tagsLayout.AutoScroll = true;
-            this.tagsLayout.AutoSize = true;
-            this.tagsLayout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tagsLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tagsLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.tagsLayout.Location = new System.Drawing.Point(3, 38);
-            this.tagsLayout.Name = "tagsLayout";
-            this.tagsLayout.Size = new System.Drawing.Size(299, 351);
-            this.tagsLayout.TabIndex = 4;
             // 
             // flowLayoutPanel1
             // 
@@ -167,10 +155,23 @@ namespace PowerPointLaTeX
             this.GeneralPage.Location = new System.Drawing.Point(4, 22);
             this.GeneralPage.Name = "GeneralPage";
             this.GeneralPage.Padding = new System.Windows.Forms.Padding(3);
-            this.GeneralPage.Size = new System.Drawing.Size(392, 465);
+            this.GeneralPage.Size = new System.Drawing.Size(311, 398);
             this.GeneralPage.TabIndex = 1;
             this.GeneralPage.Text = "General";
             this.GeneralPage.UseVisualStyleBackColor = true;
+            // 
+            // tagsLayout
+            // 
+            this.tagsLayout.AutoScroll = true;
+            this.tagsLayout.ColumnCount = 1;
+            this.tagsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tagsLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tagsLayout.Location = new System.Drawing.Point(3, 38);
+            this.tagsLayout.Name = "tagsLayout";
+            this.tagsLayout.RowCount = 1;
+            this.tagsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tagsLayout.Size = new System.Drawing.Size(299, 351);
+            this.tagsLayout.TabIndex = 6;
             // 
             // DeveloperTaskPaneControl
             // 
@@ -195,10 +196,10 @@ namespace PowerPointLaTeX
         private System.Windows.Forms.TabPage TagsPage;
         private System.Windows.Forms.TabPage GeneralPage;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.FlowLayoutPanel tagsLayout;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button refreshButton;
         private System.Windows.Forms.Button selectAll;
         private System.Windows.Forms.Button useCurrentSelectionButton;
+        private System.Windows.Forms.TableLayoutPanel tagsLayout;
     }
 }
