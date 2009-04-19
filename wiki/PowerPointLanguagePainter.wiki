@@ -1,4 +1,4 @@
-#summary A short description of the !LanguagePainter add-in.
+#summary A short description of the LanguagePainter add-in.
 
 = Introduction =
 
