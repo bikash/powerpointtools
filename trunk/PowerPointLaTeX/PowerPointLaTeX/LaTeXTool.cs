@@ -683,11 +683,6 @@ namespace PowerPointLaTeX
 
             formula.LaTeXTags().LinkID.value = shape.Id;
 
-            // select the shape and enter text edit mode
-            // TODO: move this into its own function [3/3/2009 Andreas]
-            shape.Select(Microsoft.Office.Core.MsoTriState.msoTrue);
-            shape.TextFrame.TextRange.Characters(0, 0).Select();
-
             return shape;
         }
 

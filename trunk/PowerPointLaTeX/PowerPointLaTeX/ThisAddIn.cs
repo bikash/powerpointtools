@@ -225,7 +225,11 @@ namespace PowerPointLaTeX
                     // if only one equation is selected, start editing it
                     if (!Tool.ActivePresentation.SettingsTags().PresentationMode && shapes.Count == 1 && shapes[0].IsCompiledEquation())
                     {
-                        Tool.ShowEquationSource(shapes[0]);
+                        Shape shape = Tool.ShowEquationSource(shapes[0]);
+
+                        // select the shape and enter text edit mode
+                        shape.Select(Microsoft.Office.Core.MsoTriState.msoTrue);
+                        shape.TextFrame.TextRange.Characters(0, 0).Select();
                     }
                 }
 
