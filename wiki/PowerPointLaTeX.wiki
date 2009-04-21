@@ -1,0 +1,24 @@
+#summary A short description of PowerPointLaTeX
+= Introduction =
+
+PowerPointLaTeX is a small add-in that allows you to embed LaTeX math code into your !PowerPoint 2007 presentations in a user-friendly way.
+It uses a web-service to render the LaTeX code (currently it uses the equation editor from http://www.codecogs.com/). Support for MikeTEX and other LaTeX web-services is planned.
+
+= Details =
+
+PowerPointLaTeX adds a new ribbon to !PowerPoint 2007:
+
+[http://blog.blackhc.net/wp-content/uploads/2009/04/pptlatex1.jpg]
+
+There are two different types of equations: inline equations and formulas.
+Inline equations can be added anywhere in-between normal text. Simply wrap your LaTeX math code in a pair of $$: "Some integral $$ \int x \, dx = {1 \over  2} x^2 + C$$".
+
+Formulas are stand-alone objects. You can create them by using the Ribbon button "New Formula".
+To edit a formula click onto it and a text shape will appear that contains its LaTeX code.
+Deselect it and it will automatically compile it.
+
+PowerPointLaTeX caches the compiled formulas, so you don't need an active internet connection if you don't change anything.
+
+= Known Issues =
+
+If you have huge LaTeX formulas PowerPoint's Auto-Fit feature might kick in. It's toxic to PowerPointLaTeX's inline formula embedding feature - the formulas will end up in the wrong place. Simply disable Auto-Fit for those text shapes and adapt the font size manually.
