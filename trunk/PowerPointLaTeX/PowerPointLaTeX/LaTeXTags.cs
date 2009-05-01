@@ -31,6 +31,7 @@ namespace PowerPointLaTeX
         public AddInTagInt StartIndex;
         public AddInTagInt Length;
         public AddInTagInt ShapeId;
+        public AddInTagFloat FontSize;
 
         public LaTeXEntry(Tags tags, int index)
         {
@@ -38,6 +39,7 @@ namespace PowerPointLaTeX
             this.StartIndex = new AddInTagInt(tags, "Entry[" + index + "].StartIndex");
             this.Length = new AddInTagInt(tags, "Entry[" + index + "].Length");
             this.ShapeId = new AddInTagInt(tags, "Entry[" + index + "].ShapeId");
+            this.FontSize = new AddInTagFloat(tags, "Entry[" + index + "].FontSize");
         }
 
         public void Clear()
@@ -46,6 +48,7 @@ namespace PowerPointLaTeX
             StartIndex.Clear();
             Length.Clear();
             ShapeId.Clear();
+            FontSize.Clear();
         }
     }
 

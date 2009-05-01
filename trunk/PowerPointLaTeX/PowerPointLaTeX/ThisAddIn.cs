@@ -126,7 +126,7 @@ namespace PowerPointLaTeX
         }
 
         // TODO: find a more descriptive name for this function [4/21/2009 Andreas]
-        private IEnumerable<Shape> GetSelectionSuperset(IEnumerable<Shape> shapes) {
+        private IEnumerable<Shape> GetExpandedSelection(IEnumerable<Shape> shapes) {
             IEnumerable<Shape> parentShapes =
                 from shape in shapes
                 where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource || shape.IsDecompiledEquation()
@@ -152,7 +152,7 @@ namespace PowerPointLaTeX
             {
                 // automatically select the parent (and thus all children) of a inline objects
                 List<Shape> shapes = Sel.GetShapesFromShapeSelection();
-                var shapeSuperset = GetSelectionSuperset(shapes);
+                var shapeSuperset = GetExpandedSelection(shapes);
 
                 Sel.SelectShapes(shapeSuperset, false);
 
@@ -202,7 +202,7 @@ namespace PowerPointLaTeX
                 // deselect shapes that contain compiled inlines
                 if (textShape.LaTeXTags().Type == EquationType.HasCompiledInlines)
                 {
-                    Sel.SelectShapes(GetSelectionSuperset(new Shape[] { textShape }), true);
+                    Sel.SelectShapes(GetExpandedSelection(new Shape[] { textShape }), true);
                 }
             }
             oldTextShape = textShape;

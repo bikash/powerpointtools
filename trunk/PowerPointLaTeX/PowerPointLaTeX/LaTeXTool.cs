@@ -181,13 +181,16 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().LinkID.value = textShape.Id;
-
+            
             // scale the picture to fit the font size
             // TODO: magic numbers? [4/17/2009 Andreas]
             float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
             picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
             picture.Height *= scalingFactor;
             picture.Width *= scalingFactor;
+
+            // change the font size to keep the formula from overlapping with regular text (nifty :))
+            codeRange.Font.Size = picture.Height;
 
             // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
@@ -317,10 +320,14 @@ namespace PowerPointLaTeX
                 int length = endIndex - startIndex;
                 string latexCode = range.Text.Substring(startIndex, length);
                 // TODO: move this into its own function [1/5/2009 Andreas]
+                // replace weird unicode ' with the one usually used
                 latexCode = latexCode.Replace((char) 8217, '\'');
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
                 tagEntry.Code.value = latexCode;
+                // TODO: cohesion? [5/2/2009 Andreas]
+                // save the font size because it might be changed later
+                tagEntry.FontSize.value = range.Font.Size;
 
                 // escape $$!$$
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
@@ -427,6 +434,7 @@ namespace PowerPointLaTeX
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
                 codeRange.Text = "$$" + latexCode + "$$";
+                codeRange.Font.Size = entry.FontSize;
             }
 
             entries.Clear();
