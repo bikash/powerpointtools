@@ -1,4 +1,5 @@
 #summary A short description of PowerPointLaTeX
+#labels Featured
 = Introduction =
 
 PowerPointLaTeX is a small add-in that allows you to embed LaTeX math code into your !PowerPoint 2007 presentations in a user-friendly way.
