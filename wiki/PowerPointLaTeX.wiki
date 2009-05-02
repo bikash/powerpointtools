@@ -14,7 +14,7 @@ PowerPointLaTeX adds a new ribbon to !PowerPoint 2007:
 There are two different types of equations: inline equations and formulas.
 Inline equations can be added anywhere in-between normal text. Simply wrap your LaTeX math code in a pair of $$: "Some integral $$ \int x \, dx = {1 \over  2} x^2 + C$$".
 
-<wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/106581606564100174314/vimeo-video.xml" up_videourl="http://vimeo.com/4442353" width="600" height="400" border="0"/>
+<wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/106581606564100174314/vimeo-video.xml" up_videourl="http://vimeo.com/4442353" width="480" height="420" border="0"/>
 
 Formulas are stand-alone objects. You can create them by using the Ribbon button "New Formula".
 To edit a formula click onto it and a text shape will appear that contains its LaTeX code.
