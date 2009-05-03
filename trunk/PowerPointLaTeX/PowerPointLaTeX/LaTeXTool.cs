@@ -190,7 +190,9 @@ namespace PowerPointLaTeX
             picture.Width *= scalingFactor;
 
             // change the font size to keep the formula from overlapping with regular text (nifty :))
-            codeRange.Font.Size = picture.Height;
+            if (codeRange.Font.Size < picture.Height) {
+                codeRange.Font.Size = picture.Height;
+            }
             codeRange.Font.BaselineOffset = -0.5f;
 
             // disable word wrap
@@ -435,7 +437,9 @@ namespace PowerPointLaTeX
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
                 codeRange.Text = "$$" + latexCode + "$$";
-                codeRange.Font.Size = entry.FontSize;
+                if (entry.FontSize != 0) {
+                    codeRange.Font.Size = entry.FontSize;
+                }
                 codeRange.Font.BaselineOffset = 0.0f;
             }
 
