@@ -24,4 +24,6 @@ PowerPointLaTeX caches the compiled formulas, so you don't need an active intern
 
 = Known Issues =
 
-If you have huge LaTeX formulas PowerPoint's Auto-Fit feature might kick in. It's toxic to PowerPointLaTeX's inline formula embedding feature - the formulas will end up in the wrong place. Simply disable Auto-Fit for those text shapes and adapt the font size manually.
+If you have huge LaTeX formulas PowerPoint's Auto-Fit feature might kick in. It's toxic to PowerPointLaTeX's inline formula embedding feature - the formulas will end up in the wrong place. Simply disable Auto-Fit for those text shapes and adapt the font size manually if necessary.
+
+The code internally uses the clipboard to insert the formulas into the presentation and for some reason the original clipboard content is lost even though that shouldn't happen.
