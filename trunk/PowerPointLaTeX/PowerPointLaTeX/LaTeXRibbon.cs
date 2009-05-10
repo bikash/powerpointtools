@@ -267,5 +267,11 @@ namespace PowerPointLaTeX
         {
             Tool.ActivePresentation.SettingsTags().ManualEquationEditing.value = !AutoEditEquationToggle.Checked;
         }
+
+        private void ClearCache_Click(object sender, RibbonControlEventArgs e) {
+            if (MessageBox.Show("Do you want to clear the cache?", "PowerPoint LaTeX", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
+                Tool.ActivePresentation.CacheTags().PurgeAll();
+            }
+        }
     }
 }

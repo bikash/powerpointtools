@@ -51,6 +51,7 @@ namespace PowerPointLaTeX
             this.LaTeX = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.generalGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.PreferencesButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.ClearCache = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.PresentationModeToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.separator1 = new Microsoft.Office.Tools.Ribbon.RibbonSeparator();
             this.FinalizeButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
@@ -84,6 +85,7 @@ namespace PowerPointLaTeX
             // generalGroup
             // 
             this.generalGroup.Items.Add(this.PreferencesButton);
+            this.generalGroup.Items.Add(this.ClearCache);
             this.generalGroup.Items.Add(this.PresentationModeToggle);
             this.generalGroup.Items.Add(this.separator1);
             this.generalGroup.Items.Add(this.FinalizeButton);
@@ -99,6 +101,17 @@ namespace PowerPointLaTeX
             this.PreferencesButton.ShowImage = true;
             this.PreferencesButton.Visible = false;
             this.PreferencesButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PreferencesButton_Click);
+            // 
+            // ClearCache
+            // 
+            this.ClearCache.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.ClearCache.Label = "Clear Cache";
+            this.ClearCache.Name = "ClearCache";
+            this.ClearCache.OfficeImageId = "Delete";
+            this.ClearCache.ScreenTip = "Clear the LaTeX Cache";
+            this.ClearCache.ShowImage = true;
+            this.ClearCache.SuperTip = resources.GetString("ClearCache.SuperTip");
+            this.ClearCache.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.ClearCache_Click);
             // 
             // PresentationModeToggle
             // 
@@ -276,6 +289,7 @@ namespace PowerPointLaTeX
         internal Microsoft.Office.Tools.Ribbon.RibbonButton CreateFormula;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AutoEditEquationToggle;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ShowEquationCode;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton ClearCache;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection
