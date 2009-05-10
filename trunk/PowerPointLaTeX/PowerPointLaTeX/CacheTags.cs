@@ -30,6 +30,8 @@ namespace PowerPointLaTeX
     {
         public class CacheEntry
         {
+            // refCounter is 1 + #references
+            // 0 means that has never been accessed and 1 means that the entry is cached but currently unused
             private AddInTagInt refCounter;
             private AddInTagByteArray content;
 
@@ -74,11 +76,17 @@ namespace PowerPointLaTeX
                 }
             }
 
-            public void Release()
+            public void ReleaseIfUsed()
             {
-                Debug.Assert(RefCounter > 1);
+                if( RefCounter == 0 ) {
+                    // unused
+                    return;
+                }
+                // otherwise the refcounter must be at least 2
+                Debug.Assert(RefCounter >= 2);
                 if (--RefCounter < 1)
                 {
+                    // even if something goes wrong, keep it as 'cached'
                     RefCounter = 1;
                 }
             }

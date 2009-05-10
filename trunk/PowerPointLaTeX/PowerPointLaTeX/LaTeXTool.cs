@@ -154,6 +154,9 @@ namespace PowerPointLaTeX
             }
 
             Shape picture = GetPictureShapeFromData(currentSlide, imageData);
+            if( picture == null ) {
+                return null;
+            }
 
             picture.AlternativeText = latexCode;
             picture.Name = "LaTeX: " + latexCode;
@@ -276,6 +279,12 @@ namespace PowerPointLaTeX
             }
         }
 
+        /// <summary>
+        /// Get the raw image data for some latex code or null if the compilation failed.
+        /// It seems to be possible to receive a byte[0] array for some reason.
+        /// </summary>
+        /// <param name="latexCode"></param>
+        /// <returns></returns>
         private byte[] GetImageDataForLaTeXCode(string latexCode)
         {
             byte[] imageData;
@@ -293,6 +302,9 @@ namespace PowerPointLaTeX
 
                 ActivePresentation.CacheTags()[latexCode].Store(imageData);
             }
+
+            // make sure we return a some-what meaningful array
+            Debug.Assert(imageData.Length > 0);
             return imageData;
         }
 
@@ -431,7 +443,7 @@ namespace PowerPointLaTeX
                     }
 
                     // release the cache entry, too
-                    ActivePresentation.CacheTags()[latexCode].Release();
+                    ActivePresentation.CacheTags()[latexCode].ReleaseIfUsed();
                 }
 
                 // add back the latex code
