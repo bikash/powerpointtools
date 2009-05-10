@@ -51,8 +51,7 @@ namespace PowerPointLaTeX
         private static URLData getURLData(string url)
         {
             HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(url);
-            request.Timeout = 10000;
-            request.KeepAlive = false;
+            request.Timeout = 3000;
             HttpWebResponse response = null;
             try {
                 response = (HttpWebResponse) request.GetResponse();
@@ -63,18 +62,21 @@ namespace PowerPointLaTeX
             Stream responseStream = response.GetResponseStream();
 
             Byte[] bytes = new Byte[response.ContentLength];
-            int numBytesRead = responseStream.Read(bytes, 0, (int) response.ContentLength);
+            int offset = 0;
+            // apparently we need to everything packet by packet
+            while (offset < response.ContentLength) {
+                int numBytesRead = responseStream.Read(bytes, offset, (int) response.ContentLength - offset);
+                offset += numBytesRead;
+                if( numBytesRead == 0 ) {
+                    response.Close();
+                    return new URLData();
+                }
+            }
 
             response.Close();
 
-            // just return null if we can't read the whole packet for some reason (e.g. connection drop or similar)
-            if (numBytesRead != response.ContentLength)
-            {
-                return new URLData();
-            }
-
             URLData data = new URLData();
-            data.content = bytes.Take(numBytesRead).ToArray();
+            data.content = bytes.Take((int) response.ContentLength).ToArray();
             data.contentType = response.ContentType;
             return data;
         }
