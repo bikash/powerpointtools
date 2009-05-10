@@ -50,14 +50,22 @@ namespace PowerPointLaTeX
         /// <returns>Null if not everything could be read</returns>
         private static URLData getURLData(string url)
         {
-            WebRequest request = HttpWebRequest.Create(url);
-            request.Timeout = 3000;
-            WebResponse response = request.GetResponse();
+            HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(url);
+            request.Timeout = 10000;
+            request.KeepAlive = false;
+            HttpWebResponse response = null;
+            try {
+                response = (HttpWebResponse) request.GetResponse();
+            } catch {
+                return new URLData();
+            }
 
             Stream responseStream = response.GetResponseStream();
 
             Byte[] bytes = new Byte[response.ContentLength];
             int numBytesRead = responseStream.Read(bytes, 0, (int) response.ContentLength);
+
+            response.Close();
 
             // just return null if we can't read the whole packet for some reason (e.g. connection drop or similar)
             if (numBytesRead != response.ContentLength)
@@ -71,6 +79,11 @@ namespace PowerPointLaTeX
             return data;
         }
 
+        /// <summary>
+        /// Always returns a valid URLData object
+        /// </summary>
+        /// <param name="latexCode"></param>
+        /// <returns></returns>
         private static URLData compileLaTeX(string latexCode)
         {
             return getURLData(getRequestURL(latexCode));

@@ -270,7 +270,7 @@ namespace PowerPointLaTeX
             if (baselineHeight >= picture.Height)
             {
                 // baseline: center (assume that its a one-line codeRange)
-                picture.Top = codeRange.BoundTop + baselineHeight - picture.Height;
+                picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
             }
             else
             {
@@ -342,7 +342,7 @@ namespace PowerPointLaTeX
                 tagEntry.Code.value = latexCode;
                 // TODO: cohesion? [5/2/2009 Andreas]
                 // save the font size because it might be changed later
-                tagEntry.FontSize.value = range.Font.Size;
+                tagEntry.FontSize.value = range.Characters(startIndex, length).Font.Size;
 
                 // escape $$!$$
                 TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
