@@ -269,7 +269,7 @@ namespace PowerPointLaTeX
         }
 
         private void ClearCache_Click(object sender, RibbonControlEventArgs e) {
-            if (MessageBox.Show("Do you want to clear the cache?", "PowerPoint LaTeX", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
+            if (MessageBox.Show("Do you really want to clear the cache?", "PowerPoint LaTeX", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                 Tool.ActivePresentation.CacheTags().PurgeAll();
             }
         }

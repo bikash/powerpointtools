@@ -36,11 +36,11 @@ namespace PowerPointLaTeX
             public string contentType;
         }
 
-        private const string webServiceURL = @"http://www.codecogs.com/png.latex?\bg_white&space;\300dpi&space;"; // "http://l.wordpress.com/latex.php?bg=ffffff&fg=000000&latex=";
+        private const string webServiceURL = @"http://www.codecogs.com/png.latex?\bg_white \300dpi "; // "http://l.wordpress.com/latex.php?bg=ffffff&fg=000000&latex=";
 
         private static string getRequestURL(string latexCode)
         {
-            return webServiceURL + HttpUtility.HtmlEncode(latexCode);
+            return webServiceURL + latexCode;
         }
 
         /// <summary>
@@ -50,8 +50,10 @@ namespace PowerPointLaTeX
         /// <returns>Null if not everything could be read</returns>
         private static URLData getURLData(string url)
         {
-            HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(url);
-            request.Timeout = 3000;
+            // TODO: clean this code up *pretty please* (but make sure this instable PoS doesnt break) [5/13/2009 Andreas]
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+            request.Timeout = 6000;
+            request.Method = "GET";
             HttpWebResponse response = null;
             try {
                 response = (HttpWebResponse) request.GetResponse();
@@ -60,23 +62,27 @@ namespace PowerPointLaTeX
             }
 
             Stream responseStream = response.GetResponseStream();
-
-            Byte[] bytes = new Byte[response.ContentLength];
+            byte[] buffer = new byte[1024*512];
             int offset = 0;
             // apparently we need to everything packet by packet
-            while (offset < response.ContentLength) {
-                int numBytesRead = responseStream.Read(bytes, offset, (int) response.ContentLength - offset);
+            while (true) {
+                int numBytesRead = responseStream.Read(buffer, offset, 2048);
                 offset += numBytesRead;
-                if( numBytesRead == 0 ) {
-                    response.Close();
-                    return new URLData();
+                if( numBytesRead == 0) {
+                    if (offset == 0) {
+                        response.Close();
+                        return new URLData();
+                    }
+                    else {
+                        break;
+                    }
                 }
             }
 
             response.Close();
 
             URLData data = new URLData();
-            data.content = bytes.Take((int) response.ContentLength).ToArray();
+            data.content = buffer.Take(offset).ToArray();
             data.contentType = response.ContentType;
             return data;
         }

@@ -113,14 +113,22 @@ namespace PowerPointLaTeX
                 return null;
             }
 
+            
+            IDataObject oldClipboardContent = null;
+            try {
+                oldClipboardContent = Clipboard.GetDataObject();
+            }
+            catch { Debug.Assert( false, "Retrieving the current clipboad contents failed!"); }
 
-            IDataObject oldClipboardContent = Clipboard.GetDataObject();
-
-            Clipboard.Clear();
             Clipboard.SetImage(image);
 
             ShapeRange pictureRange = slide.Shapes.Paste();
-            Clipboard.SetDataObject(oldClipboardContent);
+            if( oldClipboardContent != null )
+                Clipboard.SetDataObject(oldClipboardContent);
+
+            if( pictureRange == null ) {
+                return null;
+            }
 
             // make white the transparent color
             pictureRange.PictureFormat.TransparencyColor = ~0;
@@ -159,7 +167,15 @@ namespace PowerPointLaTeX
             }
 
             picture.AlternativeText = latexCode;
-            picture.Name = "LaTeX: " + latexCode;
+
+            string shortenedName;
+            if (latexCode.Length > 32) {
+                shortenedName = latexCode.Substring(0, 32) + "..";
+            }
+            else {
+                shortenedName = latexCode;
+            }
+            picture.Name = "LaTeX: " + shortenedName;
 
             return picture;
         }
