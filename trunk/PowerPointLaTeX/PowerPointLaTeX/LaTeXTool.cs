@@ -41,8 +41,6 @@ namespace PowerPointLaTeX
         Inline,
         // an equation (not implemented atm)
         Equation,
-        // the source (text) of an equation
-        EquationSource
     }
 
     static class EquationTypeShapeExtension
@@ -50,16 +48,6 @@ namespace PowerPointLaTeX
         internal static bool IsEquation(this Shape shape)
         {
             return shape.LaTeXTags().Type == EquationType.Equation;
-        }
-
-        internal static bool IsCompiledEquation(this Shape shape)
-        {
-            return shape.IsEquation() && shape.LaTeXTags().LinkID == 0;
-        }
-
-        internal static bool IsDecompiledEquation(this Shape shape)
-        {
-            return shape.IsEquation() && shape.LaTeXTags().LinkID != 0;
         }
     }
 
@@ -100,25 +88,13 @@ namespace PowerPointLaTeX
         }
 
         /// <returns>A valid picture shape from the data or null if creation failed</returns>
-        private Shape GetPictureShapeFromData(Slide slide, byte[] data)
-        {
-            MemoryStream stream = new MemoryStream(data);
-            Image image;
-            try
-            {
-                image = Image.FromStream(stream);
-            }
-            catch
-            {
-                return null;
-            }
-
-            
+        private Shape GetPictureShapeFromImage(Slide slide, Image image)
+        {           
             IDataObject oldClipboardContent = null;
             try {
                 oldClipboardContent = Clipboard.GetDataObject();
             }
-            catch { Debug.Assert( false, "Retrieving the current clipboad contents failed!"); }
+            catch { Debug.Assert( false, "Retrieving the current clipboard contents failed!"); }
 
             Clipboard.SetImage(image);
 
@@ -156,12 +132,12 @@ namespace PowerPointLaTeX
         private Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode)
         {
             // check the cache first
-            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
-            if( imageData == null ) {
+            Image image = GetImageForLaTeXCode(latexCode);
+            if (image == null) {
                 return null;
             }
 
-            Shape picture = GetPictureShapeFromData(currentSlide, imageData);
+            Shape picture = GetPictureShapeFromImage(currentSlide, image);
             if( picture == null ) {
                 return null;
             }
@@ -304,11 +280,12 @@ namespace PowerPointLaTeX
         private byte[] GetImageDataForLaTeXCode(string latexCode)
         {
             byte[] imageData;
-            if (ActivePresentation.CacheTags()[latexCode].IsCached())
+            // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
+            /*if (ActivePresentation.CacheTags()[latexCode].IsCached())
             {
                 imageData = ActivePresentation.CacheTags()[latexCode].Use();
             }
-            else
+            else*/
             {
                 imageData = Globals.ThisAddIn.LaTeXServices.Service.GetImageDataForLaTeXCode(latexCode);
                 if (imageData == null)
@@ -316,12 +293,29 @@ namespace PowerPointLaTeX
                     return null;
                 }
 
-                ActivePresentation.CacheTags()[latexCode].Store(imageData);
+                //ActivePresentation.CacheTags()[latexCode].Store(imageData);
             }
 
             // make sure we return a some-what meaningful array
             Debug.Assert(imageData.Length > 0);
             return imageData;
+        }
+
+        public Image GetImageForLaTeXCode(string latexCode) {
+            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
+            if (imageData == null) {
+                return null;
+            }
+
+            MemoryStream stream = new MemoryStream(imageData);
+            Image image;
+            try {
+                image = Image.FromStream(stream);
+            }
+            catch {
+                return null;
+            }
+            return image;
         }
 
         private static bool IsEscapeCode(string code)
@@ -417,7 +411,7 @@ namespace PowerPointLaTeX
             // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc.)
             // don't try to compile equations (or their sources) either
             EquationType type = shape.LaTeXTags().Type;
-            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation || type == EquationType.EquationSource)
+            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation)
             {
                 return;
             }
@@ -609,75 +603,67 @@ namespace PowerPointLaTeX
             return shape;
         }
 
-        /// <summary>
-        /// Apply the changes of the source to the equation and delete the equation source shape
-        /// </summary>
-        public void ApplyEquationSource(Shape equationSource)
-        {
+        public Shape EditEquation( Shape equation ) {
+            EquationEditor editor = new EquationEditor(equation.LaTeXTags().Code);
+            DialogResult result = editor.ShowDialog();
+            if( result == DialogResult.Cancel ) {
+                // dont change anything
+                return equation;
+            }
+
             // recompile the code
             //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
-            string latexCode = equationSource.TextFrame.TextRange.Text;
-            Shape oldEquation = GetLinkShape(equationSource);
+            string latexCode = editor.LaTeXCode;
 
-            equationSource.Delete();
-            if (oldEquation == null)
-            {
-                // TODO: error handling? [3/5/2009 Andreas]
-                return;
-            }
-            // reset the link straight-away (in case we fail and keep the old equation shape)
-            oldEquation.LaTeXTags().LinkID.value = 0;
-
-            Slide slide = oldEquation.GetSlide();
-            if (slide == null)
-            {
-                // TODO: what do we do in that case? [3/3/2009 Andreas]
-                return;
+            Slide slide = equation.GetSlide();
+            if (slide == null) {
+                // TODO: what do we do in this case? [3/3/2009 Andreas]
+                return equation;
             }
 
-            Shape equation = null;
-            if (latexCode.Trim() != "")
-            {
-                equation = GetPictureShapeFromLaTeXCode(slide, latexCode);
+            Shape newEquation = null;
+            if (latexCode.Trim() != "") {
+                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode);
             }
 
-            if (equation != null)
-            {
-                LaTeXTags tags = equation.LaTeXTags();
+            if (newEquation != null) {
+                LaTeXTags tags = newEquation.LaTeXTags();
 
-                tags.OriginalWidth.value = equation.Width;
-                tags.OriginalHeight.value = equation.Height;
+                tags.OriginalWidth.value = newEquation.Width;
+                tags.OriginalHeight.value = newEquation.Height;
                 tags.Type.value = EquationType.Equation;
             }
-            else
-            {
-                equation = CreateEmptyEquation();
+            else {
+                newEquation = CreateEmptyEquation();
             }
 
-            equation.LaTeXTags().Code.value = latexCode;
+            newEquation.LaTeXTags().Code.value = latexCode;
 
-            equation.Top = oldEquation.Top;
-            equation.Left = oldEquation.Left;
+            newEquation.Top = equation.Top;
+            newEquation.Left = equation.Left;
 
             // keep the equation's scale
             // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
-            float widthScale = oldEquation.Width / oldEquation.LaTeXTags().OriginalWidth;
-            float heightScale = oldEquation.Height / oldEquation.LaTeXTags().OriginalHeight;
-            equation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            equation.Width *= widthScale;
-            equation.Height *= heightScale;
+            float widthScale = equation.Width / equation.LaTeXTags().OriginalWidth;
+            float heightScale = equation.Height / equation.LaTeXTags().OriginalHeight;
+            newEquation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
+            newEquation.Width *= widthScale;
+            newEquation.Height *= heightScale;
 
             // copy animations over from the old equation
             Sequence sequence = slide.TimeLine.MainSequence;
             var effects =
                 from Effect effect in sequence
-                where effect.Shape == oldEquation
+                where effect.Shape == equation
                 select effect;
 
-            CopyEffectsTo(equation, false, sequence, effects);
+            CopyEffectsTo(newEquation, false, sequence, effects);
 
             // delete the old equation
-            oldEquation.Delete();
+            equation.Delete();
+
+            // return the new equation
+            return newEquation;
         }
 
         /// <summary>
@@ -694,38 +680,6 @@ namespace PowerPointLaTeX
             {
             }
             return width;
-        }
-
-        public Shape ShowEquationSource(Shape formula)
-        {
-            // I'm going to abuse the parent id for now in the formula to link to the source [3/3/2009 Andreas]
-            Trace.Assert(formula.LaTeXTags().LinkID == 0);
-
-            float width = GetNiceShapeWidth();
-            float top = formula.Top + formula.Height;
-            float left = formula.Left + (formula.Width - width) / 2;
-
-            Shape shape = ActiveSlide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, left, top, width, 100);
-
-            // visual setup
-            shape.Fill.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorLight2;
-            shape.Fill.Transparency = 0.5f;
-            shape.Fill.Solid();
-
-            shape.Line.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorDark1;
-            shape.Line.Style = Microsoft.Office.Core.MsoLineStyle.msoLineSingle;
-            shape.Line.Weight = 2.0f;
-            shape.Line.DashStyle = Microsoft.Office.Core.MsoLineDashStyle.msoLineSolid;
-            shape.Line.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
-
-            // setup the LaTeX faff
-            shape.LaTeXTags().LinkID.value = formula.Id;
-            shape.LaTeXTags().Type.value = EquationType.EquationSource;
-            shape.TextFrame.TextRange.Text = formula.LaTeXTags().Code;
-
-            formula.LaTeXTags().LinkID.value = shape.Id;
-
-            return shape;
         }
 
         public List<Shape> GetInlineShapes(Shape shape)
@@ -761,13 +715,13 @@ namespace PowerPointLaTeX
         public Shape GetLinkShape(Shape shape)
         {
             LaTeXTags tags = shape.LaTeXTags();
-            Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation || tags.Type == EquationType.EquationSource);
+            Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation);
             Slide slide = shape.GetSlide();
             Trace.Assert(slide != null);
 
-            Shape parent = slide.Shapes.FindById(tags.LinkID);
-            Trace.Assert(parent != null);
-            return parent;
+            Shape linkShape = slide.Shapes.FindById(tags.LinkID);
+            Trace.Assert(linkShape != null);
+            return linkShape;
         }
 
         private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>

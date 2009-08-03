@@ -64,9 +64,10 @@ namespace PowerPointLaTeX
             DeveloperTaskPane.VisibleChanged += new EventHandler(DeveloperTaskPane_VisibleChanged);
         }
 
-        private void RegisterApplicationEvents()
-        {
+        private void RegisterApplicationEvents() {
             Application.PresentationSave += new EApplication_PresentationSaveEventHandler(Application_PresentationSave);
+            Application.PresentationOpen += new EApplication_PresentationOpenEventHandler(Application_PresentationOpen);
+
             Application.SlideShowBegin += new EApplication_SlideShowBeginEventHandler(Application_SlideShowBegin);
             Application.WindowBeforeDoubleClick += new EApplication_WindowBeforeDoubleClickEventHandler(Application_WindowBeforeDoubleClick);
             Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
@@ -108,28 +109,11 @@ namespace PowerPointLaTeX
             }
         }
 
-        private Dictionary<Presentation, IList<Shape>> oldShapesDict = new Dictionary<Presentation, IList<Shape>>();
-        private IList<Shape> oldShapes
-        {
-            get
-            {
-                if (!oldShapesDict.ContainsKey(Tool.ActivePresentation))
-                {
-                    return null;
-                }
-                return oldShapesDict[Tool.ActivePresentation];
-            }
-            set
-            {
-                oldShapesDict[Tool.ActivePresentation] = value;
-            }
-        }
-
         // TODO: find a more descriptive name for this function [4/21/2009 Andreas]
         private IEnumerable<Shape> GetExpandedSelection(IEnumerable<Shape> shapes) {
             IEnumerable<Shape> parentShapes =
                 from shape in shapes
-                where shape.LaTeXTags().Type == EquationType.Inline || shape.LaTeXTags().Type == EquationType.EquationSource || shape.IsDecompiledEquation()
+                where shape.LaTeXTags().Type == EquationType.Inline
                 select Tool.GetLinkShape(shape);
             IEnumerable<Shape> shapeSuperset =
                 from parentShape in parentShapes.Union(shapes)
@@ -206,48 +190,6 @@ namespace PowerPointLaTeX
                 }
             }
             oldTextShape = textShape;
-
-            {
-                List<Shape> shapes;
-                if (Sel.Type == PpSelectionType.ppSelectionShapes) {
-                    shapes = Sel.GetShapesFromShapeSelection();
-                }
-                else {
-                    shapes = new List<Shape>();
-                    if (Sel.Type == PpSelectionType.ppSelectionText) {
-                        shapes.Add(Sel.GetShapeFromTextSelection());
-                    }
-                }        
-                
-                /// equation handling
-                if( !Tool.ActivePresentation.SettingsTags().ManualEquationEditing)
-                {
-                    // if only one equation is selected, start editing it
-                    if (!Tool.ActivePresentation.SettingsTags().PresentationMode && shapes.Count == 1 && shapes[0].IsCompiledEquation())
-                    {
-                        Shape shape = Tool.ShowEquationSource(shapes[0]);
-
-                        // select the shape and enter text edit mode
-                        shape.Select(Microsoft.Office.Core.MsoTriState.msoTrue);
-                        shape.TextFrame.TextRange.Characters(0, 0).Select();
-                    }
-                }
-
-                if (oldShapes != null) {
-                    // figure out if any equation sources have been deselected
-                    // (if so, copy the changes and recompile the equation)
-                    foreach (Shape shape in oldShapes) {
-                        try {
-                            if (shape.LaTeXTags().Type == EquationType.EquationSource && !shapes.Contains(shape)) {
-                                Tool.ApplyEquationSource(shape);
-                            }
-                        }
-                        catch { }
-                    }
-                }
-
-                oldShapes = shapes;
-            }
         }
 
         void Application_WindowBeforeDoubleClick(Selection Sel, ref bool Cancel)
@@ -270,6 +212,10 @@ namespace PowerPointLaTeX
                             }
                         }*/
 
+        }
+
+        void Application_PresentationOpen(Presentation presentation) {
+            
         }
 
         void Application_PresentationSave(Presentation presentation)

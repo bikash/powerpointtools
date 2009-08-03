@@ -47,6 +47,7 @@ namespace PowerPointLaTeX
                 refCounter.Clear();
                 content.Clear();
             }
+
             public int RefCounter
             {
                 get

@@ -34,15 +34,5 @@ namespace PowerPointLaTeX
         {
             InitializeComponent();
         }
-
-        private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
     }
 }

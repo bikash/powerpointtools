@@ -247,6 +247,7 @@ namespace PowerPointLaTeX
         private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
         {
             Microsoft.Office.Interop.PowerPoint.Shape equation = Tool.CreateEmptyEquation();
+            equation = Tool.EditEquation(equation);
             equation.Select(MsoTriState.msoTrue);
         }
 
@@ -255,10 +256,13 @@ namespace PowerPointLaTeX
             // get the currently selected shape
             Selection selection = Application.ActiveWindow.Selection;
             List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
-            foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
-            {
-                if( shape.IsCompiledEquation()) {
-                    Tool.ShowEquationSource(shape);
+            if( shapes.Count == 1 ) {
+                Microsoft.Office.Interop.PowerPoint.Shape shape = shapes[0];
+                if( shape.IsEquation() ) {
+                    shape = Tool.EditEquation(shape);
+                    if( shape != null ) {
+                        shape.Select(MsoTriState.msoCTrue);
+                    }
                 }
             }
         }
