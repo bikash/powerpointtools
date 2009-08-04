@@ -16,9 +16,9 @@ Inline equations can be added anywhere in-between normal text. Simply wrap your 
 
 <wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/106581606564100174314/vimeo-video.xml" up_videourl="http://vimeo.com/4442353" width="480" height="420" border="0"/>
 
-Formulas are stand-alone objects. You can create them by using the Ribbon button "New Formula".
-To edit a formula click onto it and a text shape will appear that contains its LaTeX code.
-Deselect it and it will automatically compile it.
+Formulas are stand-alone objects. You can create them by using the Ribbon button "New Formula". A dialog will open up and allow you to enter a LaTeX formula. It will automatically create a preview using the normal webservice.
+
+To edit a formula click on it and then on "Edit Formula" in the ribbon.
 
 PowerPointLaTeX caches the compiled formulas, so you don't need an active internet connection if you don't change anything.
 
@@ -26,4 +26,4 @@ PowerPointLaTeX caches the compiled formulas, so you don't need an active intern
 
 If you have huge LaTeX formulas PowerPoint's Auto-Fit feature might kick in. It's toxic to PowerPointLaTeX's inline formula embedding feature - the formulas will end up in the wrong place. Simply disable Auto-Fit for those text shapes and adapt the font size manually if necessary.
 
-The code internally uses the clipboard to insert the formulas into the presentation and for some reason the original clipboard content is lost even though that shouldn't happen.
+The code internally uses the clipboard to insert the formulas into the presentation and for some reason the original clipboard content is lost even though that should not happen.
