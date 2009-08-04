@@ -38,10 +38,34 @@
             ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).BeginInit();
             this.SuspendLayout();
             // 
+            // applyButton
+            // 
+            applyButton.AutoSize = true;
+            applyButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            applyButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            applyButton.Location = new System.Drawing.Point(455, 3);
+            applyButton.Name = "applyButton";
+            applyButton.Size = new System.Drawing.Size(88, 23);
+            applyButton.TabIndex = 0;
+            applyButton.Text = "Apply Changes";
+            applyButton.UseVisualStyleBackColor = true;
+            // 
+            // cancelButton
+            // 
+            cancelButton.AutoSize = true;
+            cancelButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            cancelButton.Location = new System.Drawing.Point(549, 3);
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new System.Drawing.Size(50, 23);
+            cancelButton.TabIndex = 1;
+            cancelButton.Text = "Cancel";
+            cancelButton.UseVisualStyleBackColor = true;
+            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.formulaText, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 0);
@@ -68,26 +92,6 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size(602, 29);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
-            // applyButton
-            // 
-            applyButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            applyButton.Location = new System.Drawing.Point(443, 3);
-            applyButton.Name = "applyButton";
-            applyButton.Size = new System.Drawing.Size(75, 23);
-            applyButton.TabIndex = 0;
-            applyButton.Text = "Apply Changes";
-            applyButton.UseVisualStyleBackColor = true;
-            // 
-            // cancelButton
-            // 
-            cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            cancelButton.Location = new System.Drawing.Point(524, 3);
-            cancelButton.Name = "cancelButton";
-            cancelButton.Size = new System.Drawing.Size(75, 23);
-            cancelButton.TabIndex = 1;
-            cancelButton.Text = "Cancel";
-            cancelButton.UseVisualStyleBackColor = true;
-            // 
             // formulaText
             // 
             this.formulaText.AcceptsReturn = true;
@@ -107,7 +111,7 @@
             this.tableLayoutPanel2.AutoSize = true;
             this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.Controls.Add(this.formulaPreview, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns;
@@ -142,6 +146,7 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).EndInit();
