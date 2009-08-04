@@ -189,7 +189,7 @@ namespace PowerPointLaTeX
             // 
             this.equationGroup.Items.Add(this.CreateFormula);
             this.equationGroup.Items.Add(this.EditEquationCode);
-            this.equationGroup.Label = "Equations";
+            this.equationGroup.Label = "Formula Objects";
             this.equationGroup.Name = "equationGroup";
             // 
             // CreateFormula
@@ -204,7 +204,7 @@ namespace PowerPointLaTeX
             // EditEquationCode
             // 
             this.EditEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.EditEquationCode.Label = "Edit Equation Code";
+            this.EditEquationCode.Label = "Edit Formula Code";
             this.EditEquationCode.Name = "EditEquationCode";
             this.EditEquationCode.OfficeImageId = "WordArtEditTextClassic";
             this.EditEquationCode.ShowImage = true;

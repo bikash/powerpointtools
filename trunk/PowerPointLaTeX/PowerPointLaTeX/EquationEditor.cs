@@ -52,8 +52,7 @@ namespace PowerPointLaTeX {
 
             formulaText.Text = latexCode;
 
-            if (latexCode != "")
-                updatePreview();
+            updatePreview();
         }
 
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -65,8 +64,11 @@ namespace PowerPointLaTeX {
 
         private void updatePreview() {
             UseWaitCursor = true;
+            Image previewImage = null;
 
-            Image previewImage = Tool.GetImageForLaTeXCode(LaTeXCode);
+            if( LaTeXCode != "")
+                previewImage = Tool.GetImageForLaTeXCode(LaTeXCode);
+
             formulaPreview.Image = previewImage;
 
             UseWaitCursor = false;

@@ -594,7 +594,9 @@ namespace PowerPointLaTeX
 
         public Shape CreateEmptyEquation()
         {
-            Shape shape = ActiveSlide.Shapes.AddShape(Microsoft.Office.Core.MsoAutoShapeType.msoShapeRectangle, 100, 100, 100, 100);
+            const float width = 100, height = 60;
+
+            Shape shape = ActiveSlide.Shapes.AddShape(Microsoft.Office.Core.MsoAutoShapeType.msoShapeRectangle, 100, 100, width, height);
             shape.Fill.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorBackground1;
             shape.Fill.Solid();
 
@@ -602,8 +604,8 @@ namespace PowerPointLaTeX
 
             LaTeXTags tags = shape.LaTeXTags();
             tags.Type.value = EquationType.Equation;
-            tags.OriginalWidth.value = 100;
-            tags.OriginalHeight.value = 100;
+            tags.OriginalWidth.value = width;
+            tags.OriginalHeight.value = height;
 
             return shape;
         }
@@ -612,7 +614,7 @@ namespace PowerPointLaTeX
             EquationEditor editor = new EquationEditor(equation.LaTeXTags().Code);
             DialogResult result = editor.ShowDialog();
             if( result == DialogResult.Cancel ) {
-                // dont change anything
+                // don't change anything
                 return equation;
             }
 
