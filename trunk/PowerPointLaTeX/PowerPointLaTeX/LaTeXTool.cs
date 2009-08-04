@@ -671,22 +671,6 @@ namespace PowerPointLaTeX
             return newEquation;
         }
 
-        /// <summary>
-        /// Get a "nice" shape width from the active slide's size
-        /// </summary>
-        private float GetNiceShapeWidth()
-        {
-            float width = 100;
-            try
-            {
-                width = ActiveSlide.Master.Width / 2;
-            }
-            catch
-            {
-            }
-            return width;
-        }
-
         public List<Shape> GetInlineShapes(Shape shape)
         {
             List<Shape> shapes = new List<Shape>();

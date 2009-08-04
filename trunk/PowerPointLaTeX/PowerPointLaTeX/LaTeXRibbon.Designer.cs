@@ -60,9 +60,8 @@ namespace PowerPointLaTeX
             this.DecompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.CompileButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.equationGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
-            this.AutoEditEquationToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
             this.CreateFormula = new Microsoft.Office.Tools.Ribbon.RibbonButton();
-            this.ShowEquationCode = new Microsoft.Office.Tools.Ribbon.RibbonButton();
+            this.EditEquationCode = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.LaTeXGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DeveloperTaskPaneToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
@@ -188,22 +187,10 @@ namespace PowerPointLaTeX
             // 
             // equationGroup
             // 
-            this.equationGroup.Items.Add(this.AutoEditEquationToggle);
             this.equationGroup.Items.Add(this.CreateFormula);
-            this.equationGroup.Items.Add(this.ShowEquationCode);
+            this.equationGroup.Items.Add(this.EditEquationCode);
             this.equationGroup.Label = "Equations";
             this.equationGroup.Name = "equationGroup";
-            // 
-            // AutoEditEquationToggle
-            // 
-            this.AutoEditEquationToggle.Checked = true;
-            this.AutoEditEquationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.AutoEditEquationToggle.Image = ((System.Drawing.Image) (resources.GetObject("AutoEditEquationToggle.Image")));
-            this.AutoEditEquationToggle.Label = "Auto-Edit Equations";
-            this.AutoEditEquationToggle.Name = "AutoEditEquationToggle";
-            this.AutoEditEquationToggle.OfficeImageId = "FunctionWizard";
-            this.AutoEditEquationToggle.ShowImage = true;
-            this.AutoEditEquationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.AutoEditEquationToggle_Click);
             // 
             // CreateFormula
             // 
@@ -214,14 +201,14 @@ namespace PowerPointLaTeX
             this.CreateFormula.ShowImage = true;
             this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CreateFormula_Click);
             // 
-            // ShowEquationCode
+            // EditEquationCode
             // 
-            this.ShowEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.ShowEquationCode.Label = "Show Equation Code";
-            this.ShowEquationCode.Name = "ShowEquationCode";
-            this.ShowEquationCode.OfficeImageId = "WordArtEditTextClassic";
-            this.ShowEquationCode.ShowImage = true;
-            this.ShowEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.ShowEquationCode_Click);
+            this.EditEquationCode.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.EditEquationCode.Label = "Edit Equation Code";
+            this.EditEquationCode.Name = "EditEquationCode";
+            this.EditEquationCode.OfficeImageId = "WordArtEditTextClassic";
+            this.EditEquationCode.ShowImage = true;
+            this.EditEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.EditEquationCode_Click);
             // 
             // tab1
             // 
@@ -287,8 +274,7 @@ namespace PowerPointLaTeX
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton DeveloperTaskPaneToggle;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup equationGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton CreateFormula;
-        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AutoEditEquationToggle;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton ShowEquationCode;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton EditEquationCode;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ClearCache;
     }
 

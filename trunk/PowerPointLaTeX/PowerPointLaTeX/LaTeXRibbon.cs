@@ -57,7 +57,6 @@ namespace PowerPointLaTeX
 
             SettingsTags.ManualPreviewChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_ManualPreviewChanged);
             SettingsTags.PresentationModeChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_PresentationModeChanged);
-            SettingsTags.ManualEquationEditingChanged += new SettingsTags.ToggleChangedEventHandler(SettingsTags_ManualEquationEditingChanged);
         }
 
         public void RegisterApplicationEvents()
@@ -65,11 +64,6 @@ namespace PowerPointLaTeX
             // hook our(the ribbon) event listeners into the application
             Application.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(Application_WindowSelectionChange);
             Application.WindowActivate += new EApplication_WindowActivateEventHandler(Application_WindowActivate);
-        }
-
-        private void SettingsTags_ManualEquationEditingChanged(bool enabled)
-        {
-            AutoEditEquationToggle.Checked = !enabled;
         }
 
         private void SettingsTags_PresentationModeChanged(bool enabled)
@@ -99,18 +93,28 @@ namespace PowerPointLaTeX
             {
                 CompileButton.Label.Replace("Selection", "Slide");
                 DecompileButton.Label.Replace("Selection", "Slide");
+
+                EditEquationCode.Enabled = false;
             }
             else
             {
                 CompileButton.Label.Replace("Slide", "Selection");
                 DecompileButton.Label.Replace("Slide", "Selection");
+
+                if( Sel.Type == PpSelectionType.ppSelectionShapes ) {
+                    if( Sel.ShapeRange.Count == 1 && Sel.ShapeRange[1].IsEquation() ) {
+                        EditEquationCode.Enabled = true;
+                    }
+                    else {
+                        EditEquationCode.Enabled = false;
+                    }
+                }
             }
         }
 
         private void Application_WindowActivate(Presentation Pres, DocumentWindow Wn)
         {
             SettingsTags tags = Pres.SettingsTags();
-            AutoEditEquationToggle.Checked = !tags.ManualEquationEditing;
             AutomaticCompilationToggle.Checked = !tags.ManualPreview;
             PresentationModeToggle.Checked = tags.PresentationMode;
         }
@@ -251,7 +255,7 @@ namespace PowerPointLaTeX
             equation.Select(MsoTriState.msoTrue);
         }
 
-        private void ShowEquationCode_Click(object sender, RibbonControlEventArgs e)
+        private void EditEquationCode_Click(object sender, RibbonControlEventArgs e)
         {
             // get the currently selected shape
             Selection selection = Application.ActiveWindow.Selection;
@@ -265,11 +269,6 @@ namespace PowerPointLaTeX
                     }
                 }
             }
-        }
-
-        private void AutoEditEquationToggle_Click(object sender, RibbonControlEventArgs e)
-        {
-            Tool.ActivePresentation.SettingsTags().ManualEquationEditing.value = !AutoEditEquationToggle.Checked;
         }
 
         private void ClearCache_Click(object sender, RibbonControlEventArgs e) {

@@ -42,7 +42,7 @@ namespace PowerPointLaTeX {
             get { return formulaText.Text; }
         }
 
-        public EquationEditor(String LaTeXCode) {
+        public EquationEditor(String latexCode) {
             InitializeComponent();
 
             updatePreviewTimer = new System.Timers.Timer();
@@ -50,9 +50,10 @@ namespace PowerPointLaTeX {
             updatePreviewTimer.AutoReset = false;
             updatePreviewTimer.Elapsed += new System.Timers.ElapsedEventHandler(updatePreviewTimer_Elapsed);
 
-            formulaText.Text = LaTeXCode;
+            formulaText.Text = latexCode;
 
-            updatePreview();
+            if (latexCode != "")
+                updatePreview();
         }
 
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
