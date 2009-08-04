@@ -281,11 +281,11 @@ namespace PowerPointLaTeX
         {
             byte[] imageData;
             // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
-            /*if (ActivePresentation.CacheTags()[latexCode].IsCached())
+            if (ActivePresentation.CacheTags()[latexCode].IsCached())
             {
                 imageData = ActivePresentation.CacheTags()[latexCode].Use();
             }
-            else*/
+            else
             {
                 imageData = Globals.ThisAddIn.LaTeXServices.Service.GetImageDataForLaTeXCode(latexCode);
                 if (imageData == null)
@@ -293,7 +293,7 @@ namespace PowerPointLaTeX
                     return null;
                 }
 
-                //ActivePresentation.CacheTags()[latexCode].Store(imageData);
+                ActivePresentation.CacheTags()[latexCode].Store(imageData);
             }
 
             // make sure we return a some-what meaningful array
@@ -301,9 +301,9 @@ namespace PowerPointLaTeX
             return imageData;
         }
 
-        public Image GetImageForLaTeXCode(string latexCode) {
-            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
-            if (imageData == null) {
+
+        private Image GetImageFromImageData(byte[] imageData) {
+            if( imageData == null ) {
                 return null;
             }
 
@@ -316,6 +316,11 @@ namespace PowerPointLaTeX
                 return null;
             }
             return image;
+        }
+
+        public Image GetImageForLaTeXCode(string latexCode) {
+            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
+            return GetImageFromImageData(imageData);
         }
 
         private static bool IsEscapeCode(string code)

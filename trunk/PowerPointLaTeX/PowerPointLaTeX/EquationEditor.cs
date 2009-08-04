@@ -23,29 +23,31 @@ namespace PowerPointLaTeX {
             get { return formulaText.Text; }
         }
 
-        public EquationEditor(String LaTeXCode ) {
+        public EquationEditor(String LaTeXCode) {
             InitializeComponent();
-
-            formulaText.Text = LaTeXCode;
 
             updatePreviewTimer = new System.Timers.Timer();
             updatePreviewTimer.Interval = 0.5 * 1000;
             updatePreviewTimer.AutoReset = false;
             updatePreviewTimer.Elapsed += new System.Timers.ElapsedEventHandler(updatePreviewTimer_Elapsed);
+
+            formulaText.Text = LaTeXCode;
+
+            updatePreview();
         }
 
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
         }
 
         void updatePreviewTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            updatePreview();
+            formulaPreview.Invoke( new MethodInvoker(updatePreview) );
         }
 
         private void updatePreview() {
             UseWaitCursor = true;
 
             Image previewImage = Tool.GetImageForLaTeXCode(LaTeXCode);
-            formulaPreview.Invoke( new MethodInvoker( delegate { formulaPreview.Image = previewImage; } ) );
+            formulaPreview.Image = previewImage;
 
             UseWaitCursor = false;
         }
@@ -53,6 +55,6 @@ namespace PowerPointLaTeX {
         private void formulaText_TextChanged(object sender, EventArgs e) {
             updatePreviewTimer.Stop();
             updatePreviewTimer.Start();
-        }       
+        }
     }
 }
