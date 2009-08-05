@@ -20,6 +20,9 @@ Formulas are stand-alone objects. You can create them by using the Ribbon button
 
 To edit a formula click on it and then on "Edit Formula" in the ribbon.
 
+[http://blog.blackhc.net/wp-content/uploads/2009/08/PPTLaTeX_eqeditor.JPG]
+
+
 PowerPointLaTeX caches the compiled formulas, so you don't need an active internet connection if you don't change anything.
 
 = Known Issues =
