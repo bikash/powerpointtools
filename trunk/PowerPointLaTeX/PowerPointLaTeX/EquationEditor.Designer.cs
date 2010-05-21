@@ -43,7 +43,7 @@
             applyButton.AutoSize = true;
             applyButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             applyButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            applyButton.Location = new System.Drawing.Point(455, 3);
+            applyButton.Location = new System.Drawing.Point(306, 3);
             applyButton.Name = "applyButton";
             applyButton.Size = new System.Drawing.Size(88, 23);
             applyButton.TabIndex = 0;
@@ -55,7 +55,7 @@
             cancelButton.AutoSize = true;
             cancelButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            cancelButton.Location = new System.Drawing.Point(549, 3);
+            cancelButton.Location = new System.Drawing.Point(400, 3);
             cancelButton.Name = "cancelButton";
             cancelButton.Size = new System.Drawing.Size(50, 23);
             cancelButton.TabIndex = 1;
@@ -64,6 +64,7 @@
             // 
             // tableLayoutPanel1
             // 
+            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 2);
@@ -73,10 +74,10 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(608, 271);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(459, 221);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // flowLayoutPanel1
@@ -87,9 +88,9 @@
             this.flowLayoutPanel1.Controls.Add(applyButton);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 239);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 189);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(602, 29);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(453, 29);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // formulaText
@@ -97,10 +98,10 @@
             this.formulaText.AcceptsReturn = true;
             this.formulaText.AcceptsTab = true;
             this.formulaText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.formulaText.Location = new System.Drawing.Point(3, 121);
+            this.formulaText.Location = new System.Drawing.Point(3, 89);
             this.formulaText.Multiline = true;
             this.formulaText.Name = "formulaText";
-            this.formulaText.Size = new System.Drawing.Size(602, 112);
+            this.formulaText.Size = new System.Drawing.Size(453, 94);
             this.formulaText.TabIndex = 2;
             this.formulaText.UseSystemPasswordChar = true;
             this.formulaText.TextChanged += new System.EventHandler(this.formulaText_TextChanged);
@@ -119,15 +120,15 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(602, 112);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(453, 80);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
             // formulaPreview
             // 
             this.formulaPreview.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.formulaPreview.Location = new System.Drawing.Point(251, 3);
+            this.formulaPreview.Location = new System.Drawing.Point(221, 3);
             this.formulaPreview.Name = "formulaPreview";
-            this.formulaPreview.Size = new System.Drawing.Size(100, 106);
+            this.formulaPreview.Size = new System.Drawing.Size(10, 74);
             this.formulaPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.formulaPreview.TabIndex = 4;
             this.formulaPreview.TabStop = false;
@@ -138,7 +139,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = cancelButton;
-            this.ClientSize = new System.Drawing.Size(608, 271);
+            this.ClientSize = new System.Drawing.Size(459, 221);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "EquationEditor";
