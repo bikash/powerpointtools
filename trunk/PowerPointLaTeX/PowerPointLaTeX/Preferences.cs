@@ -25,19 +25,39 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using PowerPointLaTeX.Properties;
 
 namespace PowerPointLaTeX
 {
     public partial class Preferences : Form
     {
-        public Preferences()
-        {
+        public Preferences() {
             InitializeComponent();
+
+            // fill the serviceSelector
+            serviceSelector.Items.Clear();
+            serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXServices.ServiceNames );
+
+            Save();
         }
 
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
+        private void Save() {
+            Settings.Default.Save();
+            MiKTexSettings.Default.Save();
+        }
 
+        private void Reload() {
+            Settings.Default.Reload();
+            MiKTexSettings.Default.Reload();
+
+        }
+
+        private void AbortButton_Click( object sender, EventArgs e ) {
+            Reload();
+        }
+
+        private void OkButton_Click( object sender, EventArgs e ) {
+            Save();
         }
     }
 }

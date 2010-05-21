@@ -192,12 +192,26 @@ namespace PowerPointLaTeX
             picture.Height *= scalingFactor;
             picture.Width *= scalingFactor;
 
-            // change the font size to keep the formula from overlapping with regular text (nifty :))
-            if (codeRange.Font.Size != picture.Height) {
-                codeRange.Font.Size = picture.Height;
+            float baselineOffset = picture.LaTeXTags().BaseLineOffset;
+
+            if( Math.Abs(baselineOffset) > 1 ) {
+                if( baselineOffset < -1 ) {
+                    codeRange.Font.Size = picture.Height * (1 - baselineOffset); // ie 1 + abs( baselineOffset)
+                    codeRange.Font.BaselineOffset = 1;
+                }
+                else /* baselineOffset > 1 */ {
+                    codeRange.Font.Size = picture.Height * baselineOffset;
+                    codeRange.Font.BaselineOffset = -1;
+               }
             }
-            // BaseLineOffset > for subscript but PPT uses negative values for this
-            codeRange.Font.BaselineOffset = -picture.LaTeXTags().BaseLineOffset;
+            else {
+                // change the font size to keep the formula from overlapping with regular text (nifty :))
+                if( codeRange.Font.Size != picture.Height ) {
+                    codeRange.Font.Size = picture.Height;
+                }
+                // BaseLineOffset > for subscript but PPT uses negative values for this
+                codeRange.Font.BaselineOffset = -baselineOffset;
+            }
 
             // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;

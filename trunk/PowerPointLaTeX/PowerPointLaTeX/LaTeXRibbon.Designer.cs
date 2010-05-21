@@ -47,7 +47,7 @@ namespace PowerPointLaTeX
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LaTeXRibbon));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( LaTeXRibbon ) );
             this.LaTeX = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.generalGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.PreferencesButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
@@ -75,19 +75,19 @@ namespace PowerPointLaTeX
             // 
             // LaTeX
             // 
-            this.LaTeX.Groups.Add(this.generalGroup);
-            this.LaTeX.Groups.Add(this.inlineGroup);
-            this.LaTeX.Groups.Add(this.equationGroup);
+            this.LaTeX.Groups.Add( this.generalGroup );
+            this.LaTeX.Groups.Add( this.inlineGroup );
+            this.LaTeX.Groups.Add( this.equationGroup );
             this.LaTeX.Label = "LaTeX";
             this.LaTeX.Name = "LaTeX";
             // 
             // generalGroup
             // 
-            this.generalGroup.Items.Add(this.PreferencesButton);
-            this.generalGroup.Items.Add(this.ClearCache);
-            this.generalGroup.Items.Add(this.PresentationModeToggle);
-            this.generalGroup.Items.Add(this.separator1);
-            this.generalGroup.Items.Add(this.FinalizeButton);
+            this.generalGroup.Items.Add( this.PreferencesButton );
+            this.generalGroup.Items.Add( this.ClearCache );
+            this.generalGroup.Items.Add( this.PresentationModeToggle );
+            this.generalGroup.Items.Add( this.separator1 );
+            this.generalGroup.Items.Add( this.FinalizeButton );
             this.generalGroup.Label = "General";
             this.generalGroup.Name = "generalGroup";
             // 
@@ -98,8 +98,7 @@ namespace PowerPointLaTeX
             this.PreferencesButton.Name = "PreferencesButton";
             this.PreferencesButton.OfficeImageId = "MessageOptions";
             this.PreferencesButton.ShowImage = true;
-            this.PreferencesButton.Visible = false;
-            this.PreferencesButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PreferencesButton_Click);
+            this.PreferencesButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.PreferencesButton_Click );
             // 
             // ClearCache
             // 
@@ -109,8 +108,8 @@ namespace PowerPointLaTeX
             this.ClearCache.OfficeImageId = "Delete";
             this.ClearCache.ScreenTip = "Clear the LaTeX Cache";
             this.ClearCache.ShowImage = true;
-            this.ClearCache.SuperTip = resources.GetString("ClearCache.SuperTip");
-            this.ClearCache.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.ClearCache_Click);
+            this.ClearCache.SuperTip = resources.GetString( "ClearCache.SuperTip" );
+            this.ClearCache.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.ClearCache_Click );
             // 
             // PresentationModeToggle
             // 
@@ -123,7 +122,7 @@ namespace PowerPointLaTeX
             this.PresentationModeToggle.ShowImage = true;
             this.PresentationModeToggle.SuperTip = "Compile all LaTeX $$formulas$$ and protect them from changes (locks all text area" +
                 "s that contain formulas, etc.)";
-            this.PresentationModeToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.PresentationModeToggle_Click);
+            this.PresentationModeToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.PresentationModeToggle_Click );
             // 
             // separator1
             // 
@@ -140,13 +139,13 @@ namespace PowerPointLaTeX
             this.FinalizeButton.ShowImage = true;
             this.FinalizeButton.SuperTip = "Compile all LaTeX $$formulas$$ and remove all metainformation from this addin fro" +
                 "m the presentation.";
-            this.FinalizeButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.FinalizeButton_Click);
+            this.FinalizeButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.FinalizeButton_Click );
             // 
             // inlineGroup
             // 
-            this.inlineGroup.Items.Add(this.AutomaticCompilationToggle);
-            this.inlineGroup.Items.Add(this.DecompileButton);
-            this.inlineGroup.Items.Add(this.CompileButton);
+            this.inlineGroup.Items.Add( this.AutomaticCompilationToggle );
+            this.inlineGroup.Items.Add( this.DecompileButton );
+            this.inlineGroup.Items.Add( this.CompileButton );
             this.inlineGroup.Label = "Inline Formulas";
             this.inlineGroup.Name = "inlineGroup";
             // 
@@ -155,13 +154,13 @@ namespace PowerPointLaTeX
             this.AutomaticCompilationToggle.Checked = true;
             this.AutomaticCompilationToggle.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.AutomaticCompilationToggle.Description = "Automatically compile LaTeX shortcodes";
-            this.AutomaticCompilationToggle.Image = ((System.Drawing.Image) (resources.GetObject("AutomaticCompilationToggle.Image")));
+            this.AutomaticCompilationToggle.Image = ((System.Drawing.Image) (resources.GetObject( "AutomaticCompilationToggle.Image" )));
             this.AutomaticCompilationToggle.Label = "Automatic Preview";
             this.AutomaticCompilationToggle.Name = "AutomaticCompilationToggle";
             this.AutomaticCompilationToggle.ScreenTip = "Automatic Preview";
             this.AutomaticCompilationToggle.ShowImage = true;
             this.AutomaticCompilationToggle.SuperTip = "Compiles and Decompiles LaTeX $$formulas$$ automatically.";
-            this.AutomaticCompilationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.AutomaticCompilationToggle_Click);
+            this.AutomaticCompilationToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.AutomaticCompilationToggle_Click );
             // 
             // DecompileButton
             // 
@@ -172,7 +171,7 @@ namespace PowerPointLaTeX
             this.DecompileButton.ShowImage = true;
             this.DecompileButton.SuperTip = "Decompiles all LaTeX $$formulas$$ in the selection or in the active slide, if not" +
                 "hing is selected.";
-            this.DecompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DecompileButton_Click);
+            this.DecompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.DecompileButton_Click );
             // 
             // CompileButton
             // 
@@ -183,12 +182,12 @@ namespace PowerPointLaTeX
             this.CompileButton.ShowImage = true;
             this.CompileButton.SuperTip = "Compiles all LaTeX $$formulas$$ in the selection or in the active slide, if nothi" +
                 "ng is selected.";
-            this.CompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CompileButton_Click);
+            this.CompileButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.CompileButton_Click );
             // 
             // equationGroup
             // 
-            this.equationGroup.Items.Add(this.CreateFormula);
-            this.equationGroup.Items.Add(this.EditEquationCode);
+            this.equationGroup.Items.Add( this.CreateFormula );
+            this.equationGroup.Items.Add( this.EditEquationCode );
             this.equationGroup.Label = "Formula Objects";
             this.equationGroup.Name = "equationGroup";
             // 
@@ -199,7 +198,7 @@ namespace PowerPointLaTeX
             this.CreateFormula.Name = "CreateFormula";
             this.CreateFormula.OfficeImageId = "FunctionWizard";
             this.CreateFormula.ShowImage = true;
-            this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.CreateFormula_Click);
+            this.CreateFormula.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.CreateFormula_Click );
             // 
             // EditEquationCode
             // 
@@ -208,19 +207,19 @@ namespace PowerPointLaTeX
             this.EditEquationCode.Name = "EditEquationCode";
             this.EditEquationCode.OfficeImageId = "WordArtEditTextClassic";
             this.EditEquationCode.ShowImage = true;
-            this.EditEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.EditEquationCode_Click);
+            this.EditEquationCode.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.EditEquationCode_Click );
             // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.ControlId.OfficeId = "TabDeveloper";
-            this.tab1.Groups.Add(this.LaTeXGroup);
+            this.tab1.Groups.Add( this.LaTeXGroup );
             this.tab1.Label = "Developer";
             this.tab1.Name = "tab1";
             // 
             // LaTeXGroup
             // 
-            this.LaTeXGroup.Items.Add(this.DeveloperTaskPaneToggle);
+            this.LaTeXGroup.Items.Add( this.DeveloperTaskPaneToggle );
             this.LaTeXGroup.Label = "LaTeX";
             this.LaTeXGroup.Name = "LaTeXGroup";
             // 
@@ -232,28 +231,28 @@ namespace PowerPointLaTeX
             this.DeveloperTaskPaneToggle.Name = "DeveloperTaskPaneToggle";
             this.DeveloperTaskPaneToggle.OfficeImageId = "FileDocumentInspect";
             this.DeveloperTaskPaneToggle.ShowImage = true;
-            this.DeveloperTaskPaneToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>(this.DeveloperTaskPaneToggle_Click);
+            this.DeveloperTaskPaneToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.DeveloperTaskPaneToggle_Click );
             // 
             // LaTeXRibbon
             // 
             this.Name = "LaTeXRibbon";
             this.RibbonType = "Microsoft.PowerPoint.Presentation";
-            this.Tabs.Add(this.LaTeX);
-            this.Tabs.Add(this.tab1);
-            this.Load += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonUIEventArgs>(this.LaTeXRibbon_Load);
-            this.LaTeX.ResumeLayout(false);
+            this.Tabs.Add( this.LaTeX );
+            this.Tabs.Add( this.tab1 );
+            this.Load += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonUIEventArgs>( this.LaTeXRibbon_Load );
+            this.LaTeX.ResumeLayout( false );
             this.LaTeX.PerformLayout();
-            this.generalGroup.ResumeLayout(false);
+            this.generalGroup.ResumeLayout( false );
             this.generalGroup.PerformLayout();
-            this.inlineGroup.ResumeLayout(false);
+            this.inlineGroup.ResumeLayout( false );
             this.inlineGroup.PerformLayout();
-            this.equationGroup.ResumeLayout(false);
+            this.equationGroup.ResumeLayout( false );
             this.equationGroup.PerformLayout();
-            this.tab1.ResumeLayout(false);
+            this.tab1.ResumeLayout( false );
             this.tab1.PerformLayout();
-            this.LaTeXGroup.ResumeLayout(false);
+            this.LaTeXGroup.ResumeLayout( false );
             this.LaTeXGroup.PerformLayout();
-            this.ResumeLayout(false);
+            this.ResumeLayout( false );
 
         }
 
