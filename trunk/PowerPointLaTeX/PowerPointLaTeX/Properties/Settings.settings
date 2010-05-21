@@ -2,14 +2,14 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PowerPointLaTeX.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ShowDeveloperTaskPane" Type="System.Boolean" Scope="User">
+    <Setting Name="ShowDeveloperTaskPane" GenerateDefaultValueInCode="false" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="EnableAddIn" Type="System.Boolean" Scope="User">
+    <Setting Name="EnableAddIn" GenerateDefaultValueInCode="false" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="MikTexPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="LatexService" Type="System.String" Scope="User">
+      <Value Profile="(Default)">MiKTeX Service</Value>
     </Setting>
   </Settings>
 </SettingsFile>

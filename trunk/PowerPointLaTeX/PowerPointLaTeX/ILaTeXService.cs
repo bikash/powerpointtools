@@ -21,9 +21,15 @@ namespace PowerPointLaTeX
         /// Get the raw data of an image that can be read 
         /// </summary>
         /// <param name="latexCode"></param>
-        /// <returns>null if there was an error or something similar</returns>
-        byte[] GetImageDataForLaTeXCode(string latexCode);
+        /// <param name="image">the actual image of the rendered latexCode</param>
+        /// <param name="baselineOffset"> (from the dvipng manpage)
+        /// It reports the number of pixels from the bottom of the image to the baseline of the image.
+        /// This can be used for vertical positioning of the image in, e.g., web documents, where one would use (Cascading StyleSheets 1)
+        /// The depth is a negative offset in this case, so the minus sign is necessary, and the unit is pixels (px).
+        /// </param>
+        /// <returns>returns false if there was an error</returns>
+        bool RenderLaTeXCode(string latexCode, out byte[] imageData, out int baselineOffset);
 
-        UserControl GetPreferencesPage();
+        string GetLastErrorReport();
     }
 }

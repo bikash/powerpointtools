@@ -37,6 +37,7 @@
             this.codeBox = new System.Windows.Forms.TextBox();
             this.latexOutputBox = new System.Windows.Forms.TextBox();
             this.dvipngOutputBox = new System.Windows.Forms.TextBox();
+            this.logBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.outputImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -121,11 +122,22 @@
             this.dvipngOutputBox.Size = new System.Drawing.Size(361, 85);
             this.dvipngOutputBox.TabIndex = 8;
             // 
+            // logBox
+            // 
+            this.logBox.Location = new System.Drawing.Point(12, 419);
+            this.logBox.Multiline = true;
+            this.logBox.Name = "logBox";
+            this.logBox.ReadOnly = true;
+            this.logBox.ShortcutsEnabled = false;
+            this.logBox.Size = new System.Drawing.Size(361, 85);
+            this.logBox.TabIndex = 9;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(385, 425);
+            this.ClientSize = new System.Drawing.Size(385, 513);
+            this.Controls.Add(this.logBox);
             this.Controls.Add(this.dvipngOutputBox);
             this.Controls.Add(this.latexOutputBox);
             this.Controls.Add(this.codeBox);
@@ -154,6 +166,7 @@
         private System.Windows.Forms.TextBox codeBox;
         private System.Windows.Forms.TextBox latexOutputBox;
         private System.Windows.Forms.TextBox dvipngOutputBox;
+        private System.Windows.Forms.TextBox logBox;
     }
 }
 

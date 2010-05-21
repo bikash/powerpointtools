@@ -66,8 +66,10 @@ namespace PowerPointLaTeX {
             UseWaitCursor = true;
             Image previewImage = null;
 
-            if( LaTeXCode != "")
-                previewImage = Tool.GetImageForLaTeXCode(LaTeXCode);
+            if( LaTeXCode != "" ) {
+                int unusedBaselineOffset;
+                previewImage = Tool.GetImageForLaTeXCode( LaTeXCode, out unusedBaselineOffset );
+            }
 
             formulaPreview.Image = previewImage;
 

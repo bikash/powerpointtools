@@ -25,7 +25,6 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ShowDeveloperTaskPane {
             get {
                 return ((bool)(this["ShowDeveloperTaskPane"]));
@@ -37,7 +36,6 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool EnableAddIn {
             get {
                 return ((bool)(this["EnableAddIn"]));
@@ -49,13 +47,13 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string MikTexPath {
+        [global::System.Configuration.DefaultSettingValueAttribute("MiKTeX Service")]
+        public string LatexService {
             get {
-                return ((string)(this["MikTexPath"]));
+                return ((string)(this["LatexService"]));
             }
             set {
-                this["MikTexPath"] = value;
+                this["LatexService"] = value;
             }
         }
     }

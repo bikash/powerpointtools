@@ -166,6 +166,7 @@ namespace PowerPointLaTeX
         public readonly LaTeXEntries Entries;
 
         public readonly AddInTagFloat OriginalWidth, OriginalHeight;
+        public readonly AddInTagFloat BaseLineOffset;
 
         public LaTeXTags(Shape shape)
         {
@@ -177,7 +178,8 @@ namespace PowerPointLaTeX
 
             OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
             OriginalHeight = new AddInTagFloat(tags, "OriginalHeight");
-        }
+            BaseLineOffset = new AddInTagFloat( tags, "BaseLineOffset" );
+       }
 
         public void Clear()
         {
@@ -187,6 +189,7 @@ namespace PowerPointLaTeX
             Entries.Clear();
             OriginalWidth.Clear();
             OriginalHeight.Clear();
+            BaseLineOffset.Clear();
         }
     }
 }

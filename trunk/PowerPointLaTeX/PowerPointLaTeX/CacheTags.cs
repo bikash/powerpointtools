@@ -34,11 +34,13 @@ namespace PowerPointLaTeX
             // 0 means that has never been accessed and 1 means that the entry is cached but currently unused
             private AddInTagInt refCounter;
             private AddInTagByteArray content;
+            private AddInTagInt baselineOffset;
 
             public CacheEntry(Tags tags, string code)
             {
                 refCounter = new AddInTagInt(tags, "RefCounter#" + code);
                 content = new AddInTagByteArray(tags, "CacheContent#" + code);
+                baselineOffset = new AddInTagInt( tags, "BaseLineOffset#" + code );
             }
 
             public void Clear()
@@ -46,6 +48,7 @@ namespace PowerPointLaTeX
                 Debug.Assert(RefCounter <= 1);
                 refCounter.Clear();
                 content.Clear();
+                baselineOffset.Clear();
             }
 
             public int RefCounter
@@ -77,6 +80,15 @@ namespace PowerPointLaTeX
                 }
             }
 
+            public int BaselineOffset {
+                get {
+                    return baselineOffset;
+                }
+                set {
+                    baselineOffset.value = value;
+                }
+            }
+
             public void ReleaseIfUsed()
             {
                 if( RefCounter == 0 ) {
@@ -92,17 +104,19 @@ namespace PowerPointLaTeX
                 }
             }
 
-            public void Store(byte[] data)
+            public void Store(byte[] data, int baselineOffset)
             {
                 Debug.Assert(!IsCached());
                 Content = data;
+                BaselineOffset = baselineOffset;
                 RefCounter = 2;
             }
 
-            public byte[] Use()
+            public void Use(out byte[] content, out int baselineOffset)
             {
                 RefCounter++;
-                return Content;
+                content = Content;
+                baselineOffset = BaselineOffset;
             }
 
         }

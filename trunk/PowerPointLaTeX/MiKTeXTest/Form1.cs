@@ -18,7 +18,7 @@ namespace MiKTeXTest
         const string latexRelPath = @"miktex\bin\latex.exe";
         const string dvipngRelPath = @"miktex\bin\dvipng.exe";
 
-        const string latexOptions = "-enable-installer -interaction=batchmode";
+        const string latexOptions = "-enable-installer -interaction=nonstopmode";
         const string dvipngOptions = "-T tight --depth --height -D 300 --noghostscript --picky -q -z 0";
         
         public Form1()
@@ -67,13 +67,16 @@ namespace MiKTeXTest
             latexOutputBox.Text = latexOutput;
             dvipngOutputBox.Text = dvipngOutput;
 
-            int depth = Int32.Parse( Regex.Match( dvipngOutput, @"depth=(\d*)").Groups[1].Value );
-            int height = Int32.Parse(Regex.Match(dvipngOutput, @"height=(\d*)").Groups[1].Value);
+            int depth = Int32.Parse( Regex.Match( dvipngOutput, @"depth=(\S*)").Groups[1].Value );
+            int height = Int32.Parse(Regex.Match(dvipngOutput, @"height=(\S*)").Groups[1].Value);
 
             depthInfo.Text = depth.ToString();
             heightInfo.Text = height.ToString();
 
             outputImage.Load(outputImagePath);
+
+//             // read log
+//             string logText = File.ReadAllText(Path.ChangeExtension(tempTexFileName, "log"));
 
             // delete temp files
             string[] tempFiles = Directory.GetFiles(tempDir, Path.GetFileNameWithoutExtension(tempTexFileName) + ".*");

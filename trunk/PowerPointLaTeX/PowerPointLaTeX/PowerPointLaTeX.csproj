@@ -214,8 +214,14 @@
     <Compile Include="LaTeXRibbon.Designer.cs">
       <DependentUpon>LaTeXRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="LaTeXServiceRegistry.cs" />
     <Compile Include="LaTeXTags.cs" />
     <Compile Include="LaTeXTool.cs" />
+    <Compile Include="Properties\MiKTexSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>MiKTexSettings.settings</DependentUpon>
+    </Compile>
     <Compile Include="MiKTeXService.cs" />
     <Compile Include="Preferences.cs">
       <SubType>Form</SubType>
@@ -256,6 +262,10 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="Properties\MiKTexSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>MiKTexSettings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="PowerPointLaTeX_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -268,8 +278,8 @@
     </Compile>
     <Compile Include="SelectionExtension.cs" />
     <Compile Include="ILaTeXService.cs" />
-    <Compile Include="LaTeXServics.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Settings1.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="TagExtension.cs" />

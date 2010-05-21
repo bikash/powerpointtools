@@ -25,6 +25,7 @@ using System.Net;
 using System.Web;
 using System.IO;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace PowerPointLaTeX
 {
@@ -121,9 +122,25 @@ namespace PowerPointLaTeX
             return URLData.content;
         }
 
-        public System.Windows.Forms.UserControl GetPreferencesPage()
-        {
-            return null;
+        public bool RenderLaTeXCode(string latexCode, out byte[] imageData, out int baselineOffset) {
+            // baseline offset not supported!
+            baselineOffset = 0;
+
+            URLData URLData = compileLaTeX(latexCode);
+            // TODO: replace all the null checks with exception handling? [2/26/2009 Andreas]
+            if (URLData.content == null)
+            {
+                imageData = null;
+                return false;
+            }
+            Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
+
+            imageData = URLData.content;
+            return true;
+        }
+
+        public string GetLastErrorReport() {
+            return "No information provided.";
         }
 
         #endregion

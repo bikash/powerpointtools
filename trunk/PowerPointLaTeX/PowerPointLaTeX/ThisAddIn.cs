@@ -40,7 +40,7 @@ namespace PowerPointLaTeX
             private set;
         }
 
-        internal LaTeXServics LaTeXServices
+        internal LaTeXServiceRegistry LaTeXServices
         {
             get;
             private set;
@@ -51,7 +51,7 @@ namespace PowerPointLaTeX
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Tool = new LaTeXTool();
-            LaTeXServices = new LaTeXServics();
+            LaTeXServices = new LaTeXServiceRegistry();
 
             DeveloperTaskPane = CustomTaskPanes.Add(new DeveloperTaskPaneControl(), DeveloperTaskPaneControl.Title);
             DeveloperTaskPane.Visible = Properties.Settings.Default.ShowDeveloperTaskPane;

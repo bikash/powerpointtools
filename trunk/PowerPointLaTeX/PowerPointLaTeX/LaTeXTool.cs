@@ -87,6 +87,10 @@ namespace PowerPointLaTeX
             }
         }
 
+        internal struct RenderedEquation {
+
+        }
+
         /// <returns>A valid picture shape from the data or null if creation failed</returns>
         private Shape GetPictureShapeFromImage(Slide slide, Image image)
         {           
@@ -132,7 +136,8 @@ namespace PowerPointLaTeX
         private Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode)
         {
             // check the cache first
-            Image image = GetImageForLaTeXCode(latexCode);
+            int baselineOffset;
+            Image image = GetImageForLaTeXCode(latexCode, out baselineOffset);
             if (image == null) {
                 return null;
             }
@@ -143,6 +148,9 @@ namespace PowerPointLaTeX
             }
 
             picture.AlternativeText = latexCode;
+
+            // store the baseline offset as percentage value instead of pixels to support rescaling the image
+            picture.LaTeXTags().BaseLineOffset.value = (float) baselineOffset / image.Height;
 
             string shortenedName;
             if (latexCode.Length > 32) {
@@ -185,10 +193,11 @@ namespace PowerPointLaTeX
             picture.Width *= scalingFactor;
 
             // change the font size to keep the formula from overlapping with regular text (nifty :))
-            if (codeRange.Font.Size < picture.Height) {
+            if (codeRange.Font.Size != picture.Height) {
                 codeRange.Font.Size = picture.Height;
             }
-            codeRange.Font.BaselineOffset = -0.5f;
+            // BaseLineOffset > for subscript but PPT uses negative values for this
+            codeRange.Font.BaselineOffset = -picture.LaTeXTags().BaseLineOffset;
 
             // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
@@ -255,20 +264,25 @@ namespace PowerPointLaTeX
             //codeRange.Text = " ";
             float fontHeight = codeRange.BoundHeight;
             FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
+            // from top to baseline
             float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
             picture.Left = codeRange.BoundLeft;
 
+            // DISABLED to try baseline feature from the miktex service [5/21/2010 Andreas]
+ /*
             if (baselineHeight >= picture.Height)
-            {
-                // baseline: center (assume that its a one-line codeRange)
-                picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
-            }
-            else
-            {
-                // center the picture directly
-                picture.Top = codeRange.BoundTop + (fontHeight - picture.Height) * 0.5f;
-            }
+             {
+                 // baseline: center (assume that its a one-line codeRange)
+                 picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
+             }
+             else
+             {
+                 // center the picture directly
+                 picture.Top = codeRange.BoundTop + (fontHeight - picture.Height) * 0.5f;
+             }*/
+            picture.Top = codeRange.BoundTop + baselineHeight - (1.0f - picture.LaTeXTags().BaseLineOffset) * picture.Height;
+ 
         }
 
         /// <summary>
@@ -277,27 +291,31 @@ namespace PowerPointLaTeX
         /// </summary>
         /// <param name="latexCode"></param>
         /// <returns></returns>
-        private byte[] GetImageDataForLaTeXCode(string latexCode)
+        private byte[] GetImageDataForLaTeXCode(string latexCode, out int baselineOffset)
         {
             byte[] imageData;
             // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
             if (ActivePresentation.CacheTags()[latexCode].IsCached())
             {
-                imageData = ActivePresentation.CacheTags()[latexCode].Use();
+                ActivePresentation.CacheTags()[latexCode].Use( out imageData, out baselineOffset );
+
+                // make sure we return a some-what meaningful array
+                if( imageData == null || imageData.Length == 0 ) {
+                    return null;
+                }
             }
             else
             {
-                imageData = Globals.ThisAddIn.LaTeXServices.Service.GetImageDataForLaTeXCode(latexCode);
-                if (imageData == null)
-                {
+                Globals.ThisAddIn.LaTeXServices.Service.RenderLaTeXCode(latexCode, out imageData, out baselineOffset);
+
+                // make sure we return a some-what meaningful array
+                if( imageData == null || imageData.Length == 0 ) {
                     return null;
                 }
 
-                ActivePresentation.CacheTags()[latexCode].Store(imageData);
+                ActivePresentation.CacheTags()[latexCode].Store(imageData, baselineOffset);
             }
 
-            // make sure we return a some-what meaningful array
-            Debug.Assert(imageData.Length > 0);
             return imageData;
         }
 
@@ -318,8 +336,8 @@ namespace PowerPointLaTeX
             return image;
         }
 
-        public Image GetImageForLaTeXCode(string latexCode) {
-            byte[] imageData = GetImageDataForLaTeXCode(latexCode);
+        public Image GetImageForLaTeXCode(string latexCode, out int baselineOffset) {
+            byte[] imageData = GetImageDataForLaTeXCode( latexCode, out baselineOffset );
             return GetImageFromImageData(imageData);
         }
 
