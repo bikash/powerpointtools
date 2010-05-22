@@ -100,7 +100,7 @@ namespace PowerPointLaTeX
 
         public string AboutNotice
         {
-            get { return "Andreas Kirsch 2010"; }
+            get { return "Use MiKTeX (or any other local LaTeX install that provides latex.exe and dvipng.exe)."; }
         }
 
         public string SeriveName

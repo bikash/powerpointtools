@@ -177,7 +177,12 @@ namespace PowerPointLaTeX
 
         public int FontSize {
             get {
-                return fontSize;
+                if( fontSize > 0 ) {
+                    return fontSize;
+                }
+                else {
+                    return 36;
+                }
             }
             set {
                 fontSize.value = value;

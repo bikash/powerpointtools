@@ -59,6 +59,8 @@ namespace PowerPointLaTeX
     {
         private const char NoneBreakingSpace = (char) 160;
         private const int InitialEquationFontSize = 44;
+        // renders all formulas at a higher resolution than necessary to allow for zooming
+        private const float DPIScaleFactor = 3;
 
         private delegate void DoShape(Slide slide, Shape shape);
 
@@ -134,11 +136,21 @@ namespace PowerPointLaTeX
             return RangesOverlap(paragraphRange, range);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentSlide"></param>
+        /// <param name="latexCode"></param>
+        /// <param name="wantedPixelsPerEmHeight"></param>
+        /// <param name="upScaleFactor">
+        /// render the image at wantedPixelsPerEmHeight * upScaleFactor to allow for dynamic zooming etc
+        /// </param>
+        /// <returns></returns>
         private Shape GetPictureShapeFromLaTeXCode( Slide currentSlide, string latexCode, float wantedPixelsPerEmHeight )
         {
             // check the cache first
             int baselineOffset;
-            float actualPixelsPerEmHeight = wantedPixelsPerEmHeight;
+            float actualPixelsPerEmHeight = wantedPixelsPerEmHeight * DPIScaleFactor;
             Image image = GetImageForLaTeXCode( latexCode, ref actualPixelsPerEmHeight, out baselineOffset );
             if (image == null) {
                 return null;
@@ -151,9 +163,16 @@ namespace PowerPointLaTeX
 
             picture.AlternativeText = latexCode;
 
+            // prescale the image to the wanted em height here
+            float scaleRatio = wantedPixelsPerEmHeight / actualPixelsPerEmHeight;
+
+            picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
+            picture.Height *= scaleRatio;
+            picture.Width *= scaleRatio;
+
             // store the baseline offset as percentage value instead of pixels to support rescaling the image
             picture.LaTeXTags().BaseLineOffset.value = (float) baselineOffset / image.Height;
-            picture.LaTeXTags().PixelsPerEmHeight = actualPixelsPerEmHeight;
+            //picture.LaTeXTags().PixelsPerEmHeight = actualPixelsPerEmHeight;
             string shortenedName;
             if (latexCode.Length > 32) {
                 shortenedName = latexCode.Substring(0, 32) + "..";
@@ -185,11 +204,10 @@ namespace PowerPointLaTeX
         private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
         {
             float fontSizeInPoints = codeRange.Font.Size;
-            int targetPixelsPerInch = 300;
-            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, targetPixelsPerInch );
-            float realPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, WindowsDPISetting );
+            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, WindowsDPISetting );
 
-            Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, wantedPixelsPerEmHeight);
+            // get a better DPI than the one windows uses to allow for dynamic zooms, etc.
+            Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, wantedPixelsPerEmHeight );
             if (picture == null)
             {
                 return null;
@@ -200,15 +218,6 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().LinkID.value = textShape.Id;
             
-            // scale the picture to fit the font size
-            // TODO: magic numbers? [4/17/2009 Andreas]
-            // 300 dpi and 11 points as default tex font size? [5/23/2010 Andreas]
-            float scaleRatio = realPixelsPerEmHeight / picture.LaTeXTags().PixelsPerEmHeight;
-
-            picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            picture.Height *= scaleRatio;
-            picture.Width *= scaleRatio;
-
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
 
             if( Math.Abs(baselineOffset) > 1 ) {
@@ -705,7 +714,7 @@ namespace PowerPointLaTeX
 
             Shape newEquation = null;
             if (latexCode.Trim() != "") {
-                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode, GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) );
+                newEquation = GetPictureShapeFromLaTeXCode( slide, latexCode, GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) );
             }
 
             if (newEquation != null) {
@@ -730,10 +739,9 @@ namespace PowerPointLaTeX
             // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
             float widthScale = equation.Width / equation.LaTeXTags().OriginalWidth;
             float heightScale = equation.Height / equation.LaTeXTags().OriginalHeight;
-            float pixelEmScale = GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) / equation.LaTeXTags().PixelsPerEmHeight;
             newEquation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            newEquation.Width *= widthScale * pixelEmScale;
-            newEquation.Height *= heightScale * pixelEmScale;
+            newEquation.Width *= widthScale;
+            newEquation.Height *= heightScale;
 
             // copy animations over from the old equation
             Sequence sequence = slide.TimeLine.MainSequence;

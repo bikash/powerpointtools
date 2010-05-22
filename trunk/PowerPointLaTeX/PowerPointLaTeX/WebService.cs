@@ -102,7 +102,7 @@ namespace PowerPointLaTeX
 
         public string AboutNotice
         {
-            get { return "WebService using http://www.codecogs.com"; }
+            get { return "Use the LaTeX WebService from http://www.codecogs.com."; }
         }
 
         public string SeriveName
