@@ -34,6 +34,7 @@ namespace PowerPointLaTeX
         // "manual" instead of "automatic" to make it automatic by default :-)
         public AddInTagBool ManualPreview;
         public AddInTagBool PresentationMode;
+        public AddInTagString MiKTeXPreamble;
 
         public SettingsTags(Presentation presentation)
         {
@@ -41,6 +42,7 @@ namespace PowerPointLaTeX
 
             ManualPreview = new AddInTagBool(tags, "ManualPreview");
             PresentationMode = new AddInTagBool(tags, "PresentationMode");
+            MiKTeXPreamble = new AddInTagString( tags, "MiKTeXPreamble" );
 
             ManualPreview.ValueChanged += new ValueChangedEventHandler<bool>(AutomaticPreview_ValueChanged);
             PresentationMode.ValueChanged += new ValueChangedEventHandler<bool>(PresentationMode_ValueChanged);
@@ -68,6 +70,7 @@ namespace PowerPointLaTeX
         {
             ManualPreview.Clear();
             PresentationMode.Clear();
+            MiKTeXPreamble.Clear();
         }
     }
 }

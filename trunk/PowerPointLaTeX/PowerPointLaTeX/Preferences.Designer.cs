@@ -48,24 +48,38 @@ namespace PowerPointLaTeX
         private void InitializeComponent()
         {
             System.Windows.Forms.Label label1;
+            System.Windows.Forms.GroupBox groupBox1;
+            System.Windows.Forms.Label label2;
+            System.Windows.Forms.Label label3;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( Preferences ) );
+            this.miktexPathBrowserButton = new System.Windows.Forms.Button();
+            this.miktexPathBox = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.generalPage = new System.Windows.Forms.TabPage();
-            this.serviceSelector = new System.Windows.Forms.ComboBox();
             this.mikTexOptions = new System.Windows.Forms.TabPage();
             this.webServiceOptions = new System.Windows.Forms.TabPage();
             this.aboutPage = new System.Windows.Forms.TabPage();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.aboutBox = new System.Windows.Forms.RichTextBox();
             this.OkButton = new System.Windows.Forms.Button();
             this.AbortButton = new System.Windows.Forms.Button();
+            this.miktexPathBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.serviceSelector = new System.Windows.Forms.ComboBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.miktexPreambleBox = new System.Windows.Forms.TextBox();
             label1 = new System.Windows.Forms.Label();
+            groupBox1 = new System.Windows.Forms.GroupBox();
+            label2 = new System.Windows.Forms.Label();
+            label3 = new System.Windows.Forms.Label();
+            groupBox1.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.generalPage.SuspendLayout();
+            this.mikTexOptions.SuspendLayout();
             this.aboutPage.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -76,6 +90,45 @@ namespace PowerPointLaTeX
             label1.Size = new System.Drawing.Size( 103, 13 );
             label1.TabIndex = 0;
             label1.Text = "Use LaTeX Service:";
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add( this.miktexPathBrowserButton );
+            groupBox1.Controls.Add( this.miktexPathBox );
+            groupBox1.Controls.Add( label2 );
+            groupBox1.Location = new System.Drawing.Point( 8, 6 );
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new System.Drawing.Size( 416, 45 );
+            groupBox1.TabIndex = 0;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Paths";
+            // 
+            // miktexPathBrowserButton
+            // 
+            this.miktexPathBrowserButton.Location = new System.Drawing.Point( 382, 11 );
+            this.miktexPathBrowserButton.Name = "miktexPathBrowserButton";
+            this.miktexPathBrowserButton.Size = new System.Drawing.Size( 28, 23 );
+            this.miktexPathBrowserButton.TabIndex = 2;
+            this.miktexPathBrowserButton.Text = "...";
+            this.miktexPathBrowserButton.UseVisualStyleBackColor = true;
+            this.miktexPathBrowserButton.Click += new System.EventHandler( this.miktexPathBrowserButton_Click );
+            // 
+            // miktexPathBox
+            // 
+            this.miktexPathBox.Location = new System.Drawing.Point( 85, 13 );
+            this.miktexPathBox.Name = "miktexPathBox";
+            this.miktexPathBox.Size = new System.Drawing.Size( 297, 20 );
+            this.miktexPathBox.TabIndex = 1;
+            this.miktexPathBox.TextChanged += new System.EventHandler( this.miktexPathBox_TextChanged );
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point( 6, 16 );
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size( 73, 13 );
+            label2.TabIndex = 0;
+            label2.Text = "MiKTeX Path:";
             // 
             // splitContainer1
             // 
@@ -122,18 +175,10 @@ namespace PowerPointLaTeX
             this.generalPage.Text = "General";
             this.generalPage.UseVisualStyleBackColor = true;
             // 
-            // serviceSelector
-            // 
-            this.serviceSelector.DataBindings.Add( new System.Windows.Forms.Binding( "Text", global::PowerPointLaTeX.Properties.Settings.Default, "LatexService", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged ) );
-            this.serviceSelector.FormattingEnabled = true;
-            this.serviceSelector.Location = new System.Drawing.Point( 129, 12 );
-            this.serviceSelector.Name = "serviceSelector";
-            this.serviceSelector.Size = new System.Drawing.Size( 123, 21 );
-            this.serviceSelector.TabIndex = 1;
-            this.serviceSelector.Text = global::PowerPointLaTeX.Properties.Settings.Default.LatexService;
-            // 
             // mikTexOptions
             // 
+            this.mikTexOptions.Controls.Add( this.groupBox2 );
+            this.mikTexOptions.Controls.Add( groupBox1 );
             this.mikTexOptions.Location = new System.Drawing.Point( 4, 22 );
             this.mikTexOptions.Name = "mikTexOptions";
             this.mikTexOptions.Padding = new System.Windows.Forms.Padding( 3 );
@@ -153,7 +198,7 @@ namespace PowerPointLaTeX
             // 
             // aboutPage
             // 
-            this.aboutPage.Controls.Add( this.richTextBox1 );
+            this.aboutPage.Controls.Add( this.aboutBox );
             this.aboutPage.Location = new System.Drawing.Point( 4, 22 );
             this.aboutPage.Name = "aboutPage";
             this.aboutPage.Padding = new System.Windows.Forms.Padding( 3 );
@@ -162,17 +207,18 @@ namespace PowerPointLaTeX
             this.aboutPage.Text = "About..";
             this.aboutPage.UseVisualStyleBackColor = true;
             // 
-            // richTextBox1
+            // aboutBox
             // 
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Location = new System.Drawing.Point( 3, 3 );
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.richTextBox1.Size = new System.Drawing.Size( 426, 238 );
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "PowerPoint LaTeX\nAddin\n\nby Andreas \'BlackHC\' Kirsch\n\nTODO: Webservices...";
+            this.aboutBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.aboutBox.Cursor = System.Windows.Forms.Cursors.Default;
+            this.aboutBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.aboutBox.Location = new System.Drawing.Point( 3, 3 );
+            this.aboutBox.Name = "aboutBox";
+            this.aboutBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.aboutBox.Size = new System.Drawing.Size( 426, 238 );
+            this.aboutBox.TabIndex = 0;
+            this.aboutBox.Text = "INSERT_APP_INFO\n(PowerPoint Addin)\n\nby Andreas \'BlackHC\' Kirsch\n\nINSERT_ABOUT_SER" +
+                "VICES\n\n";
             // 
             // OkButton
             // 
@@ -200,6 +246,50 @@ namespace PowerPointLaTeX
             this.AbortButton.UseVisualStyleBackColor = true;
             this.AbortButton.Click += new System.EventHandler( this.AbortButton_Click );
             // 
+            // miktexPathBrowser
+            // 
+            this.miktexPathBrowser.RootFolder = System.Environment.SpecialFolder.MyComputer;
+            this.miktexPathBrowser.ShowNewFolderButton = false;
+            // 
+            // serviceSelector
+            // 
+            this.serviceSelector.DataBindings.Add( new System.Windows.Forms.Binding( "Text", global::PowerPointLaTeX.Properties.Settings.Default, "LatexService", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged ) );
+            this.serviceSelector.FormattingEnabled = true;
+            this.serviceSelector.Location = new System.Drawing.Point( 129, 12 );
+            this.serviceSelector.Name = "serviceSelector";
+            this.serviceSelector.Size = new System.Drawing.Size( 123, 21 );
+            this.serviceSelector.TabIndex = 1;
+            this.serviceSelector.Text = global::PowerPointLaTeX.Properties.Settings.Default.LatexService;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add( this.miktexPreambleBox );
+            this.groupBox2.Controls.Add( label3 );
+            this.groupBox2.Location = new System.Drawing.Point( 8, 57 );
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size( 416, 181 );
+            this.groupBox2.TabIndex = 1;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Presentation Settings";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point( 7, 20 );
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size( 343, 13 );
+            label3.TabIndex = 0;
+            label3.Text = "Preamble (inserted before all formulas - use this to add new commands):";
+            // 
+            // miktexPreambleBox
+            // 
+            this.miktexPreambleBox.Location = new System.Drawing.Point( 7, 37 );
+            this.miktexPreambleBox.Multiline = true;
+            this.miktexPreambleBox.Name = "miktexPreambleBox";
+            this.miktexPreambleBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.miktexPreambleBox.Size = new System.Drawing.Size( 403, 138 );
+            this.miktexPreambleBox.TabIndex = 1;
+            // 
             // Preferences
             // 
             this.AcceptButton = this.OkButton;
@@ -214,6 +304,8 @@ namespace PowerPointLaTeX
             this.Name = "Preferences";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "PowerPointLaTeX Preferences";
+            groupBox1.ResumeLayout( false );
+            groupBox1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout( false );
             this.splitContainer1.Panel2.ResumeLayout( false );
             this.splitContainer1.Panel2.PerformLayout();
@@ -221,7 +313,10 @@ namespace PowerPointLaTeX
             this.tabControl.ResumeLayout( false );
             this.generalPage.ResumeLayout( false );
             this.generalPage.PerformLayout();
+            this.mikTexOptions.ResumeLayout( false );
             this.aboutPage.ResumeLayout( false );
+            this.groupBox2.ResumeLayout( false );
+            this.groupBox2.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -233,11 +328,16 @@ namespace PowerPointLaTeX
         private System.Windows.Forms.TabPage generalPage;
         private System.Windows.Forms.TabPage mikTexOptions;
         private System.Windows.Forms.TabPage aboutPage;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox aboutBox;
         private System.Windows.Forms.Button OkButton;
         private System.Windows.Forms.Button AbortButton;
         private System.Windows.Forms.ComboBox serviceSelector;
         private System.Windows.Forms.TabPage webServiceOptions;
+        private System.Windows.Forms.TextBox miktexPathBox;
+        private System.Windows.Forms.FolderBrowserDialog miktexPathBrowser;
+        private System.Windows.Forms.Button miktexPathBrowserButton;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox miktexPreambleBox;
 
     }
 }

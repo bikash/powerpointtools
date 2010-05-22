@@ -26,11 +26,21 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using PowerPointLaTeX.Properties;
+using PowerPointLaTeX;
+using System.IO;
 
 namespace PowerPointLaTeX
 {
     public partial class Preferences : Form
     {
+        private LaTeXTool Tool {
+            get {
+                return Globals.ThisAddIn.Tool;
+            }
+        }
+
+        private string oldMiktexPreamble;
+
         public Preferences() {
             InitializeComponent();
 
@@ -38,18 +48,35 @@ namespace PowerPointLaTeX
             serviceSelector.Items.Clear();
             serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXServices.ServiceNames );
 
+            miktexPreambleBox.Text = oldMiktexPreamble = Tool.ActivePresentation.SettingsTags().MiKTeXPreamble;
+
             Save();
+            
+            miktexPathBox.Text = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexPath;
+
+            string aboutServices = "";
+            foreach(string serviceName in Globals.ThisAddIn.LaTeXServices.ServiceNames) {
+                ILaTeXService service = Globals.ThisAddIn.LaTeXServices.GetService( serviceName );
+                string aboutNotice = service.AboutNotice;
+
+                aboutServices += serviceName + ":\n\n" + aboutNotice + "\n\n";
+            }
+
+            var assName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+            string appInfo = assName.Name + " " + assName.Version;
+            aboutBox.Text = aboutBox.Text.Replace( "INSERT_APP_INFO", appInfo ).Replace( "INSERT_ABOUT_SERVICES", aboutServices );
         }
 
         private void Save() {
             Settings.Default.Save();
             MiKTexSettings.Default.Save();
+
+            Tool.ActivePresentation.SettingsTags().MiKTeXPreamble.value = miktexPreambleBox.Text;
         }
 
         private void Reload() {
             Settings.Default.Reload();
             MiKTexSettings.Default.Reload();
-
         }
 
         private void AbortButton_Click( object sender, EventArgs e ) {
@@ -58,6 +85,24 @@ namespace PowerPointLaTeX
 
         private void OkButton_Click( object sender, EventArgs e ) {
             Save();
+        }
+
+        private void miktexPathBox_TextChanged( object sender, EventArgs e ) {
+            MiKTexSettings settings = global::PowerPointLaTeX.Properties.MiKTexSettings.Default;
+            settings.MikTexPath = miktexPathBox.Text;
+            settings.LatexPath = Path.Combine( settings.MikTexPath, settings.Default_LatexRelPath );
+            settings.DVIPNGPath = Path.Combine( settings.MikTexPath, settings.Default_DVIPNGRelPath );
+        }
+
+        private void miktexPathBrowserButton_Click( object sender, EventArgs e ) {
+            miktexPathBrowser.SelectedPath = miktexPathBox.Text;
+            if( miktexPathBrowser.ShowDialog() == DialogResult.OK ) {
+                miktexPathBox.Text = miktexPathBrowser.SelectedPath;
+            }
+        }
+
+        private void Preferences_FormClosed( object sender, FormClosedEventArgs e ) {
+            Reload();
         }
     }
 }

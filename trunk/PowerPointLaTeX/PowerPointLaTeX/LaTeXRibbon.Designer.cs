@@ -65,6 +65,7 @@ namespace PowerPointLaTeX
             this.tab1 = new Microsoft.Office.Tools.Ribbon.RibbonTab();
             this.LaTeXGroup = new Microsoft.Office.Tools.Ribbon.RibbonGroup();
             this.DeveloperTaskPaneToggle = new Microsoft.Office.Tools.Ribbon.RibbonToggleButton();
+            this.showLastLogButton = new Microsoft.Office.Tools.Ribbon.RibbonButton();
             this.LaTeX.SuspendLayout();
             this.generalGroup.SuspendLayout();
             this.inlineGroup.SuspendLayout();
@@ -220,6 +221,7 @@ namespace PowerPointLaTeX
             // LaTeXGroup
             // 
             this.LaTeXGroup.Items.Add( this.DeveloperTaskPaneToggle );
+            this.LaTeXGroup.Items.Add( this.showLastLogButton );
             this.LaTeXGroup.Label = "LaTeX";
             this.LaTeXGroup.Name = "LaTeXGroup";
             // 
@@ -232,6 +234,14 @@ namespace PowerPointLaTeX
             this.DeveloperTaskPaneToggle.OfficeImageId = "FileDocumentInspect";
             this.DeveloperTaskPaneToggle.ShowImage = true;
             this.DeveloperTaskPaneToggle.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.DeveloperTaskPaneToggle_Click );
+            // 
+            // showLastLogButton
+            // 
+            this.showLastLogButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.showLastLogButton.Label = "Show Last Log";
+            this.showLastLogButton.Name = "showLastLogButton";
+            this.showLastLogButton.ShowImage = true;
+            this.showLastLogButton.Click += new System.EventHandler<Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs>( this.showLastLogButton_Click );
             // 
             // LaTeXRibbon
             // 
@@ -275,6 +285,7 @@ namespace PowerPointLaTeX
         internal Microsoft.Office.Tools.Ribbon.RibbonButton CreateFormula;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton EditEquationCode;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ClearCache;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton showLastLogButton;
     }
 
     partial class ThisRibbonCollection : Microsoft.Office.Tools.Ribbon.RibbonReadOnlyCollection

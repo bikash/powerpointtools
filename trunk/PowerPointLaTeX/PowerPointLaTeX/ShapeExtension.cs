@@ -37,5 +37,20 @@ namespace PowerPointLaTeX
             Slide parent = shape.Parent as Slide;
             return parent;
         }
+
+        /// <summary>
+        /// Make sure that the shape still exists and return null otherwise.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns>Return the shape itself or null if it doesn't exist anymore</returns>
+        internal static Shape SafeThis(this Shape shape) {
+            try {
+                object testAccess = shape.Parent;
+            }
+            catch {
+                return null;
+            }
+            return shape;
+        }
     }
 }

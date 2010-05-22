@@ -98,7 +98,7 @@ namespace PowerPointLaTeX
 
         public bool RenderLaTeXCode( string latexCode, out byte[] imageData, out int baselineOffset )
         {
-            string fullLatexCode = settings.MikTexTemplate.Replace( "LATEXCODE", "$" + latexCode + "$");
+            string fullLatexCode = settings.MikTexTemplate.Replace( "LATEXCODE", Globals.ThisAddIn.Tool.ActivePresentation.SettingsTags().MiKTeXPreamble + "\n$" + latexCode + "$");
 
             lastLog = "";
 

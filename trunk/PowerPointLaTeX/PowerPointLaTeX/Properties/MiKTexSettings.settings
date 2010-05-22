@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PowerPointLaTeX.Properties" GeneratedClassName="MiKTexSettings">
   <Profiles />
   <Settings>
-    <Setting Name="MikTexPath" Type="System.String" Scope="User">
+    <Setting Name="MikTexPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
       <Value Profile="(Default)">d:\LaTeX\MiKTeX Portable</Value>
     </Setting>
     <Setting Name="Default_LatexRelPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
@@ -11,10 +11,10 @@
     <Setting Name="Default_DVIPNGRelPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
       <Value Profile="(Default)">miktex\bin\dvipng.exe</Value>
     </Setting>
-    <Setting Name="LatexPath" Type="System.String" Scope="User">
+    <Setting Name="LatexPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
       <Value Profile="(Default)">d:\LaTeX\MiKTeX Portable\miktex\bin\latex.exe</Value>
     </Setting>
-    <Setting Name="DVIPNGPath" Type="System.String" Scope="User">
+    <Setting Name="DVIPNGPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
       <Value Profile="(Default)">d:\LaTeX\MiKTeX Portable\miktex\bin\dvipng.exe</Value>
     </Setting>
     <Setting Name="MikTexTemplate" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
@@ -24,9 +24,6 @@
 \usepackage{amssymb}
 \usepackage[active,displaymath,textmath,tightpage]{preview}
 \usepackage{bm}
-\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
-\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command 
-\newcommand{\T}{\text{T}}                % Transpose
 \begin{document}
 \begin{preview}
 LATEXCODE

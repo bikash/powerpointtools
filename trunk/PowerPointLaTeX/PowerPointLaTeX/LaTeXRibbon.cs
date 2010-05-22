@@ -132,23 +132,26 @@ namespace PowerPointLaTeX
             }
 
             Selection selection = Application.ActiveWindow.Selection;
-            List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
-
-            // deselect the current selection to avoid decompiling it straight away..
-            Application.ActiveWindow.Selection.Unselect();
-
-            Slide slide = Tool.ActiveSlide;
-            if (slide != null)
-            {
-                if (shapes.Count == 0)
-                {
-                    Tool.CompileSlide(slide);
+            if( selection.Type == PpSelectionType.ppSelectionSlides ) {
+                foreach( Slide slide in selection.SlideRange ) {
+                    Tool.CompileSlide( slide );
                 }
-                else
-                {
-                    foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
-                    {
-                        Tool.CompileShape(slide, shape);
+            }
+            else {
+                List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
+
+                // deselect the current selection to avoid decompiling it straight away..
+                Application.ActiveWindow.Selection.Unselect();
+
+                Slide slide = Tool.ActiveSlide;
+                if( slide != null ) {
+                    if( shapes.Count == 0 ) {
+                        Tool.CompileSlide( slide );
+                    }
+                    else {
+                        foreach( Microsoft.Office.Interop.PowerPoint.Shape shape in shapes ) {
+                            Tool.CompileShape( slide, shape );
+                        }
                     }
                 }
             }
@@ -164,20 +167,25 @@ namespace PowerPointLaTeX
 
             // TODO: this is copy from CompileButton - find a way to merge the two [3/12/2009 Andreas]
             Selection selection = Application.ActiveWindow.Selection;
-            List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
-
-            Slide slide = Tool.ActiveSlide;
-            if (slide != null)
-            {
-                if (shapes.Count == 0)
-                {
-                    Tool.DecompileSlide(slide);
+            if( selection.Type == PpSelectionType.ppSelectionSlides ) {
+                foreach( Slide slide in selection.SlideRange ) {
+                    Tool.DecompileSlide( slide );
                 }
-                else
-                {
-                    foreach (Microsoft.Office.Interop.PowerPoint.Shape shape in shapes)
-                    {
-                        Tool.DecompileShape(slide, shape);
+            }
+            else {
+                List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
+
+                Slide slide = Tool.ActiveSlide;
+                if( slide != null ) {
+                    if( shapes.Count == 0 ) {
+                        Tool.DecompileSlide( slide );
+                    }
+                    else {
+                        foreach( Microsoft.Office.Interop.PowerPoint.Shape _shape in shapes ) {
+                            Microsoft.Office.Interop.PowerPoint.Shape shape = _shape.SafeThis();
+                            if( shape != null )
+                                Tool.DecompileShape( slide, shape );
+                        }
                     }
                 }
             }
@@ -276,5 +284,11 @@ namespace PowerPointLaTeX
                 Tool.ActivePresentation.CacheTags().PurgeAll();
             }
         }
+
+        private void showLastLogButton_Click( object sender, RibbonControlEventArgs e ) {
+            LogForm logForm = new LogForm( Globals.ThisAddIn.LaTeXServices.Service.GetLastErrorReport() );
+            logForm.ShowDialog();
+        }
+
     }
 }

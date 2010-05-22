@@ -25,7 +25,6 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("d:\\LaTeX\\MiKTeX Portable")]
         public string MikTexPath {
             get {
                 return ((string)(this["MikTexPath"]));
@@ -53,7 +52,6 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("d:\\LaTeX\\MiKTeX Portable\\miktex\\bin\\latex.exe")]
         public string LatexPath {
             get {
                 return ((string)(this["LatexPath"]));
@@ -65,7 +63,6 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("d:\\LaTeX\\MiKTeX Portable\\miktex\\bin\\dvipng.exe")]
         public string DVIPNGPath {
             get {
                 return ((string)(this["DVIPNGPath"]));
