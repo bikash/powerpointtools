@@ -28,7 +28,7 @@ namespace PowerPointLaTeX
         /// The depth is a negative offset in this case, so the minus sign is necessary, and the unit is pixels (px).
         /// </param>
         /// <returns>returns false if there was an error</returns>
-        bool RenderLaTeXCode(string latexCode, out byte[] imageData, out int baselineOffset);
+        bool RenderLaTeXCode(string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset);
 
         string GetLastErrorReport();
     }

@@ -122,7 +122,10 @@ namespace PowerPointLaTeX
             return URLData.content;
         }
 
-        public bool RenderLaTeXCode(string latexCode, out byte[] imageData, out int baselineOffset) {
+        public bool RenderLaTeXCode(string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset) {
+            // measured value
+            pixelsPerEmHeight = 59;
+ 
             // baseline offset not supported!
             baselineOffset = 0;
 
@@ -141,6 +144,12 @@ namespace PowerPointLaTeX
 
         public string GetLastErrorReport() {
             return "No information provided.";
+        }
+
+        public float DPI {
+            get {
+                return 300;
+            }
         }
 
         #endregion

@@ -35,12 +35,14 @@ namespace PowerPointLaTeX
             private AddInTagInt refCounter;
             private AddInTagByteArray content;
             private AddInTagInt baselineOffset;
+            private AddInTagFloat pixelsPerEmHeight;
 
             public CacheEntry(Tags tags, string code)
             {
                 refCounter = new AddInTagInt(tags, "RefCounter#" + code);
                 content = new AddInTagByteArray(tags, "CacheContent#" + code);
                 baselineOffset = new AddInTagInt( tags, "BaseLineOffset#" + code );
+                pixelsPerEmHeight = new AddInTagFloat( tags, "PixelsPerEmHeight#" + code );
             }
 
             public void Clear()
@@ -49,6 +51,7 @@ namespace PowerPointLaTeX
                 refCounter.Clear();
                 content.Clear();
                 baselineOffset.Clear();
+                pixelsPerEmHeight.Clear();
             }
 
             public int RefCounter
@@ -89,36 +92,59 @@ namespace PowerPointLaTeX
                 }
             }
 
-            public void ReleaseIfUsed()
+            public float PixelsPerEmHeight {
+                get {
+                    return pixelsPerEmHeight;
+                }
+                set {
+                    pixelsPerEmHeight.value = value;
+                }
+            }
+
+            public void Release()
             {
                 if( RefCounter == 0 ) {
-                    // unused
+                    // unused - this should not happen..
                     return;
                 }
                 // otherwise the refcounter must be at least 2
                 Debug.Assert(RefCounter >= 2);
                 if (--RefCounter < 1)
                 {
-                    // even if something goes wrong, keep it as 'cached'
+                    // even if something goes wrong, keep it as 'cached', so we don't leak resources
                     RefCounter = 1;
                 }
             }
 
-            public void Store(byte[] data, int baselineOffset)
+            public void Store(byte[] data, float pixelsPerEmHeight, int baselineOffset)
             {
-                Debug.Assert(!IsCached());
+                // allow cache overwrite if its a better resolution picture
+                Debug.Assert( pixelsPerEmHeight > PixelsPerEmHeight);
+
                 Content = data;
+                PixelsPerEmHeight = pixelsPerEmHeight;
                 BaselineOffset = baselineOffset;
-                RefCounter = 2;
+
+                if( IsCached() ) {
+                    // we store it, so we use it
+                    RefCounter++;
+                }
+                else {
+                    // 0: no entry, 1: not used but still cached, > 2: actively used
+                    RefCounter = 2;
+                }
             }
 
-            public void Use(out byte[] content, out int baselineOffset)
+            public void Query(out byte[] content, out float pixelsPerEmHeight, out int baselineOffset)
             {
-                RefCounter++;
                 content = Content;
+                pixelsPerEmHeight = PixelsPerEmHeight;
                 baselineOffset = BaselineOffset;
             }
 
+            public void Use() {
+                RefCounter++;
+            }
         }
 
         private Tags tags;

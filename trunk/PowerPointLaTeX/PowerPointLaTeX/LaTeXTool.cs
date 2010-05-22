@@ -133,11 +133,12 @@ namespace PowerPointLaTeX
             return RangesOverlap(paragraphRange, range);
         }
 
-        private Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode)
+        private Shape GetPictureShapeFromLaTeXCode( Slide currentSlide, string latexCode, float wantedPixelsPerEmHeight )
         {
             // check the cache first
             int baselineOffset;
-            Image image = GetImageForLaTeXCode(latexCode, out baselineOffset);
+            float actualPixelsPerEmHeight = wantedPixelsPerEmHeight;
+            Image image = GetImageForLaTeXCode( latexCode, ref actualPixelsPerEmHeight, out baselineOffset );
             if (image == null) {
                 return null;
             }
@@ -151,7 +152,7 @@ namespace PowerPointLaTeX
 
             // store the baseline offset as percentage value instead of pixels to support rescaling the image
             picture.LaTeXTags().BaseLineOffset.value = (float) baselineOffset / image.Height;
-
+            picture.LaTeXTags().PixelsPerEmHeight = actualPixelsPerEmHeight;
             string shortenedName;
             if (latexCode.Length > 32) {
                 shortenedName = latexCode.Substring(0, 32) + "..";
@@ -174,7 +175,14 @@ namespace PowerPointLaTeX
         /// <returns></returns>
         private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
         {
-            Shape picture = GetPictureShapeFromLaTeXCode(slide, latexCode);
+            float fontSizeInPoints = codeRange.Font.Size;
+            float printPtsPerInch = 72;
+            float targetPixelsPerInch = 300;
+            float windowsPixelsPerInch = 96;
+            float wantedPixelsPerEmHeight = fontSizeInPoints / printPtsPerInch * targetPixelsPerInch;
+            float realPixelsPerEmHeight = fontSizeInPoints / printPtsPerInch * windowsPixelsPerInch;
+
+            Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, wantedPixelsPerEmHeight);
             if (picture == null)
             {
                 return null;
@@ -188,10 +196,11 @@ namespace PowerPointLaTeX
             // scale the picture to fit the font size
             // TODO: magic numbers? [4/17/2009 Andreas]
             // 300 dpi and 11 points as default tex font size? [5/23/2010 Andreas]
-            float scalingFactor = codeRange.Font.Size / 400.0f * 10.0f; // baselineHeight / 34.5f;
+            float scaleRatio = realPixelsPerEmHeight / picture.LaTeXTags().PixelsPerEmHeight;
+
             picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            picture.Height *= scalingFactor;
-            picture.Width *= scalingFactor;
+            picture.Height *= scaleRatio;
+            picture.Width *= scaleRatio;
 
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
 
@@ -306,29 +315,50 @@ namespace PowerPointLaTeX
         /// </summary>
         /// <param name="latexCode"></param>
         /// <returns></returns>
-        private byte[] GetImageDataForLaTeXCode(string latexCode, out int baselineOffset)
+        private byte[] GetImageDataForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
         {
             byte[] imageData;
+
+            byte[] cachedImageData = null;
+            float cachedPixelsPerEmHeight = 0;
+            int cachedBaselineOffset = 0;
             // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
             if (ActivePresentation.CacheTags()[latexCode].IsCached())
             {
-                ActivePresentation.CacheTags()[latexCode].Use( out imageData, out baselineOffset );
+                ActivePresentation.CacheTags()[ latexCode ].Query( out cachedImageData, out cachedPixelsPerEmHeight, out cachedBaselineOffset );
 
                 // make sure we return a some-what meaningful array
-                if( imageData == null || imageData.Length == 0 ) {
-                    return null;
+                if( cachedImageData != null && cachedImageData.Length == 0 ) {
+                    cachedImageData = null;
                 }
             }
-            else
-            {
-                Globals.ThisAddIn.LaTeXServices.Service.RenderLaTeXCode(latexCode, out imageData, out baselineOffset);
 
-                // make sure we return a some-what meaningful array
-                if( imageData == null || imageData.Length == 0 ) {
-                    return null;
+            if( cachedImageData != null && cachedPixelsPerEmHeight > pixelsPerEmHeight ) {
+                // we can use the cached formula
+                imageData = cachedImageData;
+                pixelsPerEmHeight = cachedPixelsPerEmHeight;
+                baselineOffset = cachedBaselineOffset;
+
+                ActivePresentation.CacheTags()[ latexCode ].Use();
+            }
+            else {
+                // try to render the formula using our LaTeX service
+                Globals.ThisAddIn.LaTeXServices.Service.RenderLaTeXCode(latexCode, out imageData, ref pixelsPerEmHeight, out baselineOffset);
+
+                if( imageData != null && imageData.Length > 0 ) {
+                    // looks good, so cache it
+                    ActivePresentation.CacheTags()[ latexCode ].Store( imageData, pixelsPerEmHeight, baselineOffset );
                 }
+                else {
+                    // if this failed, use the result from the cache, can't be off worse
+                    imageData = cachedImageData;
+                    pixelsPerEmHeight = cachedPixelsPerEmHeight;
+                    baselineOffset = cachedBaselineOffset;
 
-                ActivePresentation.CacheTags()[latexCode].Store(imageData, baselineOffset);
+                    if( cachedImageData != null ) {
+                        ActivePresentation.CacheTags()[ latexCode ].Use();
+                    }
+                }
             }
 
             return imageData;
@@ -351,8 +381,8 @@ namespace PowerPointLaTeX
             return image;
         }
 
-        public Image GetImageForLaTeXCode(string latexCode, out int baselineOffset) {
-            byte[] imageData = GetImageDataForLaTeXCode( latexCode, out baselineOffset );
+        public Image GetImageForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset) {
+            byte[] imageData = GetImageDataForLaTeXCode( latexCode, ref pixelsPerEmHeight, out baselineOffset );
             return GetImageFromImageData(imageData);
         }
 
@@ -491,7 +521,7 @@ namespace PowerPointLaTeX
                     }
 
                     // release the cache entry, too
-                    ActivePresentation.CacheTags()[latexCode].ReleaseIfUsed();
+                    ActivePresentation.CacheTags()[latexCode].Release();
                 }
 
                 // add back the latex code
@@ -663,7 +693,7 @@ namespace PowerPointLaTeX
 
             Shape newEquation = null;
             if (latexCode.Trim() != "") {
-                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode);
+                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode, 48.0f);
             }
 
             if (newEquation != null) {

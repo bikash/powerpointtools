@@ -25,6 +25,7 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace PowerPointLaTeX
 {
+    // (text shape tags)
     class LaTeXEntry
     {
         public AddInTagString Code;
@@ -157,8 +158,10 @@ namespace PowerPointLaTeX
         #endregion
     }
 
+    // (compiled formula shape tags)
     class LaTeXTags
     {
+        // TODO: wrap all tags in properties [5/23/2010 Andreas]
         public readonly AddInTagString Code;
         public readonly AddInTagEnum<EquationType> Type;
         public readonly AddInTagInt LinkID;
@@ -167,6 +170,22 @@ namespace PowerPointLaTeX
 
         public readonly AddInTagFloat OriginalWidth, OriginalHeight;
         public readonly AddInTagFloat BaseLineOffset;
+        private AddInTagFloat pixelsPerEmHeight;
+
+        public float PixelsPerEmHeight {
+            get {
+                // this is a new field. to avoid breaking changes to old PPT files return the old value here.
+                if( pixelsPerEmHeight > 0 ) {
+                    return pixelsPerEmHeight;
+                }
+                else {
+                    return 44.0f * 4 / 3;
+                }
+            }
+            set {
+                pixelsPerEmHeight.value = value;
+            }
+        }
 
         public LaTeXTags(Shape shape)
         {
@@ -179,6 +198,7 @@ namespace PowerPointLaTeX
             OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
             OriginalHeight = new AddInTagFloat(tags, "OriginalHeight");
             BaseLineOffset = new AddInTagFloat( tags, "BaseLineOffset" );
+            pixelsPerEmHeight = new AddInTagFloat( tags, "PixelsPerEmHeight" );
        }
 
         public void Clear()
@@ -190,6 +210,7 @@ namespace PowerPointLaTeX
             OriginalWidth.Clear();
             OriginalHeight.Clear();
             BaseLineOffset.Clear();
+            pixelsPerEmHeight.Clear();
         }
     }
 }

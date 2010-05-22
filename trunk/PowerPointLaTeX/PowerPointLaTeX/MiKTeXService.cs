@@ -13,7 +13,7 @@ namespace PowerPointLaTeX
     public class MiKTeXService : ILaTeXService
     {
         private const string latexOptions = "-enable-installer -interaction=nonstopmode";
-        private const string dvipngOptions = "-T tight --depth --height -D 400 --noghostscript --picky -q -z 0";
+        private const string dvipngOptions = "-T tight --depth --height -D DPI --noghostscript --picky -q -z 0";
 
         private string lastLog;
 
@@ -38,7 +38,7 @@ namespace PowerPointLaTeX
             return output;
         }
 
-        private bool compileLatexCode(string code, out byte[] imageData, out int baselineOffset) {
+        private bool compileLatexCode(string code, int DPI, out byte[] imageData, out int baselineOffset) {
             baselineOffset = 0;
             imageData = null;
 
@@ -60,12 +60,22 @@ namespace PowerPointLaTeX
 
                 lastLog += "Latex Output:\n\n" + latexOutput;
 
-                string dvipngOutput = runConsoleProcess( tempDir, settings.DVIPNGPath,
-                    dvipngOptions
-                    + " -o \"" + outputImagePath + "\""
-                    + " \"" + Path.ChangeExtension( tempTexFileName, "dvi" ) );
+                // run it twice...
+                // HACK: it wont work with changing dpi for some reason :( [5/23/2010 Andreas]
+                string dvipngOutput = "";
+                for( int i = 0; i < 2; i++ ) {
+                    dvipngOutput = runConsoleProcess( tempDir, settings.DVIPNGPath,
+                        dvipngOptions.Replace( "DPI", DPI.ToString() )
+                        + " -o \"" + outputImagePath + "\""
+                        + " \"" + Path.ChangeExtension( tempTexFileName, "dvi" ) );
 
-                lastLog += "\nDVIPNG Output:\n\n" + dvipngOutput;
+                    lastLog += "\nDVIPNG Output:\n\n" + dvipngOutput;
+
+                    if( File.Exists(outputImagePath) ) {
+                        break;
+                        // otherwise give it a second try - maybe METAFONT failed for some reason on the first attempt..
+                    }
+                }
 
                 int depth = Int32.Parse( Regex.Match( dvipngOutput, @"depth=(\S*)" ).Groups[ 1 ].Value );
                 int height = Int32.Parse( Regex.Match( dvipngOutput, @"height=(\S*)" ).Groups[ 1 ].Value );
@@ -98,13 +108,25 @@ namespace PowerPointLaTeX
             get { return "MiKTeX Service"; }
         }
 
-        public bool RenderLaTeXCode( string latexCode, out byte[] imageData, out int baselineOffset )
+        public bool RenderLaTeXCode( string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset )
         {
+            // ignore pixelsPerEmHeight and simple use our fixed DPI value for now
+            float latexFontSizePt = 10;
+            float latexPrintPtPerInch = 72;
+            int DPI = (int)( 0.5f + pixelsPerEmHeight / (latexFontSizePt / latexPrintPtPerInch) );
+            if( DPI < 150 ) {
+                DPI = 150;
+            }
+            // only allow steps of 10..
+            DPI = DPI - DPI % 10;
+
+            pixelsPerEmHeight = latexFontSizePt / latexPrintPtPerInch * DPI;
+
             string fullLatexCode = settings.MikTexTemplate.Replace( "LATEXCODE", Globals.ThisAddIn.Tool.ActivePresentation.SettingsTags().MiKTeXPreamble + "\n$" + latexCode + "$");
 
             lastLog = "";
 
-            if( !compileLatexCode( fullLatexCode, out imageData, out baselineOffset ) ) {
+            if( !compileLatexCode( fullLatexCode, DPI, out imageData, out baselineOffset ) ) {
                 imageData = null;
                 return false;
             }
