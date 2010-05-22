@@ -13,7 +13,7 @@ namespace PowerPointLaTeX
     public class MiKTeXService : ILaTeXService
     {
         private const string latexOptions = "-enable-installer -interaction=nonstopmode";
-        private const string dvipngOptions = "-T tight --depth --height -D 300 --noghostscript --picky -q -z 0";
+        private const string dvipngOptions = "-T tight --depth --height -D 400 --noghostscript --picky -q -z 0";
 
         private string lastLog;
 
@@ -73,6 +73,8 @@ namespace PowerPointLaTeX
 
                 imageData = File.ReadAllBytes( outputImagePath );
             }
+            // catch and ignore - something went wrong - oh well..
+            catch {}
             finally {
                 // delete temp files
                 string[] tempFiles = Directory.GetFiles( tempDir, Path.GetFileNameWithoutExtension( tempTexFileName ) + ".*" );

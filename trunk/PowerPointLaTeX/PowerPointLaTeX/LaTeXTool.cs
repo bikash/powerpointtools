@@ -187,7 +187,8 @@ namespace PowerPointLaTeX
             
             // scale the picture to fit the font size
             // TODO: magic numbers? [4/17/2009 Andreas]
-            float scalingFactor = codeRange.Font.Size / 44.0f; // baselineHeight / 34.5f;
+            // 300 dpi and 11 points as default tex font size? [5/23/2010 Andreas]
+            float scalingFactor = codeRange.Font.Size / 400.0f * 10.0f; // baselineHeight / 34.5f;
             picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
             picture.Height *= scalingFactor;
             picture.Width *= scalingFactor;
