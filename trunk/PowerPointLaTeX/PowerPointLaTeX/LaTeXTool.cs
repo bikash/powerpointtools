@@ -340,7 +340,7 @@ namespace PowerPointLaTeX
                 }
             }
 
-            if( cachedImageData != null && cachedPixelsPerEmHeight > pixelsPerEmHeight ) {
+            if( cachedImageData != null && cachedPixelsPerEmHeight >= pixelsPerEmHeight ) {
                 // we can use the cached formula
                 imageData = cachedImageData;
                 pixelsPerEmHeight = cachedPixelsPerEmHeight;
