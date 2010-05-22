@@ -168,9 +168,21 @@ namespace PowerPointLaTeX
         
         public readonly LaTeXEntries Entries;
 
+        //[ Equation only
         public readonly AddInTagFloat OriginalWidth, OriginalHeight;
+        private AddInTagInt fontSize;
+        //]
         public readonly AddInTagFloat BaseLineOffset;
         private AddInTagFloat pixelsPerEmHeight;
+
+        public int FontSize {
+            get {
+                return fontSize;
+            }
+            set {
+                fontSize.value = value;
+            }
+        }
 
         public float PixelsPerEmHeight {
             get {
@@ -197,6 +209,8 @@ namespace PowerPointLaTeX
 
             OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
             OriginalHeight = new AddInTagFloat(tags, "OriginalHeight");
+            fontSize = new AddInTagInt( tags, "FontSize" );
+
             BaseLineOffset = new AddInTagFloat( tags, "BaseLineOffset" );
             pixelsPerEmHeight = new AddInTagFloat( tags, "PixelsPerEmHeight" );
        }
@@ -209,6 +223,8 @@ namespace PowerPointLaTeX
             Entries.Clear();
             OriginalWidth.Clear();
             OriginalHeight.Clear();
+            fontSize.Clear();
+
             BaseLineOffset.Clear();
             pixelsPerEmHeight.Clear();
         }

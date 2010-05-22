@@ -676,12 +676,13 @@ namespace PowerPointLaTeX
             tags.Type.value = EquationType.Equation;
             tags.OriginalWidth.value = width;
             tags.OriginalHeight.value = height;
+            tags.FontSize = InitialEquationFontSize;
 
             return shape;
         }
 
         public Shape EditEquation( Shape equation, out bool cancelled ) {
-            EquationEditor editor = new EquationEditor( equation.LaTeXTags().Code, InitialEquationFontSize );
+            EquationEditor editor = new EquationEditor( equation.LaTeXTags().Code, equation.LaTeXTags().FontSize );
             DialogResult result = editor.ShowDialog();
             if( result == DialogResult.Cancel ) {
                 cancelled = true;
@@ -712,6 +713,8 @@ namespace PowerPointLaTeX
 
                 tags.OriginalWidth.value = newEquation.Width;
                 tags.OriginalHeight.value = newEquation.Height;
+                tags.FontSize = editor.FontSize;
+
                 tags.Type.value = EquationType.Equation;
             }
             else {
@@ -727,9 +730,10 @@ namespace PowerPointLaTeX
             // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
             float widthScale = equation.Width / equation.LaTeXTags().OriginalWidth;
             float heightScale = equation.Height / equation.LaTeXTags().OriginalHeight;
+            float pixelEmScale = GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) / equation.LaTeXTags().PixelsPerEmHeight;
             newEquation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            newEquation.Width *= widthScale;
-            newEquation.Height *= heightScale;
+            newEquation.Width *= widthScale * pixelEmScale;
+            newEquation.Height *= heightScale * pixelEmScale;
 
             // copy animations over from the old equation
             Sequence sequence = slide.TimeLine.MainSequence;
