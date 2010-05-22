@@ -58,6 +58,7 @@ namespace PowerPointLaTeX
     class LaTeXTool
     {
         private const char NoneBreakingSpace = (char) 160;
+        private const int InitialEquationFontSize = 44;
 
         private delegate void DoShape(Slide slide, Shape shape);
 
@@ -165,6 +166,14 @@ namespace PowerPointLaTeX
             return picture;
         }
 
+        // TODO: move GetPixelsPerEmHeight and WindowsDPISetting into a helper class? [5/23/2010 Andreas]
+        public const int WindowsDPISetting = 96;
+   
+        public float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
+            float printPtsPerInch = 72;
+            return fontSizeInPoints / printPtsPerInch * targetPixelsPerInch;
+        }
+
         /// <summary>
         /// Compile latexCode into an inline shape
         /// </summary>
@@ -176,11 +185,9 @@ namespace PowerPointLaTeX
         private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
         {
             float fontSizeInPoints = codeRange.Font.Size;
-            float printPtsPerInch = 72;
-            float targetPixelsPerInch = 300;
-            float windowsPixelsPerInch = 96;
-            float wantedPixelsPerEmHeight = fontSizeInPoints / printPtsPerInch * targetPixelsPerInch;
-            float realPixelsPerEmHeight = fontSizeInPoints / printPtsPerInch * windowsPixelsPerInch;
+            int targetPixelsPerInch = 300;
+            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, targetPixelsPerInch );
+            float realPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, WindowsDPISetting );
 
             Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, wantedPixelsPerEmHeight);
             if (picture == null)
@@ -673,12 +680,16 @@ namespace PowerPointLaTeX
             return shape;
         }
 
-        public Shape EditEquation( Shape equation ) {
-            EquationEditor editor = new EquationEditor(equation.LaTeXTags().Code);
+        public Shape EditEquation( Shape equation, out bool cancelled ) {
+            EquationEditor editor = new EquationEditor( equation.LaTeXTags().Code, InitialEquationFontSize );
             DialogResult result = editor.ShowDialog();
             if( result == DialogResult.Cancel ) {
+                cancelled = true;
                 // don't change anything
                 return equation;
+            }
+            else {
+                cancelled = false;
             }
 
             // recompile the code
@@ -693,7 +704,7 @@ namespace PowerPointLaTeX
 
             Shape newEquation = null;
             if (latexCode.Trim() != "") {
-                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode, 48.0f);
+                newEquation = GetPictureShapeFromLaTeXCode(slide, latexCode, GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) );
             }
 
             if (newEquation != null) {

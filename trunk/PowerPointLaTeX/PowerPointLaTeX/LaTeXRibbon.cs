@@ -259,8 +259,14 @@ namespace PowerPointLaTeX
         private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
         {
             Microsoft.Office.Interop.PowerPoint.Shape equation = Tool.CreateEmptyEquation();
-            equation = Tool.EditEquation(equation);
-            equation.Select(MsoTriState.msoTrue);
+            bool cancelled;
+            equation = Tool.EditEquation(equation, out cancelled);
+            if( !cancelled ) {
+                equation.Select( MsoTriState.msoTrue );
+            }
+            else {
+                equation.Delete();
+            }
         }
 
         private void EditEquationCode_Click(object sender, RibbonControlEventArgs e)
@@ -271,7 +277,8 @@ namespace PowerPointLaTeX
             if( shapes.Count == 1 ) {
                 Microsoft.Office.Interop.PowerPoint.Shape shape = shapes[0];
                 if( shape.IsEquation() ) {
-                    shape = Tool.EditEquation(shape);
+                    bool unused_cancelled;
+                    shape = Tool.EditEquation( shape, out unused_cancelled );
                     if( shape != null ) {
                         shape.Select(MsoTriState.msoCTrue);
                     }

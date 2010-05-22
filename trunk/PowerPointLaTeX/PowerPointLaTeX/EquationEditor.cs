@@ -42,7 +42,13 @@ namespace PowerPointLaTeX {
             get { return formulaText.Text; }
         }
 
-        public EquationEditor(String latexCode) {
+        public int FontSize {
+            get { return (int) fontSizeUpDown.Value; }
+        }
+
+        private string lastRenderedLaTeXCode = "";
+
+        public EquationEditor(String latexCode, int initialFontSize) {
             InitializeComponent();
 
             updatePreviewTimer = new System.Timers.Timer();
@@ -51,6 +57,7 @@ namespace PowerPointLaTeX {
             updatePreviewTimer.Elapsed += new System.Timers.ElapsedEventHandler(updatePreviewTimer_Elapsed);
 
             formulaText.Text = latexCode;
+            fontSizeUpDown.Value = initialFontSize;
 
             updatePreview();
         }
@@ -64,20 +71,40 @@ namespace PowerPointLaTeX {
 
         private void updatePreview() {
             UseWaitCursor = true;
-            Image previewImage = null;
 
-            if( LaTeXCode != "" ) {
-                int unusedBaselineOffset;
-                float unusedPixelsPerEmHeight = 40;
-                previewImage = Tool.GetImageForLaTeXCode( LaTeXCode, ref unusedPixelsPerEmHeight, out unusedBaselineOffset );
+            // release the old image if there was one
+            if( lastRenderedLaTeXCode != "" ) {
+                Tool.ActivePresentation.CacheTags()[ lastRenderedLaTeXCode ].Release();
             }
 
-            formulaPreview.Image = previewImage;
+            formulaPreview.Image = null;
+
+            if( LaTeXCode != "" ) {
+                Image previewImage;
+                int unusedBaselineOffset;
+                float wantedPixelsPerEmHeight = Tool.GetPixelsPerEmHeight( (float) fontSizeUpDown.Value, LaTeXTool.WindowsDPISetting );
+                float actualPixelsPerEmHeight = wantedPixelsPerEmHeight;
+                previewImage = Tool.GetImageForLaTeXCode( LaTeXCode, ref actualPixelsPerEmHeight, out unusedBaselineOffset );
+                formulaPreview.Image = previewImage;
+
+                formulaPreview.Height = (int) (previewImage.Height * wantedPixelsPerEmHeight / actualPixelsPerEmHeight);
+                formulaPreview.Width = (int) (previewImage.Width * wantedPixelsPerEmHeight / actualPixelsPerEmHeight);
+                
+                formulaPreview.Top = 0;
+                formulaPreview.Left = (tableLayoutPanel2.Width - formulaPreview.Width) / 2;
+                
+                lastRenderedLaTeXCode = LaTeXCode;
+           }
 
             UseWaitCursor = false;
         }
 
         private void formulaText_TextChanged(object sender, EventArgs e) {
+            updatePreviewTimer.Stop();
+            updatePreviewTimer.Start();
+        }
+
+        private void fontSizeUpDown_ValueChanged( object sender, EventArgs e ) {
             updatePreviewTimer.Stop();
             updatePreviewTimer.Start();
         }
