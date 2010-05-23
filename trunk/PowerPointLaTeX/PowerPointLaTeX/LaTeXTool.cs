@@ -238,9 +238,18 @@ namespace PowerPointLaTeX
                 factor = Math.Max( factor, descentSize / descentHeight );
             }
 
-            // dont let it get bigger than 3 times the text size (starts to look ridiculous otherwise)
-            factor = Math.Min( factor, 3.0f );
-            codeRange.Font.Size *= factor;
+            // dont let it get too big (starts to look ridiculous otherwise)
+            if( factor <= 1.5f ) {
+                codeRange.Font.Size *= factor;
+            }
+            else {
+                // just ignore the baseline offset
+                picture.LaTeXTags().BaseLineOffset.value = descentHeight / codeRange.Font.Size;
+                // keep linespacing intact (assuming that the line spacing scales with the font height)
+                float lineSpacing = (float) (codeRange.Font.Size * ((float) fontFamily.GetLineSpacing( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
+                codeRange.Font.Size *= (lineSpacing - codeRange.Font.Size + heightInPts) / lineSpacing;
+            }
+
 
             /*
             if( Math.Abs(baselineOffset) > 1 ) {
@@ -267,19 +276,23 @@ namespace PowerPointLaTeX
             // fill the text up with none breaking space to make it "wrap around" the formula
             FillTextRange(codeRange, NoneBreakingSpace, picture.Width);
 
+            CopyInlineEffects( slide, textShape, codeRange, picture );
+
+            return picture;
+        }
+
+        private void CopyInlineEffects( Slide slide, Shape textShape, TextRange codeRange, Shape picture ) {
             // copy animations from the parent textShape
             Sequence sequence = slide.TimeLine.MainSequence;
             var effects =
                 from Effect effect in sequence
                 where effect.Shape == textShape &&
                 ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                    ParagraphContainsRange(textShape, effect.Paragraph, codeRange))
+                    ParagraphContainsRange( textShape, effect.Paragraph, codeRange ))
                     || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                 select effect;
 
-            CopyEffectsTo(picture, true, sequence, effects);
-
-            return picture;
+            CopyEffectsTo( picture, true, sequence, effects );
         }
 
         private static void CopyEffectsTo(Shape target, bool setToWithPrevious, Sequence sequence, IEnumerable<Effect> effects)
@@ -440,30 +453,63 @@ namespace PowerPointLaTeX
             List<TextRange> pictureRanges = new List<TextRange>();
             List<Shape> pictures = new List<Shape>();
 
-            while ((startIndex = range.Text.IndexOf("$$", startIndex)) != -1)
+            while (true)
             {
-                startIndex += 2;
+                bool inlineMode;
+                int latexCodeStartIndex;
+                int latexCodeEndIndex;
+                int endIndex;
 
-                int endIndex = range.Text.IndexOf("$$", startIndex);
-                if (endIndex == -1)
+                int inlineStartIndex, displaystyleStartIndex;
+                inlineStartIndex = range.Text.IndexOf("$$", startIndex);
+                displaystyleStartIndex = range.Text.IndexOf( "$$[", startIndex );
+                if( displaystyleStartIndex != -1 && displaystyleStartIndex <= inlineStartIndex ) {
+                    inlineMode = false;
+
+                    startIndex = displaystyleStartIndex;
+                    latexCodeStartIndex = startIndex + 3;
+                    latexCodeEndIndex = range.Text.IndexOf( "]$$", latexCodeStartIndex );
+                    endIndex = latexCodeEndIndex + 3;
+                } else if( inlineStartIndex != -1 ) {
+                    inlineMode = true;
+
+                    startIndex = inlineStartIndex;
+                    latexCodeStartIndex = startIndex + 2;
+                    latexCodeEndIndex = range.Text.IndexOf( "$$", latexCodeStartIndex );
+                    endIndex = latexCodeEndIndex + 2;
+                }
+                else {
+                    break;
+                }
+
+                if( latexCodeEndIndex == -1 )
                 {
                     break;
                 }
 
                 int length = endIndex - startIndex;
-                string latexCode = range.Text.Substring(startIndex, length);
+
+                int latexCodeLength = latexCodeEndIndex - latexCodeStartIndex;
+                string latexCode = range.Text.Substring( latexCodeStartIndex, latexCodeLength );
                 // TODO: move this into its own function [1/5/2009 Andreas]
                 // replace weird unicode ' with the one usually used
                 latexCode = latexCode.Replace((char) 8217, '\'');
+
+                // must be [[ then
+                if( !inlineMode ) {
+                    latexCode = @"\displaystyle{" + latexCode + "}";
+                }
 
                 LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
                 tagEntry.Code.value = latexCode;
                 // TODO: cohesion? [5/2/2009 Andreas]
                 // save the font size because it might be changed later
-                tagEntry.FontSize.value = range.Characters(startIndex, length).Font.Size;
+                // +1 because IndexOf is base 0, but Characters uses base 1
+                tagEntry.FontSize.value = range.Characters( latexCodeStartIndex + 1, latexCodeLength ).Font.Size;
 
                 // escape $$!$$
-                TextRange codeRange = range.Characters(startIndex + 1 - 2, length + 4);
+                // +1 because IndexOf is base 0, but Characters uses base 1
+                TextRange codeRange = range.Characters(startIndex + 1, length);
                 if (!IsEscapeCode(latexCode))
                 {
                     Shape picture = CompileInlineLaTeXCode(slide, shape, latexCode, codeRange);
@@ -487,7 +533,8 @@ namespace PowerPointLaTeX
                 tagEntry.StartIndex.value = codeRange.Start;
                 tagEntry.Length.value = codeRange.Length;
 
-                startIndex = codeRange.Start + codeRange.Length - 1;
+                // NOTE: endIndex isnt valid anymore since we've removed some text [5/24/2010 Andreas]
+                startIndex = codeRange.Start + codeRange.Length;
                 codeCount++;
             }
 
@@ -566,7 +613,12 @@ namespace PowerPointLaTeX
 
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
-                codeRange.Text = "$$" + latexCode + "$$";
+                if( latexCode.StartsWith( @"\displaystyle{" ) && latexCode.EndsWith( "}" ) ) {
+                    codeRange.Text = "$$[" + latexCode.Substring( @"\displayStyle{".Length, latexCode.Length - 1 - @"\displayStyle{".Length ) + "]$$";
+                }
+                else {
+                    codeRange.Text = "$$" + latexCode + "$$";
+                }
                 if (entry.FontSize != 0) {
                     codeRange.Font.Size = entry.FontSize;
                 }

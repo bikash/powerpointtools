@@ -58,6 +58,8 @@ namespace PowerPointLaTeX
             this.tabControl = new System.Windows.Forms.TabControl();
             this.generalPage = new System.Windows.Forms.TabPage();
             this.mikTexOptions = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.miktexPreambleBox = new System.Windows.Forms.TextBox();
             this.webServiceOptions = new System.Windows.Forms.TabPage();
             this.aboutPage = new System.Windows.Forms.TabPage();
             this.aboutBox = new System.Windows.Forms.RichTextBox();
@@ -65,8 +67,7 @@ namespace PowerPointLaTeX
             this.AbortButton = new System.Windows.Forms.Button();
             this.miktexPathBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.serviceSelector = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.miktexPreambleBox = new System.Windows.Forms.TextBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             label1 = new System.Windows.Forms.Label();
             groupBox1 = new System.Windows.Forms.GroupBox();
             label2 = new System.Windows.Forms.Label();
@@ -78,8 +79,8 @@ namespace PowerPointLaTeX
             this.tabControl.SuspendLayout();
             this.generalPage.SuspendLayout();
             this.mikTexOptions.SuspendLayout();
-            this.aboutPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.aboutPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -130,6 +131,15 @@ namespace PowerPointLaTeX
             label2.TabIndex = 0;
             label2.Text = "MiKTeX Path:";
             // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point( 7, 20 );
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size( 343, 13 );
+            label3.TabIndex = 0;
+            label3.Text = "Preamble (inserted before all formulas - use this to add new commands):";
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -166,6 +176,7 @@ namespace PowerPointLaTeX
             // 
             // generalPage
             // 
+            this.generalPage.Controls.Add( this.checkBox1 );
             this.generalPage.Controls.Add( this.serviceSelector );
             this.generalPage.Controls.Add( label1 );
             this.generalPage.Location = new System.Drawing.Point( 4, 22 );
@@ -186,6 +197,26 @@ namespace PowerPointLaTeX
             this.mikTexOptions.TabIndex = 0;
             this.mikTexOptions.Text = "MiKTeX Service";
             this.mikTexOptions.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add( this.miktexPreambleBox );
+            this.groupBox2.Controls.Add( label3 );
+            this.groupBox2.Location = new System.Drawing.Point( 8, 57 );
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size( 416, 181 );
+            this.groupBox2.TabIndex = 1;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Presentation Settings";
+            // 
+            // miktexPreambleBox
+            // 
+            this.miktexPreambleBox.Location = new System.Drawing.Point( 7, 37 );
+            this.miktexPreambleBox.Multiline = true;
+            this.miktexPreambleBox.Name = "miktexPreambleBox";
+            this.miktexPreambleBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.miktexPreambleBox.Size = new System.Drawing.Size( 403, 138 );
+            this.miktexPreambleBox.TabIndex = 1;
             // 
             // webServiceOptions
             // 
@@ -261,34 +292,18 @@ namespace PowerPointLaTeX
             this.serviceSelector.TabIndex = 1;
             this.serviceSelector.Text = global::PowerPointLaTeX.Properties.Settings.Default.LatexService;
             // 
-            // groupBox2
+            // checkBox1
             // 
-            this.groupBox2.Controls.Add( this.miktexPreambleBox );
-            this.groupBox2.Controls.Add( label3 );
-            this.groupBox2.Location = new System.Drawing.Point( 8, 57 );
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size( 416, 181 );
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Presentation Settings";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point( 7, 20 );
-            label3.Name = "label3";
-            label3.Size = new System.Drawing.Size( 343, 13 );
-            label3.TabIndex = 0;
-            label3.Text = "Preamble (inserted before all formulas - use this to add new commands):";
-            // 
-            // miktexPreambleBox
-            // 
-            this.miktexPreambleBox.Location = new System.Drawing.Point( 7, 37 );
-            this.miktexPreambleBox.Multiline = true;
-            this.miktexPreambleBox.Name = "miktexPreambleBox";
-            this.miktexPreambleBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.miktexPreambleBox.Size = new System.Drawing.Size( 403, 138 );
-            this.miktexPreambleBox.TabIndex = 1;
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = global::PowerPointLaTeX.Properties.Settings.Default.EnableAddIn;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.DataBindings.Add( new System.Windows.Forms.Binding( "Checked", global::PowerPointLaTeX.Properties.Settings.Default, "EnableAddIn", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged ) );
+            this.checkBox1.Location = new System.Drawing.Point( 129, 50 );
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size( 90, 17 );
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.Text = "Enable AddIn";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Preferences
             // 
@@ -314,9 +329,9 @@ namespace PowerPointLaTeX
             this.generalPage.ResumeLayout( false );
             this.generalPage.PerformLayout();
             this.mikTexOptions.ResumeLayout( false );
-            this.aboutPage.ResumeLayout( false );
             this.groupBox2.ResumeLayout( false );
             this.groupBox2.PerformLayout();
+            this.aboutPage.ResumeLayout( false );
             this.ResumeLayout( false );
 
         }
@@ -338,6 +353,7 @@ namespace PowerPointLaTeX
         private System.Windows.Forms.Button miktexPathBrowserButton;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox miktexPreambleBox;
+        private System.Windows.Forms.CheckBox checkBox1;
 
     }
 }

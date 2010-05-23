@@ -228,6 +228,7 @@ namespace PowerPointLaTeX
 
             // compile everything in case the plugin isnt available elsewhere
             Tool.CompilePresentation(presentation);
+            // TODO: copy&paste breaks the refcounter - validate all refcounters before purging! or disable it/make purging optional [5/24/2010 Andreas]
             // purge unused items from the cache to keep it smaller (thats the idea)
             presentation.CacheTags().PurgeUnused();
         }
