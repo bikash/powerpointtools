@@ -72,9 +72,10 @@ namespace PowerPointLaTeX {
         private void updatePreview() {
             UseWaitCursor = true;
 
-            // release the old image if there was one
+            // release the old cache entry if there was one
             if( lastRenderedLaTeXCode != "" ) {
                 Tool.ActivePresentation.CacheTags()[ lastRenderedLaTeXCode ].Release();
+                lastRenderedLaTeXCode = "";
             }
 
             formulaPreview.Image = null;

@@ -59,9 +59,7 @@ namespace PowerPointLaTeX
     {
         private const char NoneBreakingSpace = (char) 160;
         private const int InitialEquationFontSize = 44;
-        // renders all formulas at a higher resolution than necessary to allow for zooming
-        private const float DPIScaleFactor = 3;
-
+       
         private delegate void DoShape(Slide slide, Shape shape);
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
@@ -146,11 +144,12 @@ namespace PowerPointLaTeX
         /// render the image at wantedPixelsPerEmHeight * upScaleFactor to allow for dynamic zooming etc
         /// </param>
         /// <returns></returns>
-        private Shape GetPictureShapeFromLaTeXCode( Slide currentSlide, string latexCode, float wantedPixelsPerEmHeight )
+        private Shape GetPictureShapeFromLaTeXCode( Slide currentSlide, string latexCode, float fontSize )
         {
             // check the cache first
             int baselineOffset;
-            float actualPixelsPerEmHeight = wantedPixelsPerEmHeight * DPIScaleFactor;
+            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSize, WindowsDPISetting );
+            float actualPixelsPerEmHeight = GetPixelsPerEmHeight( fontSize, RenderDPISetting );
             Image image = GetImageForLaTeXCode( latexCode, ref actualPixelsPerEmHeight, out baselineOffset );
             if (image == null) {
                 return null;
@@ -187,7 +186,9 @@ namespace PowerPointLaTeX
 
         // TODO: move GetPixelsPerEmHeight and WindowsDPISetting into a helper class? [5/23/2010 Andreas]
         public const int WindowsDPISetting = 96;
-   
+        // renders all formulas at a higher resolution than necessary to allow for zooming
+        public const int RenderDPISetting = 300;
+
         public float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
             float printPtsPerInch = 72;
             return fontSizeInPoints / printPtsPerInch * targetPixelsPerInch;
@@ -203,11 +204,7 @@ namespace PowerPointLaTeX
         /// <returns></returns>
         private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
         {
-            float fontSizeInPoints = codeRange.Font.Size;
-            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSizeInPoints, WindowsDPISetting );
-
-            // get a better DPI than the one windows uses to allow for dynamic zooms, etc.
-            Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, wantedPixelsPerEmHeight );
+            Shape picture = GetPictureShapeFromLaTeXCode( slide, latexCode, codeRange.Font.Size );
             if (picture == null)
             {
                 return null;
@@ -349,7 +346,8 @@ namespace PowerPointLaTeX
                 }
             }
 
-            if( cachedImageData != null && cachedPixelsPerEmHeight >= pixelsPerEmHeight ) {
+            // convert to int to avoid floating point issues [5/24/2010 Andreas]
+            if( cachedImageData != null && (int) cachedPixelsPerEmHeight >= (int) pixelsPerEmHeight ) {
                 // we can use the cached formula
                 imageData = cachedImageData;
                 pixelsPerEmHeight = cachedPixelsPerEmHeight;
@@ -714,7 +712,7 @@ namespace PowerPointLaTeX
 
             Shape newEquation = null;
             if (latexCode.Trim() != "") {
-                newEquation = GetPictureShapeFromLaTeXCode( slide, latexCode, GetPixelsPerEmHeight( editor.FontSize, WindowsDPISetting ) );
+                newEquation = GetPictureShapeFromLaTeXCode( slide, latexCode, editor.FontSize );
             }
 
             if (newEquation != null) {

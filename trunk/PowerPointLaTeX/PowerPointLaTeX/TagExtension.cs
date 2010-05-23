@@ -193,6 +193,16 @@ namespace PowerPointLaTeX
         }
     }
 
+    class AddInTagDecimal : AddInTagBase<decimal> {
+        public AddInTagDecimal( Tags tags, string name )
+            : base( tags, name ) {
+        }
+
+        protected override decimal FromString( string rawValue ) {
+            return Helper.ParseDecimal( rawValue );
+        }
+    }
+
 
     class AddInTagEnum<T> : AddInTagBase<T>
     {
@@ -263,7 +273,15 @@ namespace PowerPointLaTeX
             return 0.0f;
         }
 
-        internal static bool ParseBool(string text)
+        internal static decimal ParseDecimal( string text ) {
+            decimal value;
+            if( decimal.TryParse( text, out value ) ) {
+                return value;
+            }
+            return 0;
+        }
+
+        internal static bool ParseBool( string text )
         {
             bool value;
             if( bool.TryParse(text, out value)) {

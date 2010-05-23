@@ -108,7 +108,10 @@ namespace PowerPointLaTeX
                     return;
                 }
                 // otherwise the refcounter must be at least 2
-                Debug.Assert(RefCounter >= 2);
+                Debug.Assert(RefCounter >= 2, "Release called on existing but 'unused' cache entry!");
+                if( RefCounter == 1 ) {
+                    System.Windows.Forms.MessageBox.Show( "Hello" );
+                }
                 if (--RefCounter < 1)
                 {
                     // even if something goes wrong, keep it as 'cached', so we don't leak resources
@@ -118,15 +121,18 @@ namespace PowerPointLaTeX
 
             public void Store(byte[] data, float pixelsPerEmHeight, int baselineOffset)
             {
-                // allow cache overwrite if its a better resolution picture
-                Debug.Assert( pixelsPerEmHeight > PixelsPerEmHeight);
+                // don't overwrite if the new content is worse than the old one
+                if( IsCached() && (int) PixelsPerEmHeight >= (int) pixelsPerEmHeight ) {
+                    // we want to store this entry, so we use it
+                    RefCounter++;
+                    return;
+                }
 
                 Content = data;
                 PixelsPerEmHeight = pixelsPerEmHeight;
                 BaselineOffset = baselineOffset;
 
                 if( IsCached() ) {
-                    // we store it, so we use it
                     RefCounter++;
                 }
                 else {
@@ -156,8 +162,10 @@ namespace PowerPointLaTeX
 
         public void PurgeAll()
         {
-            tags.PurgeAddInTags("RefCounter#");
-            tags.PurgeAddInTags("CacheContent#");
+            tags.PurgeAddInTags( "RefCounter#" );
+            tags.PurgeAddInTags( "CacheContent#" );
+            tags.PurgeAddInTags( "BaseLineOffset#" );
+            tags.PurgeAddInTags( "PixelsPerEmHeight#" );
         }
 
         public void PurgeUnused()
