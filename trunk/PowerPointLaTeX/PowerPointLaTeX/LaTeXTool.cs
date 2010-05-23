@@ -533,8 +533,9 @@ namespace PowerPointLaTeX
                 tagEntry.StartIndex.value = codeRange.Start;
                 tagEntry.Length.value = codeRange.Length;
 
-                // NOTE: endIndex isnt valid anymore since we've removed some text [5/24/2010 Andreas]
-                startIndex = codeRange.Start + codeRange.Length;
+                // NOTE: endIndex isnt valid anymore since we've removed some text [5/24/2010 Andreas
+                // IndexOf uses base0, codeRange base1 => -1
+                startIndex = codeRange.Start + codeRange.Length - 1;
                 codeCount++;
             }
 
