@@ -188,10 +188,14 @@ namespace PowerPointLaTeX
         public const int WindowsDPISetting = 96;
         // renders all formulas at a higher resolution than necessary to allow for zooming
         public const int RenderDPISetting = 300;
+        public const int PrintPtsPerInch = 72;
 
         public float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
-            float printPtsPerInch = 72;
-            return fontSizeInPoints / printPtsPerInch * targetPixelsPerInch;
+            return fontSizeInPoints / PrintPtsPerInch * targetPixelsPerInch;
+        }
+
+        public float PixelHeightToFontSize(float pixelHeight) {
+            return pixelHeight / WindowsDPISetting * PrintPtsPerInch;
         }
 
         /// <summary>
@@ -216,25 +220,47 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().LinkID.value = textShape.Id;
             
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
+            float heightInPts = PixelHeightToFontSize( picture.Height );
 
+            FontFamily fontFamily = new FontFamily( codeRange.Font.Name );
+            // from top to baseline
+            float ascentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellAscent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
+            float descentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellDescent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
+
+            float ascentSize = Math.Max( 0, 1 - baselineOffset ) * heightInPts;
+            float descentSize = Math.Max( 0, baselineOffset ) * heightInPts;
+
+            float factor = 1.0f;
+            if( ascentSize > 0 ) {
+                factor = Math.Max( factor, ascentSize / ascentHeight );
+            }
+            if( descentSize > 0 ) {
+                factor = Math.Max( factor, descentSize / descentHeight );
+            }
+
+            // dont let it get bigger than 3 times the text size (starts to look ridiculous otherwise)
+            factor = Math.Min( factor, 3.0f );
+            codeRange.Font.Size *= factor;
+
+            /*
             if( Math.Abs(baselineOffset) > 1 ) {
-                if( baselineOffset < -1 ) {
-                    codeRange.Font.Size = picture.Height * (1 - baselineOffset); // ie 1 + abs( baselineOffset)
-                    codeRange.Font.BaselineOffset = 1;
-                }
-                else /* baselineOffset > 1 */ {
-                    codeRange.Font.Size = picture.Height * baselineOffset;
-                    codeRange.Font.BaselineOffset = -1;
-               }
-            }
-            else {
-                // change the font size to keep the formula from overlapping with regular text (nifty :))
-                if( codeRange.Font.Size != picture.Height ) {
-                    codeRange.Font.Size = picture.Height;
-                }
-                // BaseLineOffset > for subscript but PPT uses negative values for this
-                codeRange.Font.BaselineOffset = -baselineOffset;
-            }
+                            if( baselineOffset < -1 ) {
+                                codeRange.Font.Size = heightInPts * (1 - baselineOffset); // ie 1 + abs( baselineOffset)
+                                codeRange.Font.BaselineOffset = 1;
+                            }
+                            else / * baselineOffset > 1 * / {
+                                codeRange.Font.Size = heightInPts * baselineOffset;
+                                codeRange.Font.BaselineOffset = -1;
+                           }
+                        }
+                        else {
+                            // change the font size to keep the formula from overlapping with regular text (nifty :))
+                            codeRange.Font.Size = heightInPts;
+            
+                            // BaseLineOffset > for subscript but PPT uses negative values for this
+                            codeRange.Font.BaselineOffset = -baselineOffset;
+                        }*/
+            
 
             // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
