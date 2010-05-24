@@ -190,12 +190,16 @@ namespace PowerPointLaTeX
         public const int RenderDPISetting = 300;
         public const int PrintPtsPerInch = 72;
 
-        public float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
+        public static float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
             return fontSizeInPoints / PrintPtsPerInch * targetPixelsPerInch;
         }
 
-        public float PixelHeightToFontSize(float pixelHeight) {
+        public static float PixelHeightToFontSize(float pixelHeight) {
             return pixelHeight / WindowsDPISetting * PrintPtsPerInch;
+        }
+
+        public static float FontSizeToPixelHeight(float fontSize) {
+            return fontSize / PrintPtsPerInch * WindowsDPISetting;
         }
 
         /// <summary>
@@ -225,7 +229,8 @@ namespace PowerPointLaTeX
             FontFamily fontFamily = new FontFamily( codeRange.Font.Name );
             // from top to baseline
             float ascentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellAscent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
-            float descentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellDescent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
+            float descentRatio = (float) fontFamily.GetCellDescent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular );
+            float descentHeight = (float) (codeRange.Font.Size * descentRatio);
 
             float ascentSize = Math.Max( 0, 1 - baselineOffset ) * heightInPts;
             float descentSize = Math.Max( 0, baselineOffset ) * heightInPts;
@@ -243,11 +248,11 @@ namespace PowerPointLaTeX
                 codeRange.Font.Size *= factor;
             }
             else {
-                // just ignore the baseline offset
-                picture.LaTeXTags().BaseLineOffset.value = descentHeight / codeRange.Font.Size;
                 // keep linespacing intact (assuming that the line spacing scales with the font height)
                 float lineSpacing = (float) (codeRange.Font.Size * ((float) fontFamily.GetLineSpacing( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
                 codeRange.Font.Size *= (lineSpacing - codeRange.Font.Size + heightInPts) / lineSpacing;
+                // just ignore the baseline offset
+                picture.LaTeXTags().BaseLineOffset.value = descentRatio;
             }
 
 
@@ -321,7 +326,7 @@ namespace PowerPointLaTeX
 
         private static void FillTextRange(TextRange range, char character, float minWidth)
         {
-            range.Text = character.ToString();
+            range.Text = ((char) 8201).ToString();
 
             // line-breaks are futile, so break if one happen 
             float oldHeight = range.BoundHeight;
@@ -492,8 +497,16 @@ namespace PowerPointLaTeX
                 int latexCodeLength = latexCodeEndIndex - latexCodeStartIndex;
                 string latexCode = range.Text.Substring( latexCodeStartIndex, latexCodeLength );
                 // TODO: move this into its own function [1/5/2009 Andreas]
-                // replace weird unicode ' with the one usually used
                 latexCode = latexCode.Replace((char) 8217, '\'');
+                // replace weird unicode - (hypens) with minus
+                latexCode = latexCode.Replace( (char) 8208, '-' );
+                latexCode = latexCode.Replace( (char) 8211, '-' );
+                latexCode = latexCode.Replace( (char) 8212, '-' );
+                latexCode = latexCode.Replace( (char) 8722, '-' );
+                latexCode = latexCode.Replace( (char) 8209, '-' );
+                latexCode = latexCode.Replace( (char) 8259, '-' );
+                // replace ellipses with ...
+                latexCode = latexCode.Replace( ((char) 8230).ToString(), "..." );
 
                 // must be [[ then
                 if( !inlineMode ) {
@@ -702,6 +715,13 @@ namespace PowerPointLaTeX
                     }
                 }
             }
+            // TODO: group chapes and childshaperanges are not supported yet! [5/25/2010 Andreas]
+            /*
+            foreach( Shape subShape in shape.GroupItems ) {
+                WalkShape( slide, subShape, doShape );
+            }*/
+
+
             doShape(slide, shape);
         }
 

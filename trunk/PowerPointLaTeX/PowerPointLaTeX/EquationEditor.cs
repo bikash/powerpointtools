@@ -83,7 +83,7 @@ namespace PowerPointLaTeX {
             if( LaTeXCode != "" ) {
                 Image previewImage;
                 int unusedBaselineOffset;
-                float wantedPixelsPerEmHeight = Tool.GetPixelsPerEmHeight( (float) fontSizeUpDown.Value, LaTeXTool.WindowsDPISetting );
+                float wantedPixelsPerEmHeight = LaTeXTool.GetPixelsPerEmHeight( (float) fontSizeUpDown.Value, LaTeXTool.WindowsDPISetting );
                 float actualPixelsPerEmHeight = wantedPixelsPerEmHeight;
                 previewImage = Tool.GetImageForLaTeXCode( LaTeXCode, ref actualPixelsPerEmHeight, out unusedBaselineOffset );
                 formulaPreview.Image = previewImage;
