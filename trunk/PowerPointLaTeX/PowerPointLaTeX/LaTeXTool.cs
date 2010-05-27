@@ -234,7 +234,7 @@ namespace PowerPointLaTeX
 
             float ascentSize = Math.Max( 0, 1 - baselineOffset ) * heightInPts;
             float descentSize = Math.Max( 0, baselineOffset ) * heightInPts;
-
+            
             float factor = 1.0f;
             if( ascentSize > 0 ) {
                 factor = Math.Max( factor, ascentSize / ascentHeight );
@@ -250,7 +250,8 @@ namespace PowerPointLaTeX
             else {
                 // keep linespacing intact (assuming that the line spacing scales with the font height)
                 float lineSpacing = (float) (codeRange.Font.Size * ((float) fontFamily.GetLineSpacing( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
-                codeRange.Font.Size *= (lineSpacing - codeRange.Font.Size + heightInPts) / lineSpacing;
+                // additional line spacing
+                codeRange.Font.Size *= (lineSpacing + 5.0f - codeRange.Font.Size + heightInPts) / lineSpacing;
                 // just ignore the baseline offset
                 picture.LaTeXTags().BaseLineOffset.value = descentRatio;
             }
@@ -286,18 +287,32 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private void CopyInlineEffects( Slide slide, Shape textShape, TextRange codeRange, Shape picture ) {
-            // copy animations from the parent textShape
-            Sequence sequence = slide.TimeLine.MainSequence;
-            var effects =
-                from Effect effect in sequence
-                where effect.Shape == textShape &&
-                ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                    ParagraphContainsRange( textShape, effect.Paragraph, codeRange ))
-                    || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
-                select effect;
+        private int getSafeEffectParagraph( Effect effect ) {
+            try {
+                return effect.Paragraph;
+            }
+            catch {
+                return 1;
+            }
+        }
 
-            CopyEffectsTo( picture, true, sequence, effects );
+        private void CopyInlineEffects( Slide slide, Shape textShape, TextRange codeRange, Shape picture ) {
+            try {
+                // copy animations from the parent textShape
+                Sequence sequence = slide.TimeLine.MainSequence;
+                var effects =
+                    from Effect effect in sequence
+                    where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
+                    ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
+                        ParagraphContainsRange( textShape, getSafeEffectParagraph( effect ), codeRange ))
+                        || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
+                    select effect;
+
+                CopyEffectsTo( picture, true, sequence, effects );
+            }
+            catch {
+                Debug.Fail( "CopyInlineEffects failed!" );
+            }
         }
 
         private static void CopyEffectsTo(Shape target, bool setToWithPrevious, Sequence sequence, IEnumerable<Effect> effects)

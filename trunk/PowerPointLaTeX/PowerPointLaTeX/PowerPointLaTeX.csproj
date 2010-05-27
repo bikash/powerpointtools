@@ -26,8 +26,9 @@
     <RootNamespace>PowerPointLaTeX</RootNamespace>
     <AssemblyName>PowerPointLaTeX</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ManifestCertificateThumbprint>9CE10B1BCEA0FC968EA0453F729433FE30E03C96</ManifestCertificateThumbprint>
-    <ManifestKeyFile>PowerPointLaTeX_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestCertificateThumbprint>A2B054ECD3EF742153ACE94CABAB147B869964CB</ManifestCertificateThumbprint>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <TargetFrameworkSubset>Full</TargetFrameworkSubset>
@@ -36,7 +37,7 @@
     <InstallUrl>
     </InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>0.7.0.0</ApplicationVersion>
+    <ApplicationVersion>0.7.0.1</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -46,7 +47,7 @@
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework Client Profile</ProductName>
-      <Install>false</Install>
+      <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>

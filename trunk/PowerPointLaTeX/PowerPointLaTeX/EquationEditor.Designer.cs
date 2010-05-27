@@ -30,18 +30,18 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.formulaText = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.formulaPreview = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.fontSizeUpDown = new System.Windows.Forms.NumericUpDown();
-            this.formulaPreview = new System.Windows.Forms.PictureBox();
             applyButton = new System.Windows.Forms.Button();
             cancelButton = new System.Windows.Forms.Button();
             label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) (this.fontSizeUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // applyButton
@@ -144,6 +144,17 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size( 453, 107 );
             this.tableLayoutPanel2.TabIndex = 3;
             // 
+            // formulaPreview
+            // 
+            this.formulaPreview.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.formulaPreview.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.formulaPreview.Location = new System.Drawing.Point( 221, 48 );
+            this.formulaPreview.Name = "formulaPreview";
+            this.formulaPreview.Size = new System.Drawing.Size( 10, 10 );
+            this.formulaPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.formulaPreview.TabIndex = 6;
+            this.formulaPreview.TabStop = false;
+            // 
             // panel1
             // 
             this.panel1.AutoSize = true;
@@ -172,17 +183,7 @@
             0,
             0} );
             this.fontSizeUpDown.ValueChanged += new System.EventHandler( this.fontSizeUpDown_ValueChanged );
-            // 
-            // formulaPreview
-            // 
-            this.formulaPreview.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.formulaPreview.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.formulaPreview.Location = new System.Drawing.Point( 221, 48 );
-            this.formulaPreview.Name = "formulaPreview";
-            this.formulaPreview.Size = new System.Drawing.Size( 10, 10 );
-            this.formulaPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.formulaPreview.TabIndex = 6;
-            this.formulaPreview.TabStop = false;
+            this.fontSizeUpDown.Click += new System.EventHandler( this.fontSizeUpDown_Click );
             // 
             // EquationEditor
             // 
@@ -200,10 +201,10 @@
             this.flowLayoutPanel1.ResumeLayout( false );
             this.flowLayoutPanel1.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout( false );
+            ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).EndInit();
             this.panel1.ResumeLayout( false );
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) (this.fontSizeUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize) (this.formulaPreview)).EndInit();
             this.ResumeLayout( false );
 
         }

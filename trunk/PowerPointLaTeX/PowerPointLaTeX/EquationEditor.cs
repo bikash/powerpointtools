@@ -59,7 +59,7 @@ namespace PowerPointLaTeX {
             formulaText.Text = latexCode;
             fontSizeUpDown.Value = initialFontSize;
 
-            updatePreview();
+            //updatePreview();
         }
 
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -106,6 +106,11 @@ namespace PowerPointLaTeX {
         }
 
         private void fontSizeUpDown_ValueChanged( object sender, EventArgs e ) {
+            updatePreviewTimer.Stop();
+            updatePreviewTimer.Start();
+        }
+
+        private void fontSizeUpDown_Click( object sender, EventArgs e ) {
             updatePreviewTimer.Stop();
             updatePreviewTimer.Start();
         }

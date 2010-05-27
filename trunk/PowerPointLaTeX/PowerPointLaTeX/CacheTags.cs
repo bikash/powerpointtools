@@ -109,9 +109,6 @@ namespace PowerPointLaTeX
                 }
                 // otherwise the refcounter must be at least 2
                 Debug.Assert(RefCounter >= 2, "Release called on existing but 'unused' cache entry!");
-                if( RefCounter == 1 ) {
-                    System.Windows.Forms.MessageBox.Show( "Hello" );
-                }
                 if (--RefCounter < 1)
                 {
                     // even if something goes wrong, keep it as 'cached', so we don't leak resources
