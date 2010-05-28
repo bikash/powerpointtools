@@ -57,7 +57,7 @@ namespace PowerPointLaTeX
     /// </summary>
     class LaTeXTool
     {
-        private const char NoneBreakingSpace = (char) 160;
+        private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
        
         private delegate void DoShape(Slide slide, Shape shape);
@@ -341,16 +341,17 @@ namespace PowerPointLaTeX
 
         private static void FillTextRange(TextRange range, char character, float minWidth)
         {
-            range.Text = ((char) 8201).ToString();
+            range.Text = character.ToString() + ( (char) 160 ).ToString(); // ;
 
-            // line-breaks are futile, so break if one happen 
+            // line-breaks are futile, so break if one happens 
             float oldHeight = range.BoundHeight;
             while (range.BoundWidth < minWidth && oldHeight == range.BoundHeight)
             {
-                range.Text += character.ToString();
+                range.Text += character.ToString() + ((char) 160).ToString();
             }
             if( oldHeight != range.BoundHeight ) {
-                range.Text = range.Text.Remove(0, 1);
+                range.Text = range.Text.Remove( range.Text.Length - 2, 2 );
+                range.Text += ((char)8232).ToString(); // new line that doesnt begin new paragraph
             }
         }
 
