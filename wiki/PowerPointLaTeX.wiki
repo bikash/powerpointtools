@@ -3,7 +3,10 @@
 = Introduction =
 
 PowerPointLaTeX is a small add-in that allows you to embed LaTeX math code into your !PowerPoint 2007 presentations in a user-friendly way.
-It uses a web-service to render the LaTeX code (currently it uses the equation editor from http://www.codecogs.com/). Support for MikeTEX and other LaTeX web-services is planned.
+It uses a web-service to render the LaTeX code (currently it uses the equation editor from http://www.codecogs.com/). Support for other LaTeX web-services is planned.
+
+From version 0.7 on MiKTeX is supported and also the recommended LaTeX compilation service.
+It supports better aligning of inline formulas and flexible rendering resolution (using the preview package in LaTeX and dvi2png).
 
 = Details =
 
