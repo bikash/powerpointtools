@@ -26,7 +26,16 @@ To edit a formula click on it and then on "Edit Formula" in the ribbon.
 [http://blog.blackhc.net/wp-content/uploads/2009/08/PPTLaTeX_eqeditor.JPG]
 
 
-PowerPointLaTeX caches the compiled formulas, so you don't need an active internet connection if you don't change anything.
+PowerPointLaTeX caches the compiled formulas, so you don't need an active internet connection if you don't change anything (you don't need one either if you are using MiKTeX for rendering).
+
+= MiKTeX Features =
+It is possible to specify some LaTeX code that is included in every equation. You can set this "preamble" in the preferences dialog.
+
+The MiKTeX service supports base-line aligning of equations using the preview package in LaTeX:
+
+[http://powerpointtools.googlecode.com/svn/trunk/PowerPointLaTeX/Examples/BaselineText.jpg]
+
+[http://powerpointtools.googlecode.com/svn/trunk/PowerPointLaTeX/Examples/BaselineResult.jpg]
 
 = Known Issues =
 
