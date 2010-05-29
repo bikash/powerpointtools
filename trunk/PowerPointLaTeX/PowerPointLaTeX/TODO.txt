@@ -1,0 +1,13 @@
+﻿* space filling needs a rewrite/clean-up. Im currently emitting two different non-breaking spaces to "fix" some issues
+* Selection.ChildShapeRange needs to be dealt with correctly - to support compiling group items and tables
+* save and restore color tints and other properties for Equations
+* copy and paste of equations and compiled inline equations "probably" (quite certainly) breaks refcounting..
+* because refcounting cant be trusted, might consider to remove it and use full validation when purging the cache...
+* the Equation editor spams the cache, too, this shouldnt happen
+* the Equation editor might enter the updatePreview method multiple times, add a check maybe
+* inline formula aligning is broken - I think it assumes that the image height is in pixels but it actually is in points so should be a 1:1 mapping to font size (except it might be not)
+* add a version field to the presentation and check it and maybe add an "update presentation" dialog box and conversion code to avoid spamming the codebase with compatibility checks (see pixelsPerEmHeight etc)
+* cleanuo the inline text parser (its a bit messy)
+* add a token to treat formulas as new paragraphs animation-wise (ie not with previous but on click) to allow for better animated deduction slides
+* look into Office 2010 and whether the addin runs in it (and also look into switching to it...)
+* Tables currently don't work because the child shapes of a table (each cell has one) dont have a Tags object, so the tags would have to be saved to the parent - I think the Tags wrapper would have to be adapted to support multiple sets of tags (ie add a prefix to the field names or something similar). ie it would have to save the tags for multiple shapes in the same tags object..
