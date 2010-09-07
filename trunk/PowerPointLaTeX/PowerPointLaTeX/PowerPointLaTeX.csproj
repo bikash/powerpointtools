@@ -292,6 +292,7 @@
     <Compile Include="Settings1.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
+    <Compile Include="ShapeWalker.cs" />
     <Compile Include="TagExtension.cs" />
     <Compile Include="DeveloperTaskPane\TagsGrid.cs">
       <SubType>UserControl</SubType>

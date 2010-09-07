@@ -59,8 +59,6 @@ namespace PowerPointLaTeX
     {
         private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
-       
-        private delegate void ShapeVisitor(Slide slide, Shape shape);
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
@@ -287,7 +285,7 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private int getSafeEffectParagraph( Effect effect ) {
+        private int GetSafeEffectParagraph( Effect effect ) {
             try {
                 return effect.Paragraph;
             }
@@ -304,7 +302,7 @@ namespace PowerPointLaTeX
                     from Effect effect in sequence
                     where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
                     ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        ParagraphContainsRange( textShape, getSafeEffectParagraph( effect ), codeRange ))
+                        ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 
@@ -718,58 +716,21 @@ namespace PowerPointLaTeX
             shape.LaTeXTags().Clear();
         }
 
-        private void WalkShape(Slide slide, Shape shape, ShapeVisitor doShape)
-        {
-            if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                Table table = shape.Table;
-                foreach (Row row in table.Rows)
-                {
-                    foreach (Cell cell in row.Cells)
-                    {
-                        WalkShape(slide, cell.Shape, doShape);
-                    }
-                }
-            }
-            // TODO: group chapes and childshaperanges are not supported yet! [5/25/2010 Andreas]
-            /*
-            foreach( Shape subShape in shape.GroupItems ) {
-                WalkShape( slide, subShape, doShape );
-            }*/
-
-
-            doShape(slide, shape);
-        }
-
-        private void WalkSlide(Slide slide, ShapeVisitor walkTextRange)
-        {
-            foreach (Shape shape in slide.Shapes)
-            {
-                WalkShape(slide, shape, walkTextRange);
-            }
-        }
-
-        private void WalkPresentation(Presentation presentation, ShapeVisitor walkTextRange)
-        {
-            foreach (Slide slide in presentation.Slides)
-            {
-                WalkSlide(slide, walkTextRange);
-            }
-        }
+        
 
         public void CompileSlide(Slide slide)
         {
-            WalkSlide(slide, CompileShape);
+            ShapeWalker.WalkSlide(slide, CompileShape);
         }
 
         public void DecompileSlide(Slide slide)
         {
-            WalkSlide(slide, DecompileShape);
+            ShapeWalker.WalkSlide(slide, DecompileShape);
         }
 
         public void CompilePresentation(Presentation presentation)
         {
-            WalkPresentation(presentation, CompileShape);
+            ShapeWalker.WalkPresentation(presentation, CompileShape);
         }
 
         /// <summary>
@@ -778,7 +739,7 @@ namespace PowerPointLaTeX
         /// <param name="slide"></param>
         public void FinalizePresentation(Presentation presentation)
         {
-            WalkPresentation(presentation, FinalizeShape);
+            ShapeWalker.WalkPresentation(presentation, FinalizeShape);
             // purge the cache, too
             presentation.CacheTags().PurgeAll();
             presentation.SettingsTags().Clear();
