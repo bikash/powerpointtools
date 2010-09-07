@@ -7,7 +7,8 @@ It uses a web-service to render the LaTeX code (currently it uses the equation e
 
 From version 0.7 on, MiKTeX is supported and also the recommended LaTeX compilation service.
 It supports better aligning of inline formulas and flexible rendering resolution (using the preview package in LaTeX and dvi2png).
-NOTE: You might have to install the preview package manually in MiKTeX. So if the MiKTeX service doesn't work, you might want to check, if the preview package is installed. Actually it should be installed automatically, if it is not found, on the first time when you use PowerPointLaTeX.
+
+*NOTE:* You might have to install the preview package manually in MiKTeX. So if the MiKTeX service doesn't work, you might want to check if the preview package is installed. Actually it should be installed automatically if it is not found the first time when you use PowerPointLaTeX.
 
 = Details =
 
