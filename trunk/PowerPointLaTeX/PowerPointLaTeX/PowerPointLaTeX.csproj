@@ -26,8 +26,8 @@
     <RootNamespace>PowerPointLaTeX</RootNamespace>
     <AssemblyName>PowerPointLaTeX</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ManifestCertificateThumbprint>5E9C69F522312A1988B0EAEE66C673587D8A6F3A</ManifestCertificateThumbprint>
-    <ManifestKeyFile>PowerPointLaTeX_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestCertificateThumbprint>80DDCCA814AAD94198FCC3CAF7105FEA6861C689</ManifestCertificateThumbprint>
+    <ManifestKeyFile>PowerPointLaTeX_TemporaryKey.pfx</ManifestKeyFile>
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <TargetFrameworkSubset>Full</TargetFrameworkSubset>
@@ -272,6 +272,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="PowerPointLaTeX_TemporaryKey.pfx" />
     <None Include="Properties\MiKTexSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>MiKTexSettings.Designer.cs</LastGenOutput>
