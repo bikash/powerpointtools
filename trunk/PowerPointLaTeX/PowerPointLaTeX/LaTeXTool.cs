@@ -60,7 +60,7 @@ namespace PowerPointLaTeX
         private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
        
-        private delegate void DoShape(Slide slide, Shape shape);
+        private delegate void ShapeVisitor(Slide slide, Shape shape);
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
@@ -718,7 +718,7 @@ namespace PowerPointLaTeX
             shape.LaTeXTags().Clear();
         }
 
-        private void WalkShape(Slide slide, Shape shape, DoShape doShape)
+        private void WalkShape(Slide slide, Shape shape, ShapeVisitor doShape)
         {
             if (shape.HasTable == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
@@ -741,7 +741,7 @@ namespace PowerPointLaTeX
             doShape(slide, shape);
         }
 
-        private void WalkSlide(Slide slide, DoShape walkTextRange)
+        private void WalkSlide(Slide slide, ShapeVisitor walkTextRange)
         {
             foreach (Shape shape in slide.Shapes)
             {
@@ -749,7 +749,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        private void WalkPresentation(Presentation presentation, DoShape walkTextRange)
+        private void WalkPresentation(Presentation presentation, ShapeVisitor walkTextRange)
         {
             foreach (Slide slide in presentation.Slides)
             {
