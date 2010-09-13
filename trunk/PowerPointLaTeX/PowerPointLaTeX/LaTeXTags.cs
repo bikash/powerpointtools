@@ -170,39 +170,9 @@ namespace PowerPointLaTeX
 
         //[ Equation only
         public readonly AddInTagFloat OriginalWidth, OriginalHeight;
-        private AddInTagInt fontSize;
+        public readonly AddInTagInt FontSize;
         //]
         public readonly AddInTagFloat BaseLineOffset;
-        private AddInTagFloat pixelsPerEmHeight;
-
-        public int FontSize {
-            get {
-                if( fontSize > 0 ) {
-                    return fontSize;
-                }
-                else {
-                    return 36;
-                }
-            }
-            set {
-                fontSize.value = value;
-            }
-        }
-
-        public float PixelsPerEmHeight {
-            get {
-                // this is a new field. to avoid breaking changes to old PPT files return the old value here.
-                if( pixelsPerEmHeight > 0 ) {
-                    return pixelsPerEmHeight;
-                }
-                else {
-                    return 44.0f * 4 / 3;
-                }
-            }
-            set {
-                pixelsPerEmHeight.value = value;
-            }
-        }
 
         public LaTeXTags(Shape shape)
         {
@@ -214,10 +184,9 @@ namespace PowerPointLaTeX
 
             OriginalWidth = new AddInTagFloat(tags, "OriginalWidth");
             OriginalHeight = new AddInTagFloat(tags, "OriginalHeight");
-            fontSize = new AddInTagInt( tags, "FontSize" );
+            FontSize = new AddInTagInt( tags, "FontSize" );
 
             BaseLineOffset = new AddInTagFloat( tags, "BaseLineOffset" );
-            pixelsPerEmHeight = new AddInTagFloat( tags, "PixelsPerEmHeight" );
        }
 
         public void Clear()
@@ -228,10 +197,9 @@ namespace PowerPointLaTeX
             Entries.Clear();
             OriginalWidth.Clear();
             OriginalHeight.Clear();
-            fontSize.Clear();
+            FontSize.Clear();
 
             BaseLineOffset.Clear();
-            pixelsPerEmHeight.Clear();
         }
     }
 }

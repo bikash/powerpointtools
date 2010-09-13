@@ -126,7 +126,7 @@ namespace PowerPointLaTeX
         private void CompileButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.EnableAddIn)
+            if (!Tool.AddInEnabled)
             {
                 return;
             }
@@ -160,7 +160,7 @@ namespace PowerPointLaTeX
         private void DecompileButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.EnableAddIn)
+            if (!Tool.AddInEnabled)
             {
                 return;
             }
@@ -204,7 +204,7 @@ namespace PowerPointLaTeX
         private void FinalizeButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.EnableAddIn)
+            if (!Tool.AddInEnabled)
             {
                 return;
             }

@@ -39,7 +39,7 @@ namespace PowerPointLaTeX
         HasCompiledInlines,
         // a compiled LaTeX code (picture)
         Inline,
-        // an equation (not implemented atm)
+        // an equation (picture)
         Equation,
     }
 
@@ -78,16 +78,16 @@ namespace PowerPointLaTeX
             get { return Application.ActiveWindow.View.Slide as Slide; }
         }
 
-        internal bool EnableAddIn
+        /// <summary>
+        /// returns whether the addin is enabled in the current context (ie presentation)
+        /// but is also affected by the global addin settings, of course.
+        /// </summary>
+        internal bool AddInEnabled
         {
             get
             {
-                return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn;
+                return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn && Compatibility.IsSupportedPresentation( ActivePresentation );
             }
-        }
-
-        internal struct RenderedEquation {
-
         }
 
         /// <returns>A valid picture shape from the data or null if creation failed</returns>
@@ -759,7 +759,7 @@ namespace PowerPointLaTeX
             tags.Type.value = EquationType.Equation;
             tags.OriginalWidth.value = width;
             tags.OriginalHeight.value = height;
-            tags.FontSize = InitialEquationFontSize;
+            tags.FontSize.value = InitialEquationFontSize;
 
             return shape;
         }
@@ -796,7 +796,7 @@ namespace PowerPointLaTeX
 
                 tags.OriginalWidth.value = newEquation.Width;
                 tags.OriginalHeight.value = newEquation.Height;
-                tags.FontSize = editor.FontSize;
+                tags.FontSize.value = editor.FontSize;
 
                 tags.Type.value = EquationType.Equation;
             }

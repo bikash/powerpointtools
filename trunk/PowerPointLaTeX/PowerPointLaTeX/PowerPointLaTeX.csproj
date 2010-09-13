@@ -224,6 +224,7 @@
       <DependentUpon>LogForm.cs</DependentUpon>
     </Compile>
     <Compile Include="NullService.cs" />
+    <Compile Include="Compatibility.cs" />
     <Compile Include="Properties\MiKTexSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -288,8 +289,8 @@
     </Compile>
     <Compile Include="SelectionExtension.cs" />
     <Compile Include="ILaTeXService.cs" />
+    <Compile Include="SettingsTags.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Settings1.cs" />
     <Compile Include="ShapeExtension.cs" />
     <Compile Include="ShapesExtension.cs" />
     <Compile Include="ShapeWalker.cs" />

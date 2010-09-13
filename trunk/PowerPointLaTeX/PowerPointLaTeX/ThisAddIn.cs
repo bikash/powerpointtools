@@ -65,6 +65,11 @@ namespace PowerPointLaTeX
         }
 
         private void RegisterApplicationEvents() {
+            Application.PresentationOpen += Compatibility.Application_PresentationOpen;
+            // Application also has a property called NewPresentation, so it needs to be cast to the event interface first
+            ((EApplication_Event)Application).NewPresentation += new EApplication_NewPresentationEventHandler( Compatibility.Application_PresentationNew );
+            Application.PresentationClose += new EApplication_PresentationCloseEventHandler( Compatibility.Application_PresentationClose );
+
             Application.PresentationSave += new EApplication_PresentationSaveEventHandler(Application_PresentationSave);
             Application.PresentationOpen += new EApplication_PresentationOpenEventHandler(Application_PresentationOpen);
 
@@ -89,6 +94,7 @@ namespace PowerPointLaTeX
             }
             else if (e.PropertyName == "EnableAddIn")
             {
+                // nothing needs to be done here
             }
         }
 
@@ -126,7 +132,7 @@ namespace PowerPointLaTeX
         private void Application_WindowSelectionChange(Selection Sel)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.EnableAddIn)
+            if (!Tool.AddInEnabled)
             {
                 return;
             }
@@ -221,7 +227,7 @@ namespace PowerPointLaTeX
         void Application_PresentationSave(Presentation presentation)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.EnableAddIn)
+            if (!Tool.AddInEnabled)
             {
                 return;
             }
@@ -230,7 +236,7 @@ namespace PowerPointLaTeX
             Tool.CompilePresentation(presentation);
             // TODO: copy&paste breaks the refcounter - validate all refcounters before purging! or disable it/make purging optional [5/24/2010 Andreas]
             // purge unused items from the cache to keep it smaller (thats the idea)
-            presentation.CacheTags().PurgeUnused();
+            //presentation.CacheTags().PurgeUnused();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
