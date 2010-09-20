@@ -118,7 +118,7 @@ namespace PowerPointLaTeX
             {
                 return null;
             }
-            Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
+            Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"), "Unknown image format returned from the web service");
             return URLData.content;
         }
 

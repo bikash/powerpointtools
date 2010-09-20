@@ -230,9 +230,8 @@ namespace PowerPointLaTeX
                 Microsoft.Office.Core.FileDialog dialog = Application.get_FileDialog(MsoFileDialogType.msoFileDialogSaveAs);
                 dialog.AllowMultiSelect = false;
 
-                if (dialog.Show() == 0)
+                if (dialog.Show() == 0 /*cancel button*/)
                 {
-                    // cancel
                     return;
                 }
                 Debug.Assert(dialog.SelectedItems.Count == 1);
