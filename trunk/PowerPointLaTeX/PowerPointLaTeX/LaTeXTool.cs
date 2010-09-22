@@ -60,6 +60,9 @@ namespace PowerPointLaTeX
         private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
 
+        // renders all formulas at a higher resolution than necessary to allow for zooming
+        public const int RenderDPISetting = 300;
+
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
             get
@@ -117,8 +120,8 @@ namespace PowerPointLaTeX
         {
             // check the cache first
             int baselineOffset;
-            float wantedPixelsPerEmHeight = GetPixelsPerEmHeight( fontSize, WindowsDPISetting );
-            float actualPixelsPerEmHeight = GetPixelsPerEmHeight( fontSize, RenderDPISetting );
+            float wantedPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, DPIHelper.WindowsDPISetting);
+            float actualPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, RenderDPISetting);
             Image image = GetImageForLaTeXCode( latexCode, ref actualPixelsPerEmHeight, out baselineOffset );
             if (image == null) {
                 return null;
@@ -157,24 +160,6 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        // TODO: move GetPixelsPerEmHeight and WindowsDPISetting into a helper class? [5/23/2010 Andreas]
-        public const int WindowsDPISetting = 96;
-        // renders all formulas at a higher resolution than necessary to allow for zooming
-        public const int RenderDPISetting = 300;
-        public const int PrintPtsPerInch = 72;
-
-        public static float GetPixelsPerEmHeight( float fontSizeInPoints, int targetPixelsPerInch ) {
-            return fontSizeInPoints / PrintPtsPerInch * targetPixelsPerInch;
-        }
-
-        public static float PixelHeightToFontSize(float pixelHeight) {
-            return pixelHeight / WindowsDPISetting * PrintPtsPerInch;
-        }
-
-        public static float FontSizeToPixelHeight(float fontSize) {
-            return fontSize / PrintPtsPerInch * WindowsDPISetting;
-        }
-
         /// <summary>
         /// Compile latexCode into an inline shape
         /// </summary>
@@ -197,7 +182,7 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().LinkID.value = textShape.Id;
             
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
-            float heightInPts = PixelHeightToFontSize( picture.Height );
+            float heightInPts = DPIHelper.PixelsPerEmHeightToFontSize(picture.Height);
 
             FontFamily fontFamily;
             try
