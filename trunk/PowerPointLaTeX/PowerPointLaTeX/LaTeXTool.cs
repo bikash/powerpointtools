@@ -37,7 +37,7 @@ namespace PowerPointLaTeX
         HasInlines,
         // has compiled LaTeX codes
         HasCompiledInlines,
-        // a compiled LaTeX code (picture)
+        // a compiled LaTeX code element (picture)
         Inline,
         // an equation (picture)
         Equation,
@@ -45,7 +45,7 @@ namespace PowerPointLaTeX
 
     static class EquationTypeShapeExtension
     {
-        internal static bool IsEquation(this Shape shape)
+        public static bool IsEquation(this Shape shape)
         {
             return shape.LaTeXTags().Type == EquationType.Equation;
         }
@@ -55,7 +55,7 @@ namespace PowerPointLaTeX
     /// Contains all the important methods, etc.
     /// Instantiated by the add-in
     /// </summary>
-    class LaTeXTool
+    class LaTeXTool : PowerPointLaTeX.ILaTeXTool
     {
         private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
@@ -91,7 +91,7 @@ namespace PowerPointLaTeX
         }
 
         /// <returns>A valid picture shape from the data or null if creation failed</returns>
-        private Shape GetPictureShapeFromImage(Slide slide, Image image)
+        private Shape CreatePictureShapeFromImage(Slide slide, Image image)
         {           
             IDataObject oldClipboardContent = null;
             try {
@@ -109,39 +109,10 @@ namespace PowerPointLaTeX
                 return null;
             }
 
-            // make white the transparent color
-            pictureRange.PictureFormat.TransparencyColor = ~0;
-            pictureRange.PictureFormat.TransparentBackground = Microsoft.Office.Core.MsoTriState.msoCTrue;
-
             Trace.Assert(pictureRange.Count == 1);
             return pictureRange[1];
         }
 
-        private bool RangesOverlap(TextRange rangeA, TextRange rangeB)
-        {
-            int startA = rangeA.Start;
-            int endA = startA + rangeA.Length - 1;
-            int startB = rangeB.Start;
-            int endB = startB + rangeB.Length - 1;
-            return !(endA < startB || endB < startA);
-        }
-
-        private bool ParagraphContainsRange(Shape shape, int paragraph, TextRange range)
-        {
-            TextRange paragraphRange = shape.TextFrame.TextRange.Paragraphs(paragraph, 1);
-            return RangesOverlap(paragraphRange, range);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="currentSlide"></param>
-        /// <param name="latexCode"></param>
-        /// <param name="wantedPixelsPerEmHeight"></param>
-        /// <param name="upScaleFactor">
-        /// render the image at wantedPixelsPerEmHeight * upScaleFactor to allow for dynamic zooming etc
-        /// </param>
-        /// <returns></returns>
         private Shape GetPictureShapeFromLaTeXCode( Slide currentSlide, string latexCode, float fontSize )
         {
             // check the cache first
@@ -153,10 +124,14 @@ namespace PowerPointLaTeX
                 return null;
             }
 
-            Shape picture = GetPictureShapeFromImage(currentSlide, image);
+            Shape picture = CreatePictureShapeFromImage(currentSlide, image);
             if( picture == null ) {
                 return null;
             }
+
+            // make white the transparent color
+            picture.PictureFormat.TransparencyColor = ~0;
+            picture.PictureFormat.TransparentBackground = Microsoft.Office.Core.MsoTriState.msoCTrue;
 
             picture.AlternativeText = latexCode;
 
@@ -224,7 +199,17 @@ namespace PowerPointLaTeX
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
             float heightInPts = PixelHeightToFontSize( picture.Height );
 
-            FontFamily fontFamily = new FontFamily( codeRange.Font.Name );
+            FontFamily fontFamily;
+            try
+            {
+                fontFamily = new FontFamily(codeRange.Font.Name);
+            }
+            catch( Exception exception ) {
+                // TODO: add message box and inform the user about it [9/20/2010 Andreas]
+                MessageBox.Show("Failed to load font information (using Times New Roman as substitute). Error: " + exception, "PowerPoint LaTeX");
+                fontFamily = new FontFamily("Times New Roman");
+            }
+
             // from top to baseline
             float ascentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellAscent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
             float descentRatio = (float) fontFamily.GetCellDescent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular );
@@ -302,7 +287,7 @@ namespace PowerPointLaTeX
                     from Effect effect in sequence
                     where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
                     ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
+                        Helpers.ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 
@@ -866,6 +851,7 @@ namespace PowerPointLaTeX
         public Shape GetLinkShape(Shape shape)
         {
             LaTeXTags tags = shape.LaTeXTags();
+            // pre-condition: shape has a linked shape
             Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation);
             Slide slide = shape.GetSlide();
             Trace.Assert(slide != null);
