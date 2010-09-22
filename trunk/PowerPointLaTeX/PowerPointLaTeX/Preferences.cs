@@ -46,7 +46,7 @@ namespace PowerPointLaTeX
 
             // fill the serviceSelector
             serviceSelector.Items.Clear();
-            serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXServices.ServiceNames );
+            serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames );
 
             miktexPreambleBox.Text = oldMiktexPreamble = Tool.ActivePresentation.SettingsTags().MiKTeXPreamble;
 
@@ -55,8 +55,8 @@ namespace PowerPointLaTeX
             miktexPathBox.Text = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexPath;
 
             string aboutServices = "";
-            foreach(string serviceName in Globals.ThisAddIn.LaTeXServices.ServiceNames) {
-                ILaTeXRenderingService service = Globals.ThisAddIn.LaTeXServices.GetService( serviceName );
+            foreach(string serviceName in Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames) {
+                ILaTeXRenderingService service = Globals.ThisAddIn.LaTeXRenderingServices.GetService( serviceName );
                 string aboutNotice = service.AboutNotice;
 
                 aboutServices += serviceName + ":\n\n" + aboutNotice + "\n\n";

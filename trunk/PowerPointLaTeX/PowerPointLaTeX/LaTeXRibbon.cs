@@ -292,7 +292,7 @@ namespace PowerPointLaTeX
         }
 
         private void showLastLogButton_Click( object sender, RibbonControlEventArgs e ) {
-            LogForm logForm = new LogForm( Globals.ThisAddIn.LaTeXServices.Service.GetLastErrorReport() );
+            LogForm logForm = new LogForm( Globals.ThisAddIn.LaTeXRenderingServices.Service.GetLastErrorReport() );
             logForm.ShowDialog();
         }
 

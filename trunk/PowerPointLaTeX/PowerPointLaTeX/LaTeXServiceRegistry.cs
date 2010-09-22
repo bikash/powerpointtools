@@ -7,12 +7,12 @@ using PowerPointLaTeX.Properties;
 
 namespace PowerPointLaTeX
 {
-    class LaTeXServiceRegistry
+    class LaTeXRenderingServiceRegistry
     {
         private Dictionary<string, ILaTeXRenderingService> services = new Dictionary<string, ILaTeXRenderingService>();
         private string[] serviceNames;
 
-        public LaTeXServiceRegistry() {
+        public LaTeXRenderingServiceRegistry() {
             Initialize();
         }
         
@@ -28,7 +28,7 @@ namespace PowerPointLaTeX
             foreach (Type type in allTypes)
             {
                 // Only scan classes that arn't abstract
-                if (type.IsClass && !type.IsAbstract && type.GetInterface("ILaTeXService") != null)
+                if (type.IsClass && !type.IsAbstract && type.GetInterface( typeof(ILaTeXRenderingService).Name ) != null)
                 {
                     ILaTeXRenderingService service = (ILaTeXRenderingService)asm.CreateInstance(type.FullName);
                     services.Add(service.SeriveName, service);

@@ -11,7 +11,6 @@ namespace PowerPointLaTeX
         void DecompileSlide(Microsoft.Office.Interop.PowerPoint.Slide slide);
         Microsoft.Office.Interop.PowerPoint.Shape EditEquation(Microsoft.Office.Interop.PowerPoint.Shape equation, out bool cancelled);
         void FinalizePresentation(Microsoft.Office.Interop.PowerPoint.Presentation presentation);
-        System.Drawing.Image GetImageForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset);
         System.Collections.Generic.List<Microsoft.Office.Interop.PowerPoint.Shape> GetInlineShapes(Microsoft.Office.Interop.PowerPoint.Shape shape);
         Microsoft.Office.Interop.PowerPoint.Shape GetLinkShape(Microsoft.Office.Interop.PowerPoint.Shape shape);
     }

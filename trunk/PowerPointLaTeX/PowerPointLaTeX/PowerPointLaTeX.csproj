@@ -211,6 +211,7 @@
     </Compile>
     <Compile Include="Helpers.cs" />
     <Compile Include="ILaTeXTool.cs" />
+    <Compile Include="LaTeXRendering\LaTeXRendering.cs" />
     <Compile Include="LaTeXRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
