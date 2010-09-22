@@ -10,7 +10,7 @@ using System.Drawing;
 
 namespace PowerPointLaTeX
 {
-    public class MiKTeXService : ILaTeXService
+    public class MiKTeXService : ILaTeXRenderingService
     {
         private const string latexOptions = "-enable-installer -interaction=nonstopmode";
         private const string dvipngOptions = "-T tight --depth --height -D DPI --noghostscript --picky -q -z 0";

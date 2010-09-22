@@ -29,7 +29,7 @@ using System.Drawing;
 
 namespace PowerPointLaTeX
 {
-    public class WebService : ILaTeXService
+    public class WebService : ILaTeXRenderingService
     {
         private struct URLData
         {

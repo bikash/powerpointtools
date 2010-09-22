@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace PowerPointLaTeX {
-    class NullService : ILaTeXService {
+    class NullService : ILaTeXRenderingService {
         #region ILaTeXService Members
 
         public string AboutNotice {

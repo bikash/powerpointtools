@@ -9,7 +9,7 @@ namespace PowerPointLaTeX
 {
     class LaTeXServiceRegistry
     {
-        private Dictionary<string, ILaTeXService> services = new Dictionary<string, ILaTeXService>();
+        private Dictionary<string, ILaTeXRenderingService> services = new Dictionary<string, ILaTeXRenderingService>();
         private string[] serviceNames;
 
         public LaTeXServiceRegistry() {
@@ -30,7 +30,7 @@ namespace PowerPointLaTeX
                 // Only scan classes that arn't abstract
                 if (type.IsClass && !type.IsAbstract && type.GetInterface("ILaTeXService") != null)
                 {
-                    ILaTeXService service = (ILaTeXService)asm.CreateInstance(type.FullName);
+                    ILaTeXRenderingService service = (ILaTeXRenderingService)asm.CreateInstance(type.FullName);
                     services.Add(service.SeriveName, service);
                 }
             }
@@ -40,7 +40,7 @@ namespace PowerPointLaTeX
             keys.CopyTo(serviceNames, 0);
         }
 
-        public ILaTeXService GetService(string serviceName) {
+        public ILaTeXRenderingService GetService(string serviceName) {
             return services[serviceName];
         }
 
@@ -50,9 +50,9 @@ namespace PowerPointLaTeX
             }
         }
 
-        public ILaTeXService Service {
+        public ILaTeXRenderingService Service {
             get {
-                ILaTeXService service;
+                ILaTeXRenderingService service;
                 if( !services.TryGetValue( Settings.Default.LatexService, out service ) ) {
                     var keyValuePair = services.First();
                     Settings.Default.LatexService = keyValuePair.Key;

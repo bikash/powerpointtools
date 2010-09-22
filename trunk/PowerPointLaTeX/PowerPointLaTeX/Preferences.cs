@@ -56,7 +56,7 @@ namespace PowerPointLaTeX
 
             string aboutServices = "";
             foreach(string serviceName in Globals.ThisAddIn.LaTeXServices.ServiceNames) {
-                ILaTeXService service = Globals.ThisAddIn.LaTeXServices.GetService( serviceName );
+                ILaTeXRenderingService service = Globals.ThisAddIn.LaTeXServices.GetService( serviceName );
                 string aboutNotice = service.AboutNotice;
 
                 aboutServices += serviceName + ":\n\n" + aboutNotice + "\n\n";

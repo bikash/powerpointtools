@@ -208,6 +208,8 @@
     <Compile Include="EquationEditor.Designer.cs">
       <DependentUpon>EquationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers.cs" />
+    <Compile Include="ILaTeXTool.cs" />
     <Compile Include="LaTeXRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -288,7 +290,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SelectionExtension.cs" />
-    <Compile Include="ILaTeXService.cs" />
+    <Compile Include="ILaTeXRenderingService.cs" />
     <Compile Include="SettingsTags.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />

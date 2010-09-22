@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace PowerPointLaTeX
 {
-    public interface ILaTeXService
+    public interface ILaTeXRenderingService
     {
         string AboutNotice {
             get;
