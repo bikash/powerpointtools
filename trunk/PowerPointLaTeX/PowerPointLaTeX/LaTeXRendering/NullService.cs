@@ -8,7 +8,7 @@ namespace PowerPointLaTeX {
         #region ILaTeXService Members
 
         public string AboutNotice {
-            get { return "Choose this to use the cache only."; }
+            get { return "Choose this to only use the presentation cache."; }
         }
 
         public string SeriveName {

@@ -225,14 +225,14 @@
     <Compile Include="LogForm.Designer.cs">
       <DependentUpon>LogForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NullService.cs" />
+    <Compile Include="LaTeXRendering\NullService.cs" />
     <Compile Include="Compatibility.cs" />
     <Compile Include="Properties\MiKTexSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>MiKTexSettings.settings</DependentUpon>
     </Compile>
-    <Compile Include="MiKTeXService.cs" />
+    <Compile Include="LaTeXRendering\MiKTeXService.cs" />
     <Compile Include="Preferences.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -290,7 +290,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SelectionExtension.cs" />
-    <Compile Include="ILaTeXRenderingService.cs" />
+    <Compile Include="LaTeXRendering\ILaTeXRenderingService.cs" />
     <Compile Include="SettingsTags.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShapeExtension.cs" />
@@ -312,7 +312,7 @@
     <Compile Include="ThisAddIn.Designer.cs">
       <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
     </Compile>
-    <Compile Include="WebService.cs" />
+    <Compile Include="LaTeXRendering\WebService.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

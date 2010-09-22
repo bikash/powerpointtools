@@ -100,7 +100,7 @@ namespace PowerPointLaTeX
 
         public string AboutNotice
         {
-            get { return "Use MiKTeX (or any other local LaTeX install that provides latex.exe and dvipng.exe)."; }
+            get { return "Uses MiKTeX (or any other local LaTeX install that provides latex.exe and dvipng.exe)."; }
         }
 
         public string SeriveName
