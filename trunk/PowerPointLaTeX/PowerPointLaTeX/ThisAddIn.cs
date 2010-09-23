@@ -120,10 +120,10 @@ namespace PowerPointLaTeX
             IEnumerable<Shape> parentShapes =
                 from shape in shapes
                 where shape.LaTeXTags().Type == EquationType.Inline
-                select LaTeXTool.GetLinkShape(shape);
+                select shape.GetLinkShape();
             IEnumerable<Shape> shapeSuperset =
                 from parentShape in parentShapes.Union(shapes)
-                from inlineShape in LaTeXTool.GetInlineShapes(parentShape)
+                from inlineShape in parentShape.GetInlineShapes()
                 select inlineShape;
             return shapeSuperset.Union(parentShapes);
         }

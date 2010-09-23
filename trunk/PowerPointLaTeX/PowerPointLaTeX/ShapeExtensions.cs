@@ -9,7 +9,7 @@ namespace PowerPointLaTeX
 {
     static class ShapeExtensions
     {
-        internal static List<Shape> GetInlineShapes(Shape shape)
+        internal static List<Shape> GetInlineShapes(this Shape shape)
         {
             List<Shape> shapes = new List<Shape>();
 
@@ -21,7 +21,7 @@ namespace PowerPointLaTeX
 
             foreach (LaTeXEntry entry in shape.LaTeXTags().Entries)
             {
-                if (!IsEscapeCode(entry.Code))
+                if (!Helpers.IsEscapeCode(entry.Code))
                 {
                     Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
                     Debug.Assert(inlineShape != null);

@@ -202,7 +202,7 @@ namespace PowerPointLaTeX
                     from Effect effect in sequence
                     where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
                     ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        Helpers.ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
+                        GeneralHelpers.ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 
@@ -354,7 +354,7 @@ namespace PowerPointLaTeX
                 // escape $$!$$
                 // +1 because IndexOf is base 0, but Characters uses base 1
                 TextRange codeRange = range.Characters(startIndex + 1, length);
-                if (!IsEscapeCode(latexCode))
+                if (!Helpers.IsEscapeCode(latexCode))
                 {
                     Shape picture = CompileInlineLaTeXCode(slide, shape, latexCode, codeRange);
                     if (picture != null)
@@ -438,7 +438,7 @@ namespace PowerPointLaTeX
                 LaTeXEntry entry = entries[i];
                 string latexCode = entry.Code;
 
-                if (!IsEscapeCode(latexCode))
+                if (!Helpers.IsEscapeCode(latexCode))
                 {
                     int shapeID = entry.ShapeId;
                     // find the shape
