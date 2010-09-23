@@ -15,6 +15,54 @@ namespace PowerPointLaTeX
         // renders all formulas at a higher resolution than necessary to allow for zooming
         public const int RenderDPISetting = 300;
 
+        static public Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode, float fontSize)
+        {
+            // check the cache first
+            int baselineOffset;
+            float wantedPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, DPIHelper.WindowsDPISetting);
+            float actualPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, RenderDPISetting);
+            Image image = GetImageForLaTeXCode(latexCode, ref actualPixelsPerEmHeight, out baselineOffset);
+            if (image == null)
+            {
+                return null;
+            }
+
+            Shape picture = CreatePictureShapeFromImage(currentSlide, image);
+            if (picture == null)
+            {
+                return null;
+            }
+
+            // make white the transparent color
+            picture.PictureFormat.TransparencyColor = ~0;
+            picture.PictureFormat.TransparentBackground = Microsoft.Office.Core.MsoTriState.msoCTrue;
+
+            picture.AlternativeText = latexCode;
+
+            // prescale the image to the wanted em height here
+            float scaleRatio = wantedPixelsPerEmHeight / actualPixelsPerEmHeight;
+
+            picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
+            picture.Height *= scaleRatio;
+            picture.Width *= scaleRatio;
+
+            // store the baseline offset as percentage value instead of pixels to support rescaling the image
+            picture.LaTeXTags().BaseLineOffset.value = (float)baselineOffset / image.Height;
+            //picture.LaTeXTags().PixelsPerEmHeight = actualPixelsPerEmHeight;
+            string shortenedName;
+            if (latexCode.Length > 32)
+            {
+                shortenedName = latexCode.Substring(0, 32) + "..";
+            }
+            else
+            {
+                shortenedName = latexCode;
+            }
+            picture.Name = "LaTeX: " + shortenedName;
+
+            return picture;
+        }
+
         /// <returns>A valid picture shape from the data or null if creation failed</returns>
         static private Shape CreatePictureShapeFromImage(Slide slide, Image image)
         {
@@ -38,6 +86,12 @@ namespace PowerPointLaTeX
 
             Trace.Assert(pictureRange.Count == 1);
             return pictureRange[1];
+        }
+
+        static public Image GetImageForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
+        {
+            byte[] imageData = GetImageDataForLaTeXCode(latexCode, ref pixelsPerEmHeight, out baselineOffset);
+            return GetImageFromImageData(imageData);
         }
 
         /// <summary>
@@ -126,58 +180,5 @@ namespace PowerPointLaTeX
             return image;
         }
 
-        static public Image GetImageForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
-        {
-            byte[] imageData = GetImageDataForLaTeXCode(latexCode, ref pixelsPerEmHeight, out baselineOffset);
-            return GetImageFromImageData(imageData);
-        }
-
-        static public Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode, float fontSize)
-        {
-            // check the cache first
-            int baselineOffset;
-            float wantedPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, DPIHelper.WindowsDPISetting);
-            float actualPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, RenderDPISetting);
-            Image image = GetImageForLaTeXCode(latexCode, ref actualPixelsPerEmHeight, out baselineOffset);
-            if (image == null)
-            {
-                return null;
-            }
-
-            Shape picture = CreatePictureShapeFromImage(currentSlide, image);
-            if (picture == null)
-            {
-                return null;
-            }
-
-            // make white the transparent color
-            picture.PictureFormat.TransparencyColor = ~0;
-            picture.PictureFormat.TransparentBackground = Microsoft.Office.Core.MsoTriState.msoCTrue;
-
-            picture.AlternativeText = latexCode;
-
-            // prescale the image to the wanted em height here
-            float scaleRatio = wantedPixelsPerEmHeight / actualPixelsPerEmHeight;
-
-            picture.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            picture.Height *= scaleRatio;
-            picture.Width *= scaleRatio;
-
-            // store the baseline offset as percentage value instead of pixels to support rescaling the image
-            picture.LaTeXTags().BaseLineOffset.value = (float)baselineOffset / image.Height;
-            //picture.LaTeXTags().PixelsPerEmHeight = actualPixelsPerEmHeight;
-            string shortenedName;
-            if (latexCode.Length > 32)
-            {
-                shortenedName = latexCode.Substring(0, 32) + "..";
-            }
-            else
-            {
-                shortenedName = latexCode;
-            }
-            picture.Name = "LaTeX: " + shortenedName;
-
-            return picture;
-        }
     }
 }
