@@ -209,6 +209,7 @@
     <Compile Include="EquationEditor.Designer.cs">
       <DependentUpon>EquationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="GeneralExtensions\GeneralHelpers.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ILaTeXTool.cs" />
     <Compile Include="LaTeXRendering\LaTeXRendering.cs" />
@@ -295,8 +296,9 @@
     <Compile Include="LaTeXRendering\ILaTeXRenderingService.cs" />
     <Compile Include="SettingsTags.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="ShapeExtension.cs" />
-    <Compile Include="ShapesExtension.cs" />
+    <Compile Include="GeneralExtensions\GeneralShapeExtensions.cs" />
+    <Compile Include="ShapeExtensions.cs" />
+    <Compile Include="GeneralExtensions\GeneralShapesExtensions.cs" />
     <Compile Include="ShapeWalker.cs" />
     <Compile Include="TagExtension.cs" />
     <Compile Include="DeveloperTaskPane\TagsGrid.cs">

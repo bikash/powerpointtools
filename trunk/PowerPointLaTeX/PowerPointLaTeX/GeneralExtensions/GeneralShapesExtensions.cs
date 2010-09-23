@@ -25,7 +25,7 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace PowerPointLaTeX
 {
-    static class ShapesExtension
+    static class GeneralShapesExtensions
     {
         internal static Shape FindById(this Shapes shapes, int shapeID)
         {

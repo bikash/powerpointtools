@@ -6,7 +6,7 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace PowerPointLaTeX
 {
-    static class Helpers
+    static class GeneralHelpers
     {
         static public bool RangesOverlap(TextRange rangeA, TextRange rangeB)
         {

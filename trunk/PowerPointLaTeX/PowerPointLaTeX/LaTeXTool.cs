@@ -280,11 +280,6 @@ namespace PowerPointLaTeX
  
         }
 
-        private static bool IsEscapeCode(string code)
-        {
-            return code == "!";
-        }
-
         private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)
         {
             int startIndex = 0;
@@ -653,66 +648,6 @@ namespace PowerPointLaTeX
 
             // return the new equation
             return newEquation;
-        }
-
-        public List<Shape> GetInlineShapes(Shape shape)
-        {
-            List<Shape> shapes = new List<Shape>();
-
-            Slide slide = shape.GetSlide();
-            if (slide == null)
-            {
-                return shapes;
-            }
-
-            foreach (LaTeXEntry entry in shape.LaTeXTags().Entries)
-            {
-                if (!IsEscapeCode(entry.Code))
-                {
-                    Shape inlineShape = slide.Shapes.FindById(entry.ShapeId);
-                    Debug.Assert(inlineShape != null);
-                    if (inlineShape != null)
-                    {
-                        shapes.Add(inlineShape);
-                    }
-                }
-            }
-            return shapes;
-        }
-
-        /// <summary>
-        /// get the shape specified by the LinkID field in LaTeXTags()
-        /// </summary>
-        /// <param name="shape"></param>
-        /// <returns></returns>
-        public Shape GetLinkShape(Shape shape)
-        {
-            LaTeXTags tags = shape.LaTeXTags();
-            // pre-condition: shape has a linked shape
-            Debug.Assert(tags.Type == EquationType.Inline || tags.Type == EquationType.Equation);
-            Slide slide = shape.GetSlide();
-            Trace.Assert(slide != null);
-
-            Shape linkShape = slide.Shapes.FindById(tags.LinkID);
-            Trace.Assert(linkShape != null);
-            return linkShape;
-        }
-
-        private ShapeRange GetShapeRange<T>(T list) where T : IEnumerable<Shape>
-        {
-            Selection selection = Application.ActiveWindow.Selection;
-            selection.Unselect();
-
-            foreach (Shape shape in list)
-            {
-                shape.Select(Microsoft.Office.Core.MsoTriState.msoFalse);
-            }
-
-            // FIXME: ignore ChildShapeRange for now [12/31/2008 Andreas]
-            ShapeRange shapeRange = selection.ShapeRange;
-            selection.Unselect();
-
-            return shapeRange;
         }
     }
 }

@@ -26,7 +26,7 @@ using System.Diagnostics;
 
 namespace PowerPointLaTeX
 {
-    static class ShapeExtension
+    static class GeneralShapeExtensions
     {
         /// <summary>
         /// Might return null!
