@@ -234,6 +234,8 @@ namespace PowerPointLaTeX
             // 
             // miktexPreambleBox
             // 
+            this.miktexPreambleBox.AcceptsReturn = true;
+            this.miktexPreambleBox.AcceptsTab = true;
             this.miktexPreambleBox.Location = new System.Drawing.Point(7, 37);
             this.miktexPreambleBox.Multiline = true;
             this.miktexPreambleBox.Name = "miktexPreambleBox";
