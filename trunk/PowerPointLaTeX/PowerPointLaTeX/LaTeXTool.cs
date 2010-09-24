@@ -57,7 +57,6 @@ namespace PowerPointLaTeX
     /// </summary>
     class LaTeXTool : PowerPointLaTeX.ILaTeXTool
     {
-        private const char NoneBreakingSpace = (char) 8201;
         private const int InitialEquationFontSize = 44;
 
         private Microsoft.Office.Interop.PowerPoint.Application Application
@@ -90,21 +89,6 @@ namespace PowerPointLaTeX
             }
         }
 
-        private static FontFamily GetFontFamily( TextRange textRange ) {
-            FontFamily fontFamily;
-            try
-            {
-                fontFamily = new FontFamily(textRange.Font.Name);
-            }
-            catch (Exception exception)
-            {
-                // TODO: add message box and inform the user about it [9/20/2010 Andreas]
-                MessageBox.Show("Failed to load font information (using Times New Roman as substitute). Error: " + exception, "PowerPoint LaTeX");
-                fontFamily = new FontFamily("Times New Roman");
-            }
-            return fontFamily;
-        }
-
         /// <summary>
         /// Compile latexCode into an inline shape
         /// </summary>
@@ -125,46 +109,8 @@ namespace PowerPointLaTeX
             picture.LaTeXTags().Code.value = latexCode;
             picture.LaTeXTags().Type.value = EquationType.Inline;
             picture.LaTeXTags().LinkID.value = textShape.Id;
-            
-            float baselineOffset = picture.LaTeXTags().BaseLineOffset;
-            float heightInPts = DPIHelper.PixelsPerEmHeightToFontSize(picture.Height);
 
-            FontFamily fontFamily = GetFontFamily(codeRange);
-
-            // from top to baseline
-            float ascentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellAscent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
-            float descentRatio = (float) fontFamily.GetCellDescent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular );
-            float descentHeight = (float) (codeRange.Font.Size * descentRatio);
-
-            float ascentSize = Math.Max( 0, 1 - baselineOffset ) * heightInPts;
-            float descentSize = Math.Max( 0, baselineOffset ) * heightInPts;
-            
-            float factor = 1.0f;
-            if( ascentSize > 0 ) {
-                factor = Math.Max( factor, ascentSize / ascentHeight );
-            }
-            if( descentSize > 0 ) {
-                factor = Math.Max( factor, descentSize / descentHeight );
-            }
-
-            if( factor <= 1.5f ) {
-                codeRange.Font.Size *= factor;
-            }
-            else {
-                // don't let it get too big (starts to look ridiculous otherwise)
-
-                // keep linespacing intact (assuming that the line spacing scales with the font height)
-                float lineSpacing = (float) (codeRange.Font.Size * ((float) fontFamily.GetLineSpacing( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
-                // additional line spacing
-                codeRange.Font.Size *= (lineSpacing + 5.0f - codeRange.Font.Size + heightInPts) / lineSpacing;
-                // just ignore the baseline offset
-                picture.LaTeXTags().BaseLineOffset.value = descentRatio;
-            }
-
-            // disable word wrap
-            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
-            // fill the text up with none breaking space to make it "wrap around" the formula
-            FillTextRange(codeRange, NoneBreakingSpace, picture.Width);
+            InlineFormulas.Alignment.PrepareTextRange(picture, codeRange);
 
             CopyInlineEffects( slide, textShape, codeRange, picture );
 
@@ -190,34 +136,7 @@ namespace PowerPointLaTeX
             }
         }
 
-        private static void FillTextRange(TextRange range, char character, float minWidth)
-        {
-            range.Text = character.ToString() + ( (char) 160 ).ToString(); // ;
 
-            // line-breaks are futile, so stop filling if one happens 
-            float oldHeight = range.BoundHeight;
-            while (range.BoundWidth < minWidth && oldHeight == range.BoundHeight)
-            {
-                range.Text += character.ToString() + ((char) 160).ToString();
-            }
-            if( oldHeight != range.BoundHeight ) {
-                range.Text = range.Text.Remove( range.Text.Length - 2, 2 );
-                range.Text += ((char)8232).ToString(); // new line that doesn't begin new paragraph
-            }
-        }
-
-        private static void AlignFormulaWithText(TextRange codeRange, Shape picture)
-        {
-            // interesting fact: text filled with (at most one line of none-breaking) spaces -> BoundHeight == EmSize
-            float fontHeight = codeRange.BoundHeight;
-            FontFamily fontFamily = GetFontFamily(codeRange);
-            // from top to baseline
-            float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
-
-            picture.Left = codeRange.BoundLeft;
-            picture.Top = codeRange.BoundTop + baselineHeight - (1.0f - picture.LaTeXTags().BaseLineOffset) * picture.Height;
- 
-        }
 
         private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)
         {
@@ -266,17 +185,7 @@ namespace PowerPointLaTeX
 
                 int latexCodeLength = latexCodeEndIndex - latexCodeStartIndex;
                 string latexCode = range.Text.Substring( latexCodeStartIndex, latexCodeLength );
-                // TODO: move this into its own function [1/5/2009 Andreas]
-                latexCode = latexCode.Replace((char) 8217, '\'');
-                // replace weird unicode - (hypens) with minus
-                latexCode = latexCode.Replace( (char) 8208, '-' );
-                latexCode = latexCode.Replace( (char) 8211, '-' );
-                latexCode = latexCode.Replace( (char) 8212, '-' );
-                latexCode = latexCode.Replace( (char) 8722, '-' );
-                latexCode = latexCode.Replace( (char) 8209, '-' );
-                latexCode = latexCode.Replace( (char) 8259, '-' );
-                // replace ellipses with ...
-                latexCode = latexCode.Replace( ((char) 8230).ToString(), "..." );
+                latexCode = TransformSpecialUnicodeCharactersToAscii(latexCode);
 
                 // must be [[ then
                 if( !inlineMode ) {
@@ -322,27 +231,31 @@ namespace PowerPointLaTeX
                 codeCount++;
             }
 
-            // TODO: this doesn't work - simply disable autofit instead.. [1/5/2009 Andreas]
-            // TODO: can we automate this? [2/26/2009 Andreas]
-            /*
-                   (new Thread( delegate() {
-                            Thread.Sleep(100);
-                            for (int i = 0; i < pictures.Count; i++)
-                            {
-                                TextRange codeRange = pictureRanges[i];
-                                AlignFormulaWithText(codeRange, pictures[i]);
-                            }
-                        } )).Start();*/
-
             // now that everything has been converted we can position the formulas (pictures) in the text area
             for (int i = 0; i < pictures.Count; i++)
             {
                 TextRange codeRange = pictureRanges[i];
-                AlignFormulaWithText(codeRange, pictures[i]);
+                InlineFormulas.Alignment.Align(codeRange, pictures[i]);
             }
 
             // update the type, too
             shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
+        }
+
+        private string TransformSpecialUnicodeCharactersToAscii(string text)
+        {
+            text = text.Replace((char)8217, '\'');
+            // replace weird unicode - (hypens) with minus
+            text = text.Replace((char)8208, '-');
+            text = text.Replace((char)8211, '-');
+            text = text.Replace((char)8212, '-');
+            text = text.Replace((char)8722, '-');
+            text = text.Replace((char)8209, '-');
+            text = text.Replace((char)8259, '-');
+            // replace ellipses with ...
+            text = text.Replace(((char)8230).ToString(), "...");
+
+            return text;
         }
 
         private void DecompileTextRange(Slide slide, Shape shape, TextRange range)
@@ -430,41 +343,6 @@ namespace PowerPointLaTeX
                 }
             }
         }
-
-        /*
-          private bool presentationNeedsCompile;
-                 // TODO: use an exception, etc. to early-out [1/2/2009 Andreas]
-                 private void ShapeNeedsCompileWalker(Slide slide, Shape shape) {
-                     EquationType type = shape.LaTeXTags().Type;
-                     if( type == EquationType.HasInlines ) {
-                         presentationNeedsCompile = true;
-                     }
-                     if( type == EquationType.None ) {
-                         // check it and assign a type if necessary
-                         if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-                         {
-                             TextFrame textFrame = shape.TextFrame;
-                             if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                             {
-                                 // search for a $$ - if there is one occurrence, it needs to be compiled
-                                 if(textFrame.TextRange.Text.IndexOf("$$") != -1) {
-                                     presentationNeedsCompile = true;
-                                     // update the type, too
-                                     shape.LaTeXTags().Type.value = EquationType.HasInlines;
-                                 } else {
-                                     shape.LaTeXTags().Type.value = EquationType.None;
-                                 }
-                             }
-                         }
-                     }
-                 }
-        
-                 public bool NeedsCompile(Presentation presentation) {
-                     presentationNeedsCompile = false;
-                     WalkPresentation(presentation, ShapeNeedsCompileWalker);
-                     return presentationNeedsCompile;
-                 }*/
-
 
         private void FinalizeShape(Slide slide, Shape shape)
         {
