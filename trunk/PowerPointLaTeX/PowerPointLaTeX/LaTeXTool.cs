@@ -141,7 +141,7 @@ namespace PowerPointLaTeX
                 factor = Math.Max( factor, descentSize / descentHeight );
             }
 
-            // dont let it get too big (starts to look ridiculous otherwise)
+            // don't let it get too big (starts to look ridiculous otherwise)
             if( factor <= 1.5f ) {
                 codeRange.Font.Size *= factor;
             }
@@ -185,15 +185,6 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private static int GetSafeEffectParagraph( Effect effect ) {
-            try {
-                return effect.Paragraph;
-            }
-            catch {
-                return 1;
-            }
-        }
-
         private void CopyInlineEffects( Slide slide, Shape textShape, TextRange codeRange, Shape picture ) {
             try {
                 // copy animations from the parent textShape
@@ -202,7 +193,7 @@ namespace PowerPointLaTeX
                     from Effect effect in sequence
                     where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
                     ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        GeneralHelpers.ParagraphContainsRange( textShape, GetSafeEffectParagraph( effect ), codeRange ))
+                        textShape.ParagraphContainsRange( effect.GetSafeParagraph(), codeRange ))
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 

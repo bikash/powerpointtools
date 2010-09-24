@@ -209,6 +209,7 @@
     <Compile Include="EquationEditor.Designer.cs">
       <DependentUpon>EquationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="GeneralExtensions\GeneralEffectExtensions.cs" />
     <Compile Include="GeneralExtensions\GeneralHelpers.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ILaTeXTool.cs" />

@@ -16,11 +16,5 @@ namespace PowerPointLaTeX
             int endB = startB + rangeB.Length - 1;
             return !(endA < startB || endB < startA);
         }
-
-        static public bool ParagraphContainsRange(Shape shape, int paragraph, TextRange range)
-        {
-            TextRange paragraphRange = shape.TextFrame.TextRange.Paragraphs(paragraph, 1);
-            return RangesOverlap(paragraphRange, range);
-        }
     }
 }

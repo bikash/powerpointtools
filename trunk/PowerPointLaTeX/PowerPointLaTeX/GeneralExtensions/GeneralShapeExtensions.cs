@@ -52,5 +52,11 @@ namespace PowerPointLaTeX
             }
             return shape;
         }
+
+        static public bool ParagraphContainsRange(this Shape shape, int paragraph, TextRange range)
+        {
+            TextRange paragraphRange = shape.TextFrame.TextRange.Paragraphs(paragraph, 1);
+            return GeneralHelpers.RangesOverlap(paragraphRange, range);
+        }
     }
 }
