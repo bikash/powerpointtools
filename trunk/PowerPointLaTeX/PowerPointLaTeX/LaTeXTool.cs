@@ -90,6 +90,21 @@ namespace PowerPointLaTeX
             }
         }
 
+        private static FontFamily GetFontFamily( TextRange textRange ) {
+            FontFamily fontFamily;
+            try
+            {
+                fontFamily = new FontFamily(textRange.Font.Name);
+            }
+            catch (Exception exception)
+            {
+                // TODO: add message box and inform the user about it [9/20/2010 Andreas]
+                MessageBox.Show("Failed to load font information (using Times New Roman as substitute). Error: " + exception, "PowerPoint LaTeX");
+                fontFamily = new FontFamily("Times New Roman");
+            }
+            return fontFamily;
+        }
+
         /// <summary>
         /// Compile latexCode into an inline shape
         /// </summary>
@@ -114,16 +129,7 @@ namespace PowerPointLaTeX
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
             float heightInPts = DPIHelper.PixelsPerEmHeightToFontSize(picture.Height);
 
-            FontFamily fontFamily;
-            try
-            {
-                fontFamily = new FontFamily(codeRange.Font.Name);
-            }
-            catch( Exception exception ) {
-                // TODO: add message box and inform the user about it [9/20/2010 Andreas]
-                MessageBox.Show("Failed to load font information (using Times New Roman as substitute). Error: " + exception, "PowerPoint LaTeX");
-                fontFamily = new FontFamily("Times New Roman");
-            }
+            FontFamily fontFamily = GetFontFamily(codeRange);
 
             // from top to baseline
             float ascentHeight = (float) (codeRange.Font.Size * ((float) fontFamily.GetCellAscent( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
@@ -141,11 +147,12 @@ namespace PowerPointLaTeX
                 factor = Math.Max( factor, descentSize / descentHeight );
             }
 
-            // don't let it get too big (starts to look ridiculous otherwise)
             if( factor <= 1.5f ) {
                 codeRange.Font.Size *= factor;
             }
             else {
+                // don't let it get too big (starts to look ridiculous otherwise)
+
                 // keep linespacing intact (assuming that the line spacing scales with the font height)
                 float lineSpacing = (float) (codeRange.Font.Size * ((float) fontFamily.GetLineSpacing( FontStyle.Regular ) / fontFamily.GetEmHeight( FontStyle.Regular )));
                 // additional line spacing
@@ -153,27 +160,6 @@ namespace PowerPointLaTeX
                 // just ignore the baseline offset
                 picture.LaTeXTags().BaseLineOffset.value = descentRatio;
             }
-
-
-            /*
-            if( Math.Abs(baselineOffset) > 1 ) {
-                            if( baselineOffset < -1 ) {
-                                codeRange.Font.Size = heightInPts * (1 - baselineOffset); // ie 1 + abs( baselineOffset)
-                                codeRange.Font.BaselineOffset = 1;
-                            }
-                            else / * baselineOffset > 1 * / {
-                                codeRange.Font.Size = heightInPts * baselineOffset;
-                                codeRange.Font.BaselineOffset = -1;
-                           }
-                        }
-                        else {
-                            // change the font size to keep the formula from overlapping with regular text (nifty :))
-                            codeRange.Font.Size = heightInPts;
-            
-                            // BaseLineOffset > for subscript but PPT uses negative values for this
-                            codeRange.Font.BaselineOffset = -baselineOffset;
-                        }*/
-            
 
             // disable word wrap
             codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
@@ -208,7 +194,7 @@ namespace PowerPointLaTeX
         {
             range.Text = character.ToString() + ( (char) 160 ).ToString(); // ;
 
-            // line-breaks are futile, so break if one happens 
+            // line-breaks are futile, so stop filling if one happens 
             float oldHeight = range.BoundHeight;
             while (range.BoundWidth < minWidth && oldHeight == range.BoundHeight)
             {
@@ -216,33 +202,19 @@ namespace PowerPointLaTeX
             }
             if( oldHeight != range.BoundHeight ) {
                 range.Text = range.Text.Remove( range.Text.Length - 2, 2 );
-                range.Text += ((char)8232).ToString(); // new line that doesnt begin new paragraph
+                range.Text += ((char)8232).ToString(); // new line that doesn't begin new paragraph
             }
         }
 
         private static void AlignFormulaWithText(TextRange codeRange, Shape picture)
         {
             // interesting fact: text filled with (at most one line of none-breaking) spaces -> BoundHeight == EmSize
-            //codeRange.Text = " ";
             float fontHeight = codeRange.BoundHeight;
-            FontFamily fontFamily = new FontFamily(codeRange.Font.Name);
+            FontFamily fontFamily = GetFontFamily(codeRange);
             // from top to baseline
             float baselineHeight = (float) (fontHeight * ((float) fontFamily.GetCellAscent(FontStyle.Regular) / fontFamily.GetLineSpacing(FontStyle.Regular)));
 
             picture.Left = codeRange.BoundLeft;
-
-            // DISABLED to try baseline feature from the miktex service [5/21/2010 Andreas]
- /*
-            if (baselineHeight >= picture.Height)
-             {
-                 // baseline: center (assume that its a one-line codeRange)
-                 picture.Top = codeRange.BoundTop + (baselineHeight - picture.Height) * 0.5f;
-             }
-             else
-             {
-                 // center the picture directly
-                 picture.Top = codeRange.BoundTop + (fontHeight - picture.Height) * 0.5f;
-             }*/
             picture.Top = codeRange.BoundTop + baselineHeight - (1.0f - picture.LaTeXTags().BaseLineOffset) * picture.Height;
  
         }
