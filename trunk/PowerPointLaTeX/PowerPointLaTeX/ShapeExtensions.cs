@@ -52,5 +52,28 @@ namespace PowerPointLaTeX
             return linkShape;
         }
 
+        internal static void AddEffects(this Shape target, IEnumerable<Effect> effects, bool setToWithPrevious, Sequence sequence)
+        {
+            foreach (Effect effect in effects)
+            {
+                int index = effect.Index + 1;
+                Effect formulaEffect = sequence.Clone(effect, index);
+                try
+                {
+                    formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
+                }
+                catch { }
+                //formulaEffect = sequence.ConvertToTextUnitEffect(formulaEffect, MsoAnimTextUnitEffect.msoAnimTextUnitEffectMixed);
+                if (setToWithPrevious)
+                    formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
+                try
+                {
+                    formulaEffect.Paragraph = 0;
+                }
+                catch { }
+                formulaEffect.Shape = target;
+                // Effect formulaEffect = sequence.AddEffect(picture, effect.EffectType, MsoAnimateByLevel.msoAnimateLevelNone, MsoAnimTriggerType.msoAnimTriggerWithPrevious, index);
+            }
+        }
     }
 }

@@ -185,7 +185,7 @@ namespace PowerPointLaTeX
             return picture;
         }
 
-        private int GetSafeEffectParagraph( Effect effect ) {
+        private static int GetSafeEffectParagraph( Effect effect ) {
             try {
                 return effect.Paragraph;
             }
@@ -206,34 +206,10 @@ namespace PowerPointLaTeX
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 
-                CopyEffectsTo( picture, true, sequence, effects );
+                picture.AddEffects(effects, true, sequence);
             }
             catch {
                 Debug.Fail( "CopyInlineEffects failed!" );
-            }
-        }
-
-        private static void CopyEffectsTo(Shape target, bool setToWithPrevious, Sequence sequence, IEnumerable<Effect> effects)
-        {
-            foreach (Effect effect in effects)
-            {
-                int index = effect.Index + 1;
-                Effect formulaEffect = sequence.Clone(effect, index);
-                try
-                {
-                    formulaEffect = sequence.ConvertToBuildLevel(formulaEffect, MsoAnimateByLevel.msoAnimateLevelNone);
-                }
-                catch { }
-                //formulaEffect = sequence.ConvertToTextUnitEffect(formulaEffect, MsoAnimTextUnitEffect.msoAnimTextUnitEffectMixed);
-                if (setToWithPrevious)
-                    formulaEffect.Timing.TriggerType = MsoAnimTriggerType.msoAnimTriggerWithPrevious;
-                try
-                {
-                    formulaEffect.Paragraph = 0;
-                }
-                catch { }
-                formulaEffect.Shape = target;
-                // Effect formulaEffect = sequence.AddEffect(picture, effect.EffectType, MsoAnimateByLevel.msoAnimateLevelNone, MsoAnimTriggerType.msoAnimTriggerWithPrevious, index);
             }
         }
 
@@ -406,26 +382,6 @@ namespace PowerPointLaTeX
             shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
         }
 
-        public void CompileShape(Slide slide, Shape shape)
-        {
-            // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc.)
-            // don't try to compile equations (or their sources) either
-            EquationType type = shape.LaTeXTags().Type;
-            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation)
-            {
-                return;
-            }
-
-            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                TextFrame textFrame = shape.TextFrame;
-                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    CompileInlineTextRange(slide, shape, textFrame.TextRange);
-                }
-            }
-        }
-
         private void DecompileTextRange(Slide slide, Shape shape, TextRange range)
         {
             // make sure this is always valid, otherwise the code will do stupid things
@@ -472,6 +428,26 @@ namespace PowerPointLaTeX
 
             entries.Clear();
             shape.LaTeXTags().Type.value = EquationType.HasInlines;
+        }
+
+        public void CompileShape(Slide slide, Shape shape)
+        {
+            // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc)
+            // don't try to compile equations (or their sources) either
+            EquationType type = shape.LaTeXTags().Type;
+            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation)
+            {
+                return;
+            }
+
+            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+            {
+                TextFrame textFrame = shape.TextFrame;
+                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    CompileInlineTextRange(slide, shape, textFrame.TextRange);
+                }
+            }
         }
 
         public void DecompileShape(Slide slide, Shape shape)
@@ -532,8 +508,6 @@ namespace PowerPointLaTeX
             CompileShape(slide, shape);
             shape.LaTeXTags().Clear();
         }
-
-        
 
         public void CompileSlide(Slide slide)
         {
@@ -641,7 +615,7 @@ namespace PowerPointLaTeX
                 where effect.Shape == equation
                 select effect;
 
-            CopyEffectsTo(newEquation, false, sequence, effects);
+            newEquation.AddEffects(effects, false, sequence);
 
             // delete the old equation
             equation.Delete();
