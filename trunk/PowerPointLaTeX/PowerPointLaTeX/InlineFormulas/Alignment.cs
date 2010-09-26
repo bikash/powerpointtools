@@ -12,6 +12,17 @@ namespace PowerPointLaTeX.InlineFormulas
     {
         public static void PrepareTextRange(Shape picture, TextRange codeRange)
         {
+            AdaptFontSize(picture, codeRange);
+
+            // disable word wrap
+            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
+
+            // fill the text up with none breaking space to make it "wrap around" the formula
+            FillTextRange(codeRange, picture.Width);
+        }
+
+        private static void AdaptFontSize(Shape picture, TextRange codeRange)
+        {
             float baselineOffset = picture.LaTeXTags().BaseLineOffset;
             float heightInPts = DPIHelper.PixelsPerEmHeightToFontSize(picture.Height);
 
@@ -46,16 +57,11 @@ namespace PowerPointLaTeX.InlineFormulas
                 // keep linespacing intact (assuming that the line spacing scales with the font height)
                 float lineSpacing = (float)(codeRange.Font.Size * ((float)fontFamily.GetLineSpacing(FontStyle.Regular) / fontFamily.GetEmHeight(FontStyle.Regular)));
                 // additional line spacing
+                // TODO: figure out what the 5.0f is used for and extract it into a constant!.. >_< [9/26/2010 Andreas]
                 codeRange.Font.Size *= (lineSpacing + 5.0f - codeRange.Font.Size + heightInPts) / lineSpacing;
                 // just ignore the baseline offset
                 picture.LaTeXTags().BaseLineOffset.value = descentRatio;
             }
-
-            // disable word wrap
-            codeRange.ParagraphFormat.WordWrap = Microsoft.Office.Core.MsoTriState.msoFalse;
-
-            // fill the text up with none breaking space to make it "wrap around" the formula
-            FillTextRange(codeRange, picture.Width);
         }
 
         private static void FillTextRange(TextRange range, float minWidth)

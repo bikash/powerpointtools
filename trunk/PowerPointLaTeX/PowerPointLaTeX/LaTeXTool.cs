@@ -136,8 +136,6 @@ namespace PowerPointLaTeX
             }
         }
 
-
-
         private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)
         {
             int startIndex = 0;
