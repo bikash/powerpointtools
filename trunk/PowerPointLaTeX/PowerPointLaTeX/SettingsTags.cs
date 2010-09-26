@@ -39,7 +39,7 @@ namespace PowerPointLaTeX
         /// when you might not have access to a working LaTeX service.
         /// </summary>
         public AddInTagBool PresentationMode;
-        public AddInTagString MiKTeXPreamble;
+        public AddInTagString MiKTeXTemplate;
 
         public SettingsTags(Presentation presentation)
         {
@@ -47,8 +47,7 @@ namespace PowerPointLaTeX
 
             ManualPreview = new AddInTagBool(tags, "ManualPreview");
             PresentationMode = new AddInTagBool(tags, "PresentationMode");
-            MiKTeXPreamble = new AddInTagString( tags, "MiKTeXPreamble" );
-
+            MiKTeXTemplate = new AddInTagString(tags, "MiKTeXTemplate");
 
             ManualPreview.ValueChanged += new ValueChangedEventHandler<bool>(AutomaticPreview_ValueChanged);
             PresentationMode.ValueChanged += new ValueChangedEventHandler<bool>(PresentationMode_ValueChanged);
@@ -76,7 +75,7 @@ namespace PowerPointLaTeX
         {
             ManualPreview.Clear();
             PresentationMode.Clear();
-            MiKTeXPreamble.Clear();
+            MiKTeXTemplate.Clear();
         }
     }
 }

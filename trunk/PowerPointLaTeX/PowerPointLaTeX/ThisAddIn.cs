@@ -70,6 +70,7 @@ namespace PowerPointLaTeX
             ((EApplication_Event)Application).NewPresentation += new EApplication_NewPresentationEventHandler( Compatibility.Application_PresentationNew );
             Application.PresentationClose += new EApplication_PresentationCloseEventHandler( Compatibility.Application_PresentationClose );
 
+            ((EApplication_Event)Application).NewPresentation += new EApplication_NewPresentationEventHandler(Application_PresentationNew);
             Application.PresentationSave += new EApplication_PresentationSaveEventHandler(Application_PresentationSave);
             Application.PresentationOpen += new EApplication_PresentationOpenEventHandler(Application_PresentationOpen);
 
@@ -218,6 +219,11 @@ namespace PowerPointLaTeX
                             }
                         }*/
 
+        }
+
+        void Application_PresentationNew(Presentation presentation) {
+            // init the presentation settings
+            presentation.SettingsTags().MiKTeXTemplate.value = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexTemplate;
         }
 
         void Application_PresentationOpen(Presentation presentation) {

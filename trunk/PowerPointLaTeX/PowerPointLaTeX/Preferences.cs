@@ -48,7 +48,7 @@ namespace PowerPointLaTeX
             serviceSelector.Items.Clear();
             serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames );
 
-            miktexPreambleBox.Text = oldMiktexPreamble = Tool.ActivePresentation.SettingsTags().MiKTeXPreamble;
+            miktexTemplateBox.Text = oldMiktexPreamble = Tool.ActivePresentation.SettingsTags().MiKTeXTemplate;
 
             Save();
             
@@ -71,7 +71,7 @@ namespace PowerPointLaTeX
             Settings.Default.Save();
             MiKTexSettings.Default.Save();
 
-            Tool.ActivePresentation.SettingsTags().MiKTeXPreamble.value = miktexPreambleBox.Text;
+            Tool.ActivePresentation.SettingsTags().MiKTeXTemplate.value = miktexTemplateBox.Text;
         }
 
         private void Reload() {
@@ -103,6 +103,11 @@ namespace PowerPointLaTeX
 
         private void Preferences_FormClosed( object sender, FormClosedEventArgs e ) {
             Reload();
+        }
+
+        private void miktexTemplateDefaultButton_Click(object sender, EventArgs e)
+        {
+            miktexTemplateBox.Text = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexTemplate;
         }
     }
 }

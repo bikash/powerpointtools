@@ -141,7 +141,7 @@ namespace PowerPointLaTeX
 
             pixelsPerEmHeight = latexFontSizePt / latexPrintPtPerInch * DPI;
 
-            string fullLatexCode = settings.MikTexTemplate.Replace( "LATEXCODE", Globals.ThisAddIn.Tool.ActivePresentation.SettingsTags().MiKTeXPreamble + "\n$" + latexCode + "$");
+            string fullLatexCode = Globals.ThisAddIn.Tool.ActivePresentation.SettingsTags().MiKTeXTemplate.value.Replace("LATEXCODE", latexCode);
 
             lastLog = "";
 

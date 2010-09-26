@@ -107,7 +107,26 @@ namespace PowerPointLaTeX
             // (nothing to do)
 
             // update settings tags
-            // (nothing to do)
+            const string MikTexTemplateContent =
+@"\documentclass{article} 
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[active,displaymath,textmath,tightpage]{preview}
+\usepackage{bm}
+
+\begin{document}
+\begin{preview}
+
+LATEXCODE
+
+\end{preview}
+\end{document}
+";
+            AddInTagString MiKTeXPreamble = new AddInTagString(presentation.Tags, "MiKTeXPreamble");
+            presentation.SettingsTags().MiKTeXTemplate.value =
+                MikTexTemplateContent.Replace("LATEXCODE", MiKTeXPreamble + "\r\n$LATEXCODE$");
+            MiKTeXPreamble.Clear();
 
             // update shape tags
             ShapeWalker.WalkPresentation(presentation,
