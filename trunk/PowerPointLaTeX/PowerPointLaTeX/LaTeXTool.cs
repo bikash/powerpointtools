@@ -57,8 +57,6 @@ namespace PowerPointLaTeX
     /// </summary>
     class LaTeXTool : PowerPointLaTeX.ILaTeXTool
     {
-        private const int InitialEquationFontSize = 44;
-
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
             get
@@ -85,7 +83,7 @@ namespace PowerPointLaTeX
         {
             get
             {
-                return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn && Compatibility.IsSupportedPresentation( ActivePresentation );
+                return !ActivePresentation.Final && Properties.Settings.Default.EnableAddIn && Compatibility.IsSupportedPresentation(ActivePresentation);
             }
         }
 
@@ -99,7 +97,7 @@ namespace PowerPointLaTeX
         /// <returns></returns>
         private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
         {
-            Shape picture = LaTeXRendering.GetPictureShapeFromLaTeXCode( slide, latexCode, codeRange.Font.Size );
+            Shape picture = LaTeXRendering.GetPictureShapeFromLaTeXCode(slide, latexCode, codeRange.Font.Size);
             if (picture == null)
             {
                 return null;
@@ -112,27 +110,30 @@ namespace PowerPointLaTeX
 
             InlineFormulas.Alignment.PrepareTextRange(picture, codeRange);
 
-            CopyInlineEffects( slide, textShape, codeRange, picture );
+            CopyInlineEffects(slide, textShape, codeRange, picture);
 
             return picture;
         }
 
-        private void CopyInlineEffects( Slide slide, Shape textShape, TextRange codeRange, Shape picture ) {
-            try {
+        private void CopyInlineEffects(Slide slide, Shape textShape, TextRange codeRange, Shape picture)
+        {
+            try
+            {
                 // copy animations from the parent textShape
                 Sequence sequence = slide.TimeLine.MainSequence;
                 var effects =
                     from Effect effect in sequence
                     where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
                     ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        textShape.ParagraphContainsRange( effect.GetSafeParagraph(), codeRange ))
+                        textShape.ParagraphContainsRange(effect.GetSafeParagraph(), codeRange))
                         || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
                     select effect;
 
                 picture.AddEffects(effects, true, sequence);
             }
-            catch {
-                Debug.Fail( "CopyInlineEffects failed!" );
+            catch
+            {
+                Debug.Fail("CopyInlineEffects failed!");
             }
         }
 
@@ -154,27 +155,31 @@ namespace PowerPointLaTeX
 
                 int inlineStartIndex, displaystyleStartIndex;
                 inlineStartIndex = range.Text.IndexOf("$$", startIndex);
-                displaystyleStartIndex = range.Text.IndexOf( "$$[", startIndex );
-                if( displaystyleStartIndex != -1 && displaystyleStartIndex <= inlineStartIndex ) {
+                displaystyleStartIndex = range.Text.IndexOf("$$[", startIndex);
+                if (displaystyleStartIndex != -1 && displaystyleStartIndex <= inlineStartIndex)
+                {
                     inlineMode = false;
 
                     startIndex = displaystyleStartIndex;
                     latexCodeStartIndex = startIndex + 3;
-                    latexCodeEndIndex = range.Text.IndexOf( "]$$", latexCodeStartIndex );
+                    latexCodeEndIndex = range.Text.IndexOf("]$$", latexCodeStartIndex);
                     endIndex = latexCodeEndIndex + 3;
-                } else if( inlineStartIndex != -1 ) {
+                }
+                else if (inlineStartIndex != -1)
+                {
                     inlineMode = true;
 
                     startIndex = inlineStartIndex;
                     latexCodeStartIndex = startIndex + 2;
-                    latexCodeEndIndex = range.Text.IndexOf( "$$", latexCodeStartIndex );
+                    latexCodeEndIndex = range.Text.IndexOf("$$", latexCodeStartIndex);
                     endIndex = latexCodeEndIndex + 2;
                 }
-                else {
+                else
+                {
                     break;
                 }
 
-                if( latexCodeEndIndex == -1 )
+                if (latexCodeEndIndex == -1)
                 {
                     break;
                 }
@@ -182,11 +187,12 @@ namespace PowerPointLaTeX
                 int length = endIndex - startIndex;
 
                 int latexCodeLength = latexCodeEndIndex - latexCodeStartIndex;
-                string latexCode = range.Text.Substring( latexCodeStartIndex, latexCodeLength );
+                string latexCode = range.Text.Substring(latexCodeStartIndex, latexCodeLength);
                 latexCode = TransformSpecialUnicodeCharactersToAscii(latexCode);
 
                 // must be [[ then
-                if( !inlineMode ) {
+                if (!inlineMode)
+                {
                     latexCode = @"\displaystyle{" + latexCode + "}";
                 }
 
@@ -195,7 +201,7 @@ namespace PowerPointLaTeX
                 // TODO: cohesion? [5/2/2009 Andreas]
                 // save the font size because it might be changed later
                 // +1 because IndexOf is base 0, but Characters uses base 1
-                tagEntry.FontSize.value = range.Characters( latexCodeStartIndex + 1, latexCodeLength ).Font.Size;
+                tagEntry.FontSize.value = range.Characters(latexCodeStartIndex + 1, latexCodeLength).Font.Size;
 
                 // escape $$!$$
                 // +1 because IndexOf is base 0, but Characters uses base 1
@@ -288,13 +294,16 @@ namespace PowerPointLaTeX
 
                 // add back the latex code
                 TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
-                if( latexCode.StartsWith( @"\displaystyle{" ) && latexCode.EndsWith( "}" ) ) {
-                    codeRange.Text = "$$[" + latexCode.Substring( @"\displayStyle{".Length, latexCode.Length - 1 - @"\displayStyle{".Length ) + "]$$";
+                if (latexCode.StartsWith(@"\displaystyle{") && latexCode.EndsWith("}"))
+                {
+                    codeRange.Text = "$$[" + latexCode.Substring(@"\displayStyle{".Length, latexCode.Length - 1 - @"\displayStyle{".Length) + "]$$";
                 }
-                else {
+                else
+                {
                     codeRange.Text = "$$" + latexCode + "$$";
                 }
-                if (entry.FontSize != 0) {
+                if (entry.FontSize != 0)
+                {
                     codeRange.Font.Size = entry.FontSize;
                 }
                 codeRange.Font.BaselineOffset = 0.0f;
@@ -373,94 +382,6 @@ namespace PowerPointLaTeX
             // purge the cache, too
             presentation.CacheTags().PurgeAll();
             presentation.SettingsTags().Clear();
-        }
-
-        public Shape CreateEmptyEquation()
-        {
-            const float width = 100, height = 60;
-
-            Shape shape = ActiveSlide.Shapes.AddShape(Microsoft.Office.Core.MsoAutoShapeType.msoShapeRectangle, 100, 100, width, height);
-            shape.Fill.ForeColor.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorBackground1;
-            shape.Fill.Solid();
-
-            shape.Line.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-
-            LaTeXTags tags = shape.LaTeXTags();
-            tags.Type.value = EquationType.Equation;
-            tags.OriginalWidth.value = width;
-            tags.OriginalHeight.value = height;
-            tags.FontSize.value = InitialEquationFontSize;
-
-            return shape;
-        }
-
-        public Shape EditEquation( Shape equation, out bool cancelled ) {
-            EquationEditor editor = new EquationEditor( equation.LaTeXTags().Code, equation.LaTeXTags().FontSize );
-            DialogResult result = editor.ShowDialog();
-            if( result == DialogResult.Cancel ) {
-                cancelled = true;
-                // don't change anything
-                return equation;
-            }
-            else {
-                cancelled = false;
-            }
-
-            // recompile the code
-            //equation.TextFrame.TextRange.Text = equationSource.TextFrame.TextRange.Text;
-            string latexCode = editor.LaTeXCode;
-
-            Slide slide = equation.GetSlide();
-            if (slide == null) {
-                // TODO: what do we do in this case? [3/3/2009 Andreas]
-                return equation;
-            }
-
-            Shape newEquation = null;
-            if (latexCode.Trim() != "") {
-                newEquation = LaTeXRendering.GetPictureShapeFromLaTeXCode( slide, latexCode, editor.FontSize );
-            }
-
-            if (newEquation != null) {
-                LaTeXTags tags = newEquation.LaTeXTags();
-
-                tags.OriginalWidth.value = newEquation.Width;
-                tags.OriginalHeight.value = newEquation.Height;
-                tags.FontSize.value = editor.FontSize;
-
-                tags.Type.value = EquationType.Equation;
-            }
-            else {
-                newEquation = CreateEmptyEquation();
-            }
-
-            newEquation.LaTeXTags().Code.value = latexCode;
-
-            newEquation.Top = equation.Top;
-            newEquation.Left = equation.Left;
-
-            // keep the equation's scale
-            // TODO: this scales everything twice if we are not careful [3/4/2009 Andreas]
-            float widthScale = equation.Width / equation.LaTeXTags().OriginalWidth;
-            float heightScale = equation.Height / equation.LaTeXTags().OriginalHeight;
-            newEquation.LockAspectRatio = Microsoft.Office.Core.MsoTriState.msoFalse;
-            newEquation.Width *= widthScale;
-            newEquation.Height *= heightScale;
-
-            // copy animations over from the old equation
-            Sequence sequence = slide.TimeLine.MainSequence;
-            var effects =
-                from Effect effect in sequence
-                where effect.Shape == equation
-                select effect;
-
-            newEquation.AddEffects(effects, false, sequence);
-
-            // delete the old equation
-            equation.Delete();
-
-            // return the new equation
-            return newEquation;
         }
     }
 }

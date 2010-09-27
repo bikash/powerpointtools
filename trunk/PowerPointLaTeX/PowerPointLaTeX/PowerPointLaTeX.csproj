@@ -203,12 +203,13 @@
       <DependentUpon>DeveloperTaskPaneControl.cs</DependentUpon>
     </Compile>
     <Compile Include="DPIHelper.cs" />
-    <Compile Include="EquationEditor.cs">
+    <Compile Include="Equations\EquationEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EquationEditor.Designer.cs">
+    <Compile Include="Equations\EquationEditor.Designer.cs">
       <DependentUpon>EquationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Equations\EquationHandling.cs" />
     <Compile Include="GeneralExtensions\GeneralEffectExtensions.cs" />
     <Compile Include="GeneralExtensions\GeneralHelpers.cs" />
     <Compile Include="Helpers.cs" />
@@ -251,7 +252,7 @@
       <DependentUpon>DeveloperTaskPaneControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="EquationEditor.resx">
+    <EmbeddedResource Include="Equations\EquationEditor.resx">
       <DependentUpon>EquationEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LaTeXRibbon.resx">
