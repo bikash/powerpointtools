@@ -80,7 +80,7 @@ namespace PowerPointLaTeX
 
         static private bool internalIsSupportedPresentation(Presentation presentation)
         {
-            return GetStorageVersion(presentation) < StorageVersion;
+            return GetStorageVersion(presentation) <= StorageVersion;
         }
 
         static public bool IsSupportedPresentation( Presentation presentation ) {
