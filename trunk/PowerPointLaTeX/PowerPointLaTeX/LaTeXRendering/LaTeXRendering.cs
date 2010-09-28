@@ -122,7 +122,7 @@ namespace PowerPointLaTeX
         static private byte[] GetImageDataForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
         {
             // TODO: this is very much a hack! (to allow everything to stay static) [9/22/2010 Andreas]
-            CacheTags presentationCache = Globals.ThisAddIn.Tool.ActivePresentation.CacheTags();
+            CacheTags presentationCache = LaTeXTool.ActivePresentation.CacheTags();
 
             byte[] imageData;
 

@@ -55,9 +55,9 @@ namespace PowerPointLaTeX
     /// Contains all the important methods, etc.
     /// Instantiated by the add-in
     /// </summary>
-    class LaTeXTool : PowerPointLaTeX.ILaTeXTool
+    static class LaTeXTool
     {
-        private Microsoft.Office.Interop.PowerPoint.Application Application
+        static private Microsoft.Office.Interop.PowerPoint.Application Application
         {
             get
             {
@@ -65,12 +65,12 @@ namespace PowerPointLaTeX
             }
         }
 
-        internal Presentation ActivePresentation
+        static internal Presentation ActivePresentation
         {
             get { return Application.ActivePresentation; }
         }
 
-        internal Slide ActiveSlide
+        static internal Slide ActiveSlide
         {
             get { return Application.ActiveWindow.View.Slide as Slide; }
         }
@@ -79,7 +79,7 @@ namespace PowerPointLaTeX
         /// returns whether the addin is enabled in the current context (ie presentation)
         /// but is also affected by the global addin settings, of course.
         /// </summary>
-        internal bool AddInEnabled
+        static internal bool AddInEnabled
         {
             get
             {
@@ -87,296 +87,32 @@ namespace PowerPointLaTeX
             }
         }
 
-        /// <summary>
-        /// Compile latexCode into an inline shape
-        /// </summary>
-        /// <param name="slide"></param>
-        /// <param name="textShape"></param>
-        /// <param name="latexCode"></param>
-        /// <param name="codeRange"></param>
-        /// <returns></returns>
-        private Shape CompileInlineLaTeXCode(Slide slide, Shape textShape, string latexCode, TextRange codeRange)
+        static private void FinalizeShape(Slide slide, Shape shape)
         {
-            Shape picture = LaTeXRendering.GetPictureShapeFromLaTeXCode(slide, latexCode, codeRange.Font.Size);
-            if (picture == null)
-            {
-                return null;
-            }
-
-            // add tags to the picture
-            picture.LaTeXTags().Code.value = latexCode;
-            picture.LaTeXTags().Type.value = EquationType.Inline;
-            picture.LaTeXTags().LinkID.value = textShape.Id;
-
-            InlineFormulas.Alignment.PrepareTextRange(picture, codeRange);
-
-            CopyInlineEffects(slide, textShape, codeRange, picture);
-
-            return picture;
-        }
-
-        private void CopyInlineEffects(Slide slide, Shape textShape, TextRange codeRange, Shape picture)
-        {
-            try
-            {
-                // copy animations from the parent textShape
-                Sequence sequence = slide.TimeLine.MainSequence;
-                var effects =
-                    from Effect effect in sequence
-                    where effect.Shape.SafeThis() != null && effect.Shape == textShape &&
-                    ((effect.EffectInformation.TextUnitEffect == MsoAnimTextUnitEffect.msoAnimTextUnitEffectByParagraph &&
-                        textShape.ParagraphContainsRange(effect.GetSafeParagraph(), codeRange))
-                        || effect.EffectInformation.BuildByLevelEffect == MsoAnimateByLevel.msoAnimateLevelNone)
-                    select effect;
-
-                picture.AddEffects(effects, true, sequence);
-            }
-            catch
-            {
-                Debug.Fail("CopyInlineEffects failed!");
-            }
-        }
-
-        private void CompileInlineTextRange(Slide slide, Shape shape, TextRange range)
-        {
-            int startIndex = 0;
-
-            int codeCount = 0;
-
-            List<TextRange> pictureRanges = new List<TextRange>();
-            List<Shape> pictures = new List<Shape>();
-
-            while (true)
-            {
-                bool inlineMode;
-                int latexCodeStartIndex;
-                int latexCodeEndIndex;
-                int endIndex;
-
-                int inlineStartIndex, displaystyleStartIndex;
-                inlineStartIndex = range.Text.IndexOf("$$", startIndex);
-                displaystyleStartIndex = range.Text.IndexOf("$$[", startIndex);
-                if (displaystyleStartIndex != -1 && displaystyleStartIndex <= inlineStartIndex)
-                {
-                    inlineMode = false;
-
-                    startIndex = displaystyleStartIndex;
-                    latexCodeStartIndex = startIndex + 3;
-                    latexCodeEndIndex = range.Text.IndexOf("]$$", latexCodeStartIndex);
-                    endIndex = latexCodeEndIndex + 3;
-                }
-                else if (inlineStartIndex != -1)
-                {
-                    inlineMode = true;
-
-                    startIndex = inlineStartIndex;
-                    latexCodeStartIndex = startIndex + 2;
-                    latexCodeEndIndex = range.Text.IndexOf("$$", latexCodeStartIndex);
-                    endIndex = latexCodeEndIndex + 2;
-                }
-                else
-                {
-                    break;
-                }
-
-                if (latexCodeEndIndex == -1)
-                {
-                    break;
-                }
-
-                int length = endIndex - startIndex;
-
-                int latexCodeLength = latexCodeEndIndex - latexCodeStartIndex;
-                string latexCode = range.Text.Substring(latexCodeStartIndex, latexCodeLength);
-                latexCode = TransformSpecialUnicodeCharactersToAscii(latexCode);
-
-                // must be [[ then
-                if (!inlineMode)
-                {
-                    latexCode = @"\displaystyle{" + latexCode + "}";
-                }
-
-                LaTeXEntry tagEntry = shape.LaTeXTags().Entries[codeCount];
-                tagEntry.Code.value = latexCode;
-                // TODO: cohesion? [5/2/2009 Andreas]
-                // save the font size because it might be changed later
-                // +1 because IndexOf is base 0, but Characters uses base 1
-                tagEntry.FontSize.value = range.Characters(latexCodeStartIndex + 1, latexCodeLength).Font.Size;
-
-                // escape $$!$$
-                // +1 because IndexOf is base 0, but Characters uses base 1
-                TextRange codeRange = range.Characters(startIndex + 1, length);
-                if (!Helpers.IsEscapeCode(latexCode))
-                {
-                    Shape picture = CompileInlineLaTeXCode(slide, shape, latexCode, codeRange);
-                    if (picture != null)
-                    {
-                        tagEntry.ShapeId.value = picture.Id;
-
-                        pictures.Add(picture);
-                        pictureRanges.Add(codeRange);
-                    }
-                    else
-                    {
-                        codeRange.Text = "$Formula Error$";
-                    }
-                }
-                else
-                {
-                    codeRange.Text = "$$";
-                }
-
-                tagEntry.StartIndex.value = codeRange.Start;
-                tagEntry.Length.value = codeRange.Length;
-
-                // NOTE: endIndex isnt valid anymore since we've removed some text [5/24/2010 Andreas
-                // IndexOf uses base0, codeRange base1 => -1
-                startIndex = codeRange.Start + codeRange.Length - 1;
-                codeCount++;
-            }
-
-            // now that everything has been converted we can position the formulas (pictures) in the text area
-            for (int i = 0; i < pictures.Count; i++)
-            {
-                TextRange codeRange = pictureRanges[i];
-                InlineFormulas.Alignment.Align(codeRange, pictures[i]);
-            }
-
-            // update the type, too
-            shape.LaTeXTags().Type.value = codeCount > 0 ? EquationType.HasCompiledInlines : EquationType.None;
-        }
-
-        private string TransformSpecialUnicodeCharactersToAscii(string text)
-        {
-            text = text.Replace((char)8217, '\'');
-            // replace weird unicode - (hypens) with minus
-            text = text.Replace((char)8208, '-');
-            text = text.Replace((char)8211, '-');
-            text = text.Replace((char)8212, '-');
-            text = text.Replace((char)8722, '-');
-            text = text.Replace((char)8209, '-');
-            text = text.Replace((char)8259, '-');
-            // replace ellipses with ...
-            text = text.Replace(((char)8230).ToString(), "...");
-
-            return text;
-        }
-
-        private void DecompileTextRange(Slide slide, Shape shape, TextRange range)
-        {
-            // make sure this is always valid, otherwise the code will do stupid things
-            Debug.Assert(shape.LaTeXTags().Type == EquationType.HasCompiledInlines);
-
-            LaTeXEntries entries = shape.LaTeXTags().Entries;
-            int length = entries.Length;
-            for (int i = length - 1; i >= 0; i--)
-            {
-                LaTeXEntry entry = entries[i];
-                string latexCode = entry.Code;
-
-                if (!Helpers.IsEscapeCode(latexCode))
-                {
-                    int shapeID = entry.ShapeId;
-                    // find the shape
-                    Shape picture = slide.Shapes.FindById(shapeID);
-
-                    //Debug.Assert(picture != null);
-                    // fail gracefully
-                    if (picture != null)
-                    {
-                        Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
-                        picture.Delete();
-                    }
-
-                    // release the cache entry, too
-                    ActivePresentation.CacheTags()[latexCode].Release();
-                }
-
-                // add back the latex code
-                TextRange codeRange = range.Characters(entry.StartIndex, entry.Length);
-                if (latexCode.StartsWith(@"\displaystyle{") && latexCode.EndsWith("}"))
-                {
-                    codeRange.Text = "$$[" + latexCode.Substring(@"\displayStyle{".Length, latexCode.Length - 1 - @"\displayStyle{".Length) + "]$$";
-                }
-                else
-                {
-                    codeRange.Text = "$$" + latexCode + "$$";
-                }
-                if (entry.FontSize != 0)
-                {
-                    codeRange.Font.Size = entry.FontSize;
-                }
-                codeRange.Font.BaselineOffset = 0.0f;
-            }
-
-            entries.Clear();
-            shape.LaTeXTags().Type.value = EquationType.HasInlines;
-        }
-
-        public void CompileShape(Slide slide, Shape shape)
-        {
-            // we don't need to compile already compiled shapes (its also sensible to avoid destroying escape sequences or overwrite entries, etc)
-            // don't try to compile equations (or their sources) either
-            EquationType type = shape.LaTeXTags().Type;
-            if (type == EquationType.HasCompiledInlines || type == EquationType.Equation)
-            {
-                return;
-            }
-
-            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                TextFrame textFrame = shape.TextFrame;
-                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    CompileInlineTextRange(slide, shape, textFrame.TextRange);
-                }
-            }
-        }
-
-        public void DecompileShape(Slide slide, Shape shape)
-        {
-            // we don't need to decompile already shapes that aren't compiled
-            if (shape.LaTeXTags().Type != EquationType.HasCompiledInlines)
-            {
-                return;
-            }
-
-            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                TextFrame textFrame = shape.TextFrame;
-                if (textFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    DecompileTextRange(slide, shape, textFrame.TextRange);
-                }
-            }
-        }
-
-        private void FinalizeShape(Slide slide, Shape shape)
-        {
-            CompileShape(slide, shape);
+            InlineFormulas.Embedding.CompileShape(slide, shape);
             shape.LaTeXTags().Clear();
         }
 
-        public void CompileSlide(Slide slide)
+        static public void CompileSlide(Slide slide)
         {
-            ShapeWalker.WalkSlide(slide, CompileShape);
+            ShapeWalker.WalkSlide(slide, InlineFormulas.Embedding.CompileShape);
         }
 
-        public void DecompileSlide(Slide slide)
+        static public void DecompileSlide(Slide slide)
         {
-            ShapeWalker.WalkSlide(slide, DecompileShape);
+            ShapeWalker.WalkSlide(slide, InlineFormulas.Embedding.DecompileShape);
         }
 
-        public void CompilePresentation(Presentation presentation)
+        static public void CompilePresentation(Presentation presentation)
         {
-            ShapeWalker.WalkPresentation(presentation, CompileShape);
+            ShapeWalker.WalkPresentation(presentation, InlineFormulas.Embedding.CompileShape);
         }
 
         /// <summary>
         /// Removes all tags and all pictures that belong to inline formulas
         /// </summary>
         /// <param name="slide"></param>
-        public void FinalizePresentation(Presentation presentation)
+        static public void FinalizePresentation(Presentation presentation)
         {
             ShapeWalker.WalkPresentation(presentation, FinalizeShape);
             // purge the cache, too

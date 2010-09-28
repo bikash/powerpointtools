@@ -34,12 +34,6 @@ namespace PowerPointLaTeX
 {
     public partial class ThisAddIn
     {
-        internal LaTeXTool Tool
-        {
-            get;
-            private set;
-        }
-
         internal LaTeXRenderingServiceRegistry LaTeXRenderingServices
         {
             get;
@@ -50,7 +44,6 @@ namespace PowerPointLaTeX
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            Tool = new LaTeXTool();
             LaTeXRenderingServices = new LaTeXRenderingServiceRegistry();
 
             DeveloperTaskPane = CustomTaskPanes.Add(new DeveloperTaskPaneControl(), DeveloperTaskPaneControl.Title);
@@ -104,15 +97,15 @@ namespace PowerPointLaTeX
         {
             get
             {
-                if (!oldTextShapeDict.ContainsKey(Tool.ActivePresentation))
+                if (!oldTextShapeDict.ContainsKey(LaTeXTool.ActivePresentation))
                 {
                     return null;
                 }
-                return oldTextShapeDict[Tool.ActivePresentation];
+                return oldTextShapeDict[LaTeXTool.ActivePresentation];
             }
             set
             {
-                oldTextShapeDict[Tool.ActivePresentation] = value;
+                oldTextShapeDict[LaTeXTool.ActivePresentation] = value;
             }
         }
 
@@ -133,7 +126,7 @@ namespace PowerPointLaTeX
         private void Application_WindowSelectionChange(Selection Sel)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.AddInEnabled)
+            if (!LaTeXTool.AddInEnabled)
             {
                 return;
             }
@@ -167,28 +160,28 @@ namespace PowerPointLaTeX
             }
 
             // recompile the old shape if necessary (do nothing if we click around in the same text shape though)
-            if (!Tool.ActivePresentation.SettingsTags().ManualPreview)
+            if (!LaTeXTool.ActivePresentation.SettingsTags().ManualPreview)
             {
                 if (oldTextShape != null && oldTextShape != textShape)
                 {
                     Slide slide = oldTextShape.GetSlide();
                     // dont do anything in presentation mode
-                    if (slide != null && !Tool.ActivePresentation.SettingsTags().PresentationMode)
-                        Tool.CompileShape(slide, oldTextShape);
+                    if (slide != null && !LaTeXTool.ActivePresentation.SettingsTags().PresentationMode)
+                        InlineFormulas.Embedding.CompileShape(slide, oldTextShape);
                 }
             }
 
-            if (!Tool.ActivePresentation.SettingsTags().PresentationMode)
+            if (!LaTeXTool.ActivePresentation.SettingsTags().PresentationMode)
             {
                 if (textShape != null)
                 {
                     Slide slide = textShape.GetSlide();
                     if (slide != null)
-                        Tool.DecompileShape(slide, textShape);
+                        InlineFormulas.Embedding.DecompileShape(slide, textShape);
                 }
             }
 
-            if (Tool.ActivePresentation.SettingsTags().PresentationMode)
+            if (LaTeXTool.ActivePresentation.SettingsTags().PresentationMode)
             {
                 // deselect shapes that contain compiled inlines
                 if (textShape.LaTeXTags().Type == EquationType.HasCompiledInlines)
@@ -233,13 +226,13 @@ namespace PowerPointLaTeX
         void Application_PresentationSave(Presentation presentation)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.AddInEnabled)
+            if (!LaTeXTool.AddInEnabled)
             {
                 return;
             }
 
             // compile everything in case the plugin isnt available elsewhere
-            Tool.CompilePresentation(presentation);
+            LaTeXTool.CompilePresentation(presentation);
             // TODO: copy&paste breaks the refcounter - validate all refcounters before purging! or disable it/make purging optional [5/24/2010 Andreas]
             // purge unused items from the cache to keep it smaller (thats the idea)
             //presentation.CacheTags().PurgeUnused();

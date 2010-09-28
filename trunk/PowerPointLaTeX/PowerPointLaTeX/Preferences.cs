@@ -33,12 +33,6 @@ namespace PowerPointLaTeX
 {
     public partial class Preferences : Form
     {
-        private LaTeXTool Tool {
-            get {
-                return Globals.ThisAddIn.Tool;
-            }
-        }
-
         private string oldMiktexPreamble;
 
         public Preferences() {
@@ -48,7 +42,7 @@ namespace PowerPointLaTeX
             serviceSelector.Items.Clear();
             serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames );
 
-            miktexTemplateBox.Text = oldMiktexPreamble = Tool.ActivePresentation.SettingsTags().MiKTeXTemplate;
+            miktexTemplateBox.Text = oldMiktexPreamble = LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate;
 
             Save();
             
@@ -71,7 +65,7 @@ namespace PowerPointLaTeX
             Settings.Default.Save();
             MiKTexSettings.Default.Save();
 
-            Tool.ActivePresentation.SettingsTags().MiKTeXTemplate.value = miktexTemplateBox.Text;
+            LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate.value = miktexTemplateBox.Text;
         }
 
         private void Reload() {

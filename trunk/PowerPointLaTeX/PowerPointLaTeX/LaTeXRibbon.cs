@@ -33,14 +33,6 @@ namespace PowerPointLaTeX
 {
     public partial class LaTeXRibbon : OfficeRibbon
     {
-        private LaTeXTool Tool
-        {
-            get
-            {
-                return Globals.ThisAddIn.Tool;
-            }
-        }
-
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
             get
@@ -126,7 +118,7 @@ namespace PowerPointLaTeX
         private void CompileButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.AddInEnabled)
+            if (!LaTeXTool.AddInEnabled)
             {
                 return;
             }
@@ -134,7 +126,7 @@ namespace PowerPointLaTeX
             Selection selection = Application.ActiveWindow.Selection;
             if( selection.Type == PpSelectionType.ppSelectionSlides ) {
                 foreach( Slide slide in selection.SlideRange ) {
-                    Tool.CompileSlide( slide );
+                    LaTeXTool.CompileSlide(slide);
                 }
             }
             else {
@@ -143,14 +135,14 @@ namespace PowerPointLaTeX
                 // deselect the current selection to avoid decompiling it straight away..
                 Application.ActiveWindow.Selection.Unselect();
 
-                Slide slide = Tool.ActiveSlide;
+                Slide slide = LaTeXTool.ActiveSlide;
                 if( slide != null ) {
                     if( shapes.Count == 0 ) {
-                        Tool.CompileSlide( slide );
+                        LaTeXTool.CompileSlide( slide );
                     }
                     else {
                         foreach( Microsoft.Office.Interop.PowerPoint.Shape shape in shapes ) {
-                            Tool.CompileShape( slide, shape );
+                            InlineFormulas.Embedding.CompileShape( slide, shape );
                         }
                     }
                 }
@@ -160,7 +152,7 @@ namespace PowerPointLaTeX
         private void DecompileButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.AddInEnabled)
+            if (!LaTeXTool.AddInEnabled)
             {
                 return;
             }
@@ -169,22 +161,22 @@ namespace PowerPointLaTeX
             Selection selection = Application.ActiveWindow.Selection;
             if( selection.Type == PpSelectionType.ppSelectionSlides ) {
                 foreach( Slide slide in selection.SlideRange ) {
-                    Tool.DecompileSlide( slide );
+                    LaTeXTool.DecompileSlide( slide );
                 }
             }
             else {
                 List<Microsoft.Office.Interop.PowerPoint.Shape> shapes = selection.GetShapes();
 
-                Slide slide = Tool.ActiveSlide;
+                Slide slide = LaTeXTool.ActiveSlide;
                 if( slide != null ) {
                     if( shapes.Count == 0 ) {
-                        Tool.DecompileSlide( slide );
+                        LaTeXTool.DecompileSlide( slide );
                     }
                     else {
                         foreach( Microsoft.Office.Interop.PowerPoint.Shape _shape in shapes ) {
                             Microsoft.Office.Interop.PowerPoint.Shape shape = _shape.SafeThis();
                             if( shape != null )
-                                Tool.DecompileShape( slide, shape );
+                                InlineFormulas.Embedding.DecompileShape( slide, shape );
                         }
                     }
                 }
@@ -193,18 +185,18 @@ namespace PowerPointLaTeX
 
         private void AutomaticCompilationToggle_Click(object sender, RibbonControlEventArgs e)
         {
-            Tool.ActivePresentation.SettingsTags().ManualPreview.value = !AutomaticCompilationToggle.Checked;
+            LaTeXTool.ActivePresentation.SettingsTags().ManualPreview.value = !AutomaticCompilationToggle.Checked;
         }
 
         private void PresentationModeToggle_Click(object sender, RibbonControlEventArgs e)
         {
-            Tool.ActivePresentation.SettingsTags().PresentationMode.value = PresentationModeToggle.Checked;
+            LaTeXTool.ActivePresentation.SettingsTags().PresentationMode.value = PresentationModeToggle.Checked;
         }
 
         private void FinalizeButton_Click(object sender, RibbonControlEventArgs e)
         {
             // an exception is thrown otherwise >_>
-            if (!Tool.AddInEnabled)
+            if (!LaTeXTool.AddInEnabled)
             {
                 return;
             }
@@ -237,11 +229,11 @@ namespace PowerPointLaTeX
                 Debug.Assert(dialog.SelectedItems.Count == 1);
                 string filename = dialog.SelectedItems.Item(1);
                 // don't embed fonts..
-                Tool.ActivePresentation.SaveCopyAs(filename, PpSaveAsFileType.ppSaveAsDefault, MsoTriState.msoFalse);
+                LaTeXTool.ActivePresentation.SaveCopyAs(filename, PpSaveAsFileType.ppSaveAsDefault, MsoTriState.msoFalse);
             }
 
             // finalize the presentation
-            Tool.FinalizePresentation(Tool.ActivePresentation);
+            LaTeXTool.FinalizePresentation(LaTeXTool.ActivePresentation);
         }
 
         private void DeveloperTaskPaneToggle_Click(object sender, RibbonControlEventArgs e)
@@ -257,7 +249,7 @@ namespace PowerPointLaTeX
 
         private void CreateFormula_Click(object sender, RibbonControlEventArgs e)
         {
-            Microsoft.Office.Interop.PowerPoint.Shape equation = EquationHandling.CreateEmptyEquation(Tool.ActiveSlide);
+            Microsoft.Office.Interop.PowerPoint.Shape equation = EquationHandling.CreateEmptyEquation(LaTeXTool.ActiveSlide);
             bool cancelled;
             equation = EquationHandling.EditEquation(equation, out cancelled);
             if( !cancelled ) {
@@ -287,7 +279,7 @@ namespace PowerPointLaTeX
 
         private void ClearCache_Click(object sender, RibbonControlEventArgs e) {
             if (MessageBox.Show("Do you really want to clear the cache?", "PowerPoint LaTeX", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
-                Tool.ActivePresentation.CacheTags().PurgeAll();
+                LaTeXTool.ActivePresentation.CacheTags().PurgeAll();
             }
         }
 

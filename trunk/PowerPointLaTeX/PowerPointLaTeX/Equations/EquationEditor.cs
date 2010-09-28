@@ -30,12 +30,6 @@ using System.Diagnostics;
 
 namespace PowerPointLaTeX {
     public partial class EquationEditor : Form {
-        private LaTeXTool Tool {
-            get {
-                return Globals.ThisAddIn.Tool;
-            }
-        }
-
         private System.Timers.Timer updatePreviewTimer;
 
         public String LaTeXCode {
@@ -74,7 +68,7 @@ namespace PowerPointLaTeX {
 
             // release the old cache entry if there was one
             if( lastRenderedLaTeXCode != "" ) {
-                Tool.ActivePresentation.CacheTags()[ lastRenderedLaTeXCode ].Release();
+                LaTeXTool.ActivePresentation.CacheTags()[ lastRenderedLaTeXCode ].Release();
                 lastRenderedLaTeXCode = "";
             }
 

@@ -213,8 +213,8 @@
     <Compile Include="GeneralExtensions\GeneralEffectExtensions.cs" />
     <Compile Include="GeneralExtensions\GeneralHelpers.cs" />
     <Compile Include="Helpers.cs" />
-    <Compile Include="ILaTeXTool.cs" />
     <Compile Include="InlineFormulas\Alignment.cs" />
+    <Compile Include="InlineFormulas\Embedding.cs" />
     <Compile Include="LaTeXRendering\LaTeXRendering.cs" />
     <Compile Include="LaTeXRibbon.cs">
       <SubType>Component</SubType>
