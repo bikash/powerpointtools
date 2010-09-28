@@ -46,7 +46,7 @@ namespace PowerPointLaTeX.InlineFormulas
                 factor = Math.Max(factor, descentSize / descentHeight);
             }
 
-            if (factor <= 1.5f)
+            if (factor <= 2.5f)
             {
                 codeRange.Font.Size *= factor;
             }
