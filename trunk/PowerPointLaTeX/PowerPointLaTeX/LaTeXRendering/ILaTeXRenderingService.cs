@@ -26,6 +26,30 @@ using System.Windows.Forms;
 
 namespace PowerPointLaTeX
 {
+    public struct LaTeXCompilationTask
+    {
+        public string code;
+
+        /// <summary>
+        /// target font size (in pixels)
+        /// </summary>
+        public float pixelsPerEmHeight;
+    }
+
+    public struct LaTeXCompilationResult
+    {
+        public byte[] imageData;
+
+        public float baselineOffset;
+
+        /// <summary>
+        /// actual font size (in pixels)
+        /// </summary>
+        public float pixelsPerEmHeight;
+
+        public string report;
+    }
+
     public interface ILaTeXRenderingService
     {
         string AboutNotice {
@@ -47,8 +71,6 @@ namespace PowerPointLaTeX
         /// The depth is a negative offset in this case, so the minus sign is necessary, and the unit is pixels (px).
         /// </param>
         /// <returns>returns false if there was an error</returns>
-        bool RenderLaTeXCode(string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset);
-
-        string GetLastErrorReport();
+        LaTeXCompilationResult RenderLaTeXCode(LaTeXCompilationTask task);
     }
 }

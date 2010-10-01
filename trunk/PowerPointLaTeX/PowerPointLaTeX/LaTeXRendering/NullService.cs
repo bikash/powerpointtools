@@ -34,17 +34,14 @@ namespace PowerPointLaTeX {
             get { return "Cache Only"; }
         }
 
-        public bool RenderLaTeXCode( string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset ) {
-            imageData = null;
-            pixelsPerEmHeight = 0;
-            baselineOffset = 0;
-            return false;
+        public LaTeXCompilationResult RenderLaTeXCode(LaTeXCompilationTask task) {
+            LaTeXCompilationResult result;
+            result.imageData = null;
+            result.pixelsPerEmHeight = 0;
+            result.baselineOffset = 0;
+            result.report = "No LaTeX service chosen!";
+            return result;
         }
-
-        public string GetLastErrorReport() {
-            return "No LaTeX service chosen!";
-        }
-
         #endregion
     }
 }

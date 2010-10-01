@@ -56,9 +56,6 @@ namespace PowerPointLaTeX {
             //updatePreview();
         }
 
-        void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-        }
-
         void updatePreviewTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             formulaPreview.Invoke( new MethodInvoker(updatePreview) );
         }

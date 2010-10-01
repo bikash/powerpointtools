@@ -34,6 +34,11 @@ namespace PowerPointLaTeX
         // renders all formulas at a higher resolution than necessary to allow for zooming
         public const int RenderDPISetting = 300;
 
+        public static string LastLog {
+            get;
+            private set;
+        }
+
         static public Shape GetPictureShapeFromLaTeXCode(Slide currentSlide, string latexCode, float fontSize)
         {
             // check the cache first
@@ -154,7 +159,16 @@ namespace PowerPointLaTeX
             else
             {
                 // try to render the formula using our LaTeX service
-                Globals.ThisAddIn.LaTeXRenderingServices.Service.RenderLaTeXCode(latexCode, out imageData, ref pixelsPerEmHeight, out baselineOffset);
+                // TODO: needs further refactoring [10/1/2010 Andreas]
+                LaTeXCompilationTask task;
+                task.code = latexCode;
+                task.pixelsPerEmHeight = pixelsPerEmHeight;
+
+                LaTeXCompilationResult result = Globals.ThisAddIn.LaTeXRenderingServices.Service.RenderLaTeXCode(task);
+                LastLog = result.report;
+                imageData = result.imageData;
+                baselineOffset = (int) result.baselineOffset;
+                pixelsPerEmHeight = result.pixelsPerEmHeight;
 
                 if (imageData != null && imageData.Length > 0)
                 {

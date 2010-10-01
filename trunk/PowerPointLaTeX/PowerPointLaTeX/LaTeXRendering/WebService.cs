@@ -65,7 +65,7 @@ namespace PowerPointLaTeX
             Stream responseStream = response.GetResponseStream();
             byte[] buffer = new byte[1024*512];
             int offset = 0;
-            // apparently we need to everything packet by packet
+            // apparently we need to read everything packet by packet
             while (true) {
                 int numBytesRead = responseStream.Read(buffer, offset, 2048);
                 offset += numBytesRead;
@@ -122,34 +122,27 @@ namespace PowerPointLaTeX
             return URLData.content;
         }
 
-        public bool RenderLaTeXCode(string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset) {
+        public LaTeXCompilationResult RenderLaTeXCode( LaTeXCompilationTask task ) {
+            LaTeXCompilationResult result;
+            result.report = "No information provided.";
+
             // measured value
-            pixelsPerEmHeight = 59;
+            result.pixelsPerEmHeight = 59;
  
             // baseline offset not supported!
-            baselineOffset = 0;
+            result.baselineOffset = 0;
 
-            URLData URLData = compileLaTeX(latexCode);
+            URLData URLData = compileLaTeX(task.code);
             // TODO: replace all the null checks with exception handling? [2/26/2009 Andreas]
             if (URLData.content == null)
             {
-                imageData = null;
-                return false;
+                result.imageData = null;
+                return result;
             }
             Trace.Assert(System.Text.RegularExpressions.Regex.IsMatch(URLData.contentType, "gif|bmp|jpeg|png"));
 
-            imageData = URLData.content;
-            return true;
-        }
-
-        public string GetLastErrorReport() {
-            return "No information provided.";
-        }
-
-        public float DPI {
-            get {
-                return 300;
-            }
+            result.imageData = URLData.content;
+            return result;
         }
 
         #endregion

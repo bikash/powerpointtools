@@ -34,8 +34,6 @@ namespace PowerPointLaTeX
         private const string latexOptions = "-enable-installer -interaction=nonstopmode";
         private const string dvipngOptions = "-T tight --depth --height -D DPI --noghostscript --picky -q -z 0";
 
-        private string lastLog;
-
         private MiKTexSettings settings {
             get { return MiKTexSettings.Default; }
         }
@@ -57,9 +55,10 @@ namespace PowerPointLaTeX
             return output;
         }
 
-        private bool compileLatexCode(string code, int DPI, out byte[] imageData, out int baselineOffset) {
+        private bool compileLatexCode(string code, int DPI, out byte[] imageData, out float baselineOffset, out string log) {
             baselineOffset = 0;
             imageData = null;
+            log = "";
 
             string tempTexFileName = Path.GetTempFileName();
             String tempDir = Path.GetDirectoryName( tempTexFileName );
@@ -77,7 +76,7 @@ namespace PowerPointLaTeX
 
                 string latexOutput = runConsoleProcess( tempDir, settings.LatexPath, latexOptions + " \"" + tempTexFileName + "\"" );
 
-                lastLog += "Latex Output:\n\n" + latexOutput;
+                log += "Latex Output:\n\n" + latexOutput;
 
                 // run it twice...
                 // HACK: it wont work with changing dpi for some reason :( [5/23/2010 Andreas]
@@ -88,7 +87,7 @@ namespace PowerPointLaTeX
                         + " -o \"" + outputImagePath + "\""
                         + " \"" + Path.ChangeExtension( tempTexFileName, "dvi" ) );
 
-                    lastLog += "\nDVIPNG Output:\n\n" + dvipngOutput;
+                    log += "\nDVIPNG Output:\n\n" + dvipngOutput;
 
                     if( File.Exists(outputImagePath) ) {
                         break;
@@ -115,7 +114,7 @@ namespace PowerPointLaTeX
             return (imageData != null);
         }
 
-        #region ILaTeXService Members
+        #region ILaTeXRenderingService Members
 
         public string AboutNotice
         {
@@ -127,35 +126,31 @@ namespace PowerPointLaTeX
             get { return "MiKTeX Service"; }
         }
 
-        public bool RenderLaTeXCode( string latexCode, out byte[] imageData, ref float pixelsPerEmHeight, out int baselineOffset )
+
+        public LaTeXCompilationResult RenderLaTeXCode(LaTeXCompilationTask task)
         {
+            LaTeXCompilationResult result;
+
             // ignore pixelsPerEmHeight and simple use our fixed DPI value for now
             float latexFontSizePt = 10;
             float latexPrintPtPerInch = 72;
-            int DPI = (int)( 0.5f + pixelsPerEmHeight / (latexFontSizePt / latexPrintPtPerInch) );
+            int DPI = (int)( 0.5f + task.pixelsPerEmHeight / (latexFontSizePt / latexPrintPtPerInch) );
             if( DPI < 150 ) {
                 DPI = 150;
             }
             // only allow steps of 10..
             DPI = DPI - DPI % 10;
 
-            pixelsPerEmHeight = latexFontSizePt / latexPrintPtPerInch * DPI;
+            result.pixelsPerEmHeight = latexFontSizePt / latexPrintPtPerInch * DPI;
 
-            string fullLatexCode = LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate.value.Replace("LATEXCODE", latexCode);
+            string fullLatexCode = LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate.value.Replace("LATEXCODE", task.code);
 
-            lastLog = "";
-
-            if( !compileLatexCode( fullLatexCode, DPI, out imageData, out baselineOffset ) ) {
-                imageData = null;
-                return false;
+            if( !compileLatexCode( fullLatexCode, DPI, out result.imageData, out result.baselineOffset, out result.report ) ) {
+                result.imageData = null;
+                return result;
             }
 
-            return true;
-        }
-
-        public string GetLastErrorReport()
-        {
-            return lastLog;
+            return result;
         }
 
         #endregion
