@@ -129,32 +129,23 @@ namespace PowerPointLaTeX
             // TODO: this is very much a hack! (to allow everything to stay static) [9/22/2010 Andreas]
             CacheTags presentationCache = LaTeXTool.ActivePresentation.CacheTags();
 
-            byte[] imageData;
-
-            byte[] cachedImageData = null;
-            float cachedPixelsPerEmHeight = 0;
-            int cachedBaselineOffset = 0;
+            CacheEntry? cacheEntry = Cache.Query(presentationCache, latexCode);
             // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
-            if (presentationCache[latexCode].IsCached())
+            if (cacheEntry.HasValue)
             {
-                presentationCache[latexCode].Query(out cachedImageData, out cachedPixelsPerEmHeight, out cachedBaselineOffset);
-
                 // make sure we return a some-what meaningful array
-                if (cachedImageData != null && cachedImageData.Length == 0)
+                if (cacheEntry.Value.Content == null || cacheEntry.Value.Content.Length == 0)
                 {
-                    cachedImageData = null;
+                    cacheEntry = null;
                 }
             }
 
+            CacheEntry entry = new CacheEntry();
             // convert to int to avoid floating point issues [5/24/2010 Andreas]
-            if (cachedImageData != null && (int)cachedPixelsPerEmHeight >= (int)pixelsPerEmHeight)
+            if (cacheEntry.HasValue && (int)cacheEntry.Value.PixelsPerEmHeight >= (int)pixelsPerEmHeight)
             {
                 // we can use the cached formula
-                imageData = cachedImageData;
-                pixelsPerEmHeight = cachedPixelsPerEmHeight;
-                baselineOffset = cachedBaselineOffset;
-
-                presentationCache[latexCode].Use();
+                entry = cacheEntry.Value;
             }
             else
             {
@@ -166,30 +157,26 @@ namespace PowerPointLaTeX
 
                 LaTeXCompilationResult result = Globals.ThisAddIn.LaTeXRenderingServices.Service.RenderLaTeXCode(task);
                 LastLog = result.report;
-                imageData = result.imageData;
-                baselineOffset = (int) result.baselineOffset;
-                pixelsPerEmHeight = result.pixelsPerEmHeight;
+                entry.Content = result.imageData;
+                entry.BaselineOffset = (int) result.baselineOffset;
+                entry.PixelsPerEmHeight = result.pixelsPerEmHeight;
 
-                if (imageData != null && imageData.Length > 0)
+                if (entry.Content != null && entry.Content.Length > 0)
                 {
                     // looks good, so cache it
-                    presentationCache[latexCode].Store(imageData, pixelsPerEmHeight, baselineOffset);
+                    Cache.Store(presentationCache, latexCode, entry);
                 }
                 else
                 {
                     // if this failed, use the result from the cache, can't be off worse
-                    imageData = cachedImageData;
-                    pixelsPerEmHeight = cachedPixelsPerEmHeight;
-                    baselineOffset = cachedBaselineOffset;
-
-                    if (cachedImageData != null)
-                    {
-                        presentationCache[latexCode].Use();
-                    }
+                    entry = cacheEntry.Value;
                 }
             }
 
-            return imageData;
+            // TODO: change the parameters to return a CacheEntry instead?
+            pixelsPerEmHeight = entry.PixelsPerEmHeight;
+            baselineOffset = entry.BaselineOffset;
+            return entry.Content;
         }
 
 

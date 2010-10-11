@@ -195,7 +195,8 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="CacheTags.cs" />
+    <Compile Include="Cache\CacheTags.cs" />
+    <Compile Include="Cache\LocalCache.cs" />
     <Compile Include="DeveloperTaskPane\DeveloperTaskPaneControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -213,6 +214,7 @@
     <Compile Include="GeneralExtensions\GeneralEffectExtensions.cs" />
     <Compile Include="GeneralExtensions\GeneralHelpers.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="Cache\ICache.cs" />
     <Compile Include="InlineFormulas\Alignment.cs" />
     <Compile Include="InlineFormulas\Embedding.cs" />
     <Compile Include="LaTeXRendering\LaTeXRendering.cs" />

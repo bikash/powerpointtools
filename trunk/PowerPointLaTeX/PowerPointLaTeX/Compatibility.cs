@@ -29,7 +29,7 @@ namespace PowerPointLaTeX
 {
     static class Compatibility
     {
-        static public int StorageVersion = 1;
+        static public int StorageVersion = 2;
 
         static private Dictionary<Presentation, bool> PresentationSupported = new Dictionary<Presentation, bool>();
 
@@ -98,14 +98,14 @@ namespace PowerPointLaTeX
             if( oldVersion < 1 ) {
                 UpgradePresentation_0_1(presentation);
             }
+            if( oldVersion < 2 ) {
+                UpgradePresentation_1_2(presentation);
+            }
 
             SetStorageVersion(presentation, StorageVersion);
         }
 
         static private void UpgradePresentation_0_1( Presentation presentation ) {
-            // update cache tags
-            // (nothing to do)
-
             // update settings tags
             const string MikTexTemplateContent =
 @"\documentclass{article} 
@@ -148,6 +148,17 @@ LATEXCODE
                         (new AddInTagFloat(shape.Tags, "PixelsPerEmHeight")).Clear();
                     }
                 );
+        }
+
+        static private void UpgradePresentation_1_2(Presentation presentation)
+        {
+            // update cache tags
+            // clear the old cache
+            Tags tags = presentation.Tags;
+            tags.PurgeAddInTags("RefCounter#");
+            tags.PurgeAddInTags("CacheContent#");
+            tags.PurgeAddInTags("BaseLineOffset#");
+            tags.PurgeAddInTags("PixelsPerEmHeight#");
         }
     }
 }

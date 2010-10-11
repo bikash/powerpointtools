@@ -65,7 +65,6 @@ namespace PowerPointLaTeX {
 
             // release the old cache entry if there was one
             if( lastRenderedLaTeXCode != "" ) {
-                LaTeXTool.ActivePresentation.CacheTags()[ lastRenderedLaTeXCode ].Release();
                 lastRenderedLaTeXCode = "";
             }
 

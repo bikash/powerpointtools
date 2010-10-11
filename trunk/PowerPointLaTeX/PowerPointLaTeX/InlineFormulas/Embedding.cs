@@ -209,9 +209,6 @@ namespace PowerPointLaTeX.InlineFormulas
                         Debug.Assert(picture.LaTeXTags().Type == EquationType.Inline);
                         picture.Delete();
                     }
-
-                    // release the cache entry, too
-                    LaTeXTool.ActivePresentation.CacheTags()[latexCode].Release();
                 }
 
                 // add back the latex code
