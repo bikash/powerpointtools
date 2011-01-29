@@ -28,6 +28,11 @@ namespace PowerPointLaTeX
 {
     public struct LaTeXCompilationTask
     {
+        /// <summary>
+        /// (from the dvipng manpage)
+        /// It reports the number of pixels from the bottom of the image to the baseline of the image.
+        /// The depth is a negative offset in this case, so the minus sign is necessary, and the unit is pixels (px).
+        /// </summary>
         public string code;
 
         /// <summary>
@@ -65,10 +70,7 @@ namespace PowerPointLaTeX
         /// </summary>
         /// <param name="latexCode"></param>
         /// <param name="image">the actual image of the rendered latexCode</param>
-        /// <param name="baselineOffset"> (from the dvipng manpage)
-        /// It reports the number of pixels from the bottom of the image to the baseline of the image.
-        /// This can be used for vertical positioning of the image in, e.g., web documents, where one would use (Cascading StyleSheets 1)
-        /// The depth is a negative offset in this case, so the minus sign is necessary, and the unit is pixels (px).
+        /// <param name="baselineOffset"> 
         /// </param>
         /// <returns>returns false if there was an error</returns>
         LaTeXCompilationResult RenderLaTeXCode(LaTeXCompilationTask task);

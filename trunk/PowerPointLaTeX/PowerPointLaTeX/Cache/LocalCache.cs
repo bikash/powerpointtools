@@ -7,7 +7,22 @@ namespace PowerPointLaTeX
 {
     class LocalCache : ICacheStorage
     {
-        Dictionary<string, CacheEntry> cache = new Dictionary<string, CacheEntry>();
+        private Dictionary<string, CacheEntry> cache = new Dictionary<string, CacheEntry>();
+        private ICacheStorage masterStorage;
+
+        public ICacheStorage MasterStorage
+        {
+            get { return masterStorage; }
+        }
+
+        public LocalCache() {
+            this.masterStorage = null;
+        }
+
+        public LocalCache(ICacheStorage masterStorage)
+        {
+            this.masterStorage = masterStorage;
+        }
 
         #region ICacheStorage Members
 
@@ -22,7 +37,12 @@ namespace PowerPointLaTeX
             if( cache.TryGetValue(code, out entry) ) {
                 return entry;
             }
-            else {
+            else if (masterStorage != null)
+            {
+                return masterStorage.Get(code);
+            }
+            else
+            {
                 return null;
             }
         }

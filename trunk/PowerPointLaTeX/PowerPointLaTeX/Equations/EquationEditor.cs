@@ -29,8 +29,9 @@ using Microsoft.Office.Interop.PowerPoint;
 using System.Diagnostics;
 
 namespace PowerPointLaTeX {
-    public partial class EquationEditor : Form {
+    partial class EquationEditor : Form {
         private System.Timers.Timer updatePreviewTimer;
+        LocalCache localCache;
 
         public String LaTeXCode {
             get { return formulaText.Text; }
@@ -40,10 +41,10 @@ namespace PowerPointLaTeX {
             get { return (int) fontSizeUpDown.Value; }
         }
 
-        private string lastRenderedLaTeXCode = "";
-
-        public EquationEditor(String latexCode, int initialFontSize) {
+        public EquationEditor(ICacheStorage masterStorage, String latexCode, int initialFontSize) {
             InitializeComponent();
+
+            localCache = new LocalCache(masterStorage);
 
             updatePreviewTimer = new System.Timers.Timer();
             updatePreviewTimer.Interval = 0.5 * 1000;
@@ -63,11 +64,6 @@ namespace PowerPointLaTeX {
         private void updatePreview() {
             UseWaitCursor = true;
 
-            // release the old cache entry if there was one
-            if( lastRenderedLaTeXCode != "" ) {
-                lastRenderedLaTeXCode = "";
-            }
-
             formulaPreview.Image = null;
 
             if( LaTeXCode != "" ) {
@@ -75,7 +71,7 @@ namespace PowerPointLaTeX {
                 int unusedBaselineOffset;
                 float wantedPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight((float)fontSizeUpDown.Value);
                 float actualPixelsPerEmHeight = wantedPixelsPerEmHeight;
-                previewImage = LaTeXRendering.GetImageForLaTeXCode( LaTeXCode, ref actualPixelsPerEmHeight, out unusedBaselineOffset );
+                previewImage = LaTeXRendering.GetImageForLaTeXCode( localCache, LaTeXCode, ref actualPixelsPerEmHeight, out unusedBaselineOffset );
                 formulaPreview.Image = previewImage;
 
                 formulaPreview.Height = (int) (previewImage.Height * wantedPixelsPerEmHeight / actualPixelsPerEmHeight);
@@ -83,8 +79,6 @@ namespace PowerPointLaTeX {
                 
                 formulaPreview.Top = 0;
                 formulaPreview.Left = (tableLayoutPanel2.Width - formulaPreview.Width) / 2;
-                
-                lastRenderedLaTeXCode = LaTeXCode;
            }
 
             UseWaitCursor = false;
@@ -103,6 +97,13 @@ namespace PowerPointLaTeX {
         private void fontSizeUpDown_Click( object sender, EventArgs e ) {
             updatePreviewTimer.Stop();
             updatePreviewTimer.Start();
+        }
+
+        private void applyButton_Click(object sender, EventArgs e)
+        {
+            if( localCache.MasterStorage != null ) {
+                localCache.MasterStorage.Set(LaTeXCode, localCache.Get(LaTeXCode)); 
+            }
         }
     }
 }

@@ -45,7 +45,8 @@ namespace PowerPointLaTeX
             int baselineOffset;
             float wantedPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, DPIHelper.WindowsDPISetting);
             float actualPixelsPerEmHeight = DPIHelper.FontSizeToPixelsPerEmHeight(fontSize, RenderDPISetting);
-            Image image = GetImageForLaTeXCode(latexCode, ref actualPixelsPerEmHeight, out baselineOffset);
+            CacheTags presentationCache = LaTeXTool.ActivePresentation.CacheTags();
+            Image image = GetImageForLaTeXCode(presentationCache, latexCode, ref actualPixelsPerEmHeight, out baselineOffset);
             if (image == null)
             {
                 return null;
@@ -112,9 +113,9 @@ namespace PowerPointLaTeX
             return pictureRange[1];
         }
 
-        static public Image GetImageForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
+        static public Image GetImageForLaTeXCode(ICacheStorage cacheStorage, string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
         {
-            byte[] imageData = GetImageDataForLaTeXCode(latexCode, ref pixelsPerEmHeight, out baselineOffset);
+            byte[] imageData = GetImageDataForLaTeXCode(cacheStorage, latexCode, ref pixelsPerEmHeight, out baselineOffset);
             return GetImageFromImageData(imageData);
         }
 
@@ -124,16 +125,14 @@ namespace PowerPointLaTeX
         /// </summary>
         /// <param name="latexCode"></param>
         /// <returns></returns>
-        static private byte[] GetImageDataForLaTeXCode(string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
+        static private byte[] GetImageDataForLaTeXCode(ICacheStorage cacheStorage,  string latexCode, ref float pixelsPerEmHeight, out int baselineOffset)
         {
-            // TODO: this is very much a hack! (to allow everything to stay static) [9/22/2010 Andreas]
-            CacheTags presentationCache = LaTeXTool.ActivePresentation.CacheTags();
-
-            CacheEntry? cacheEntry = Cache.Query(presentationCache, latexCode);
+            CacheEntry? cacheEntry = Cache.Query(cacheStorage, latexCode);
             // TODO: rewrite the cache system to work even if the main thread is blocked [8/4/2009 Andreas]
             if (cacheEntry.HasValue)
             {
-                // make sure we return a some-what meaningful array
+                // don't return a malformed cache entry
+                // TODO: move this check somewhere else? [12/11/2010 Andreas]
                 if (cacheEntry.Value.Content == null || cacheEntry.Value.Content.Length == 0)
                 {
                     cacheEntry = null;
@@ -164,12 +163,12 @@ namespace PowerPointLaTeX
                 if (entry.Content != null && entry.Content.Length > 0)
                 {
                     // looks good, so cache it
-                    Cache.Store(presentationCache, latexCode, entry);
+                    Cache.Store(cacheStorage, latexCode, entry);
                 }
                 else
                 {
                     // if this failed, use the result from the cache, can't be off worse
-                    entry = cacheEntry.Value;
+                    entry = cacheEntry.GetValueOrDefault();
                 }
             }
 

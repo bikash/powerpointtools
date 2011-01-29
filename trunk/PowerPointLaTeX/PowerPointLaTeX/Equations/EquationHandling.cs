@@ -31,7 +31,7 @@ namespace PowerPointLaTeX
         }
 
         static public Shape EditEquation( Shape equation, out bool cancelled ) {
-            EquationEditor editor = new EquationEditor( equation.LaTeXTags().Code, equation.LaTeXTags().FontSize );
+            EquationEditor editor = new EquationEditor( LaTeXTool.ActivePresentation.CacheTags(), equation.LaTeXTags().Code, equation.LaTeXTags().FontSize );
             DialogResult result = editor.ShowDialog();
             if( result == DialogResult.Cancel ) {
                 cancelled = true;
