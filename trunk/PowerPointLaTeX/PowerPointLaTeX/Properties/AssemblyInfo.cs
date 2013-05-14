@@ -55,4 +55,5 @@ using System.Security;
 [assembly: AssemblyVersion( "0.7.*" )]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: SecurityTransparent()]
+// workaround according to http://connect.microsoft.com/VisualStudio/feedback/details/651634/the-findribbons-task-failed-unexpectedly
+//[assembly: SecurityTransparent()]

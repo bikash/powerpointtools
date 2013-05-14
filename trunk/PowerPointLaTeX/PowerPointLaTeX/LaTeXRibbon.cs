@@ -31,7 +31,7 @@ using Microsoft.Office.Core;
 
 namespace PowerPointLaTeX
 {
-    public partial class LaTeXRibbon : OfficeRibbon
+    public partial class LaTeXRibbon : RibbonBase
     {
         private Microsoft.Office.Interop.PowerPoint.Application Application
         {
@@ -42,6 +42,7 @@ namespace PowerPointLaTeX
         }
 
         public LaTeXRibbon()
+            : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
 
