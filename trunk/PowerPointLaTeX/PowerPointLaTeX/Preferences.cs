@@ -84,8 +84,15 @@ namespace PowerPointLaTeX
         private void miktexPathBox_TextChanged( object sender, EventArgs e ) {
             MiKTexSettings settings = global::PowerPointLaTeX.Properties.MiKTexSettings.Default;
             settings.MikTexPath = miktexPathBox.Text;
-            settings.LatexPath = Path.Combine( settings.MikTexPath, settings.Default_LatexRelPath );
-            settings.DVIPNGPath = Path.Combine( settings.MikTexPath, settings.Default_DVIPNGRelPath );
+            try
+            {
+                settings.LatexPath = Path.Combine(settings.MikTexPath, settings.Default_LatexRelPath);
+                settings.DVIPNGPath = Path.Combine(settings.MikTexPath, settings.Default_DVIPNGRelPath);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void miktexPathBrowserButton_Click( object sender, EventArgs e ) {
