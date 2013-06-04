@@ -2,14 +2,14 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PowerPointLaTeX.Properties" GeneratedClassName="MiKTexSettings">
   <Profiles />
   <Settings>
-    <Setting Name="MikTexPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
+    <Setting Name="DistributionPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
       <Value Profile="(Default)">d:\LaTeX\MiKTeX Portable</Value>
     </Setting>
-    <Setting Name="Default_LatexRelPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">miktex\bin\latex.exe</Value>
+    <Setting Name="LatexFilename" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">latex.exe</Value>
     </Setting>
-    <Setting Name="Default_DVIPNGRelPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">miktex\bin\dvipng.exe</Value>
+    <Setting Name="DVIPNGFilename" GenerateDefaultValueInCode="false" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">dvipng.exe</Value>
     </Setting>
     <Setting Name="LatexPath" GenerateDefaultValueInCode="false" Type="System.String" Scope="User">
       <Value Profile="(Default)">d:\LaTeX\MiKTeX Portable\miktex\bin\latex.exe</Value>
@@ -32,6 +32,15 @@ $LATEXCODE$
 \end{preview}
 \end{document}
 </Value>
+    </Setting>
+    <Setting Name="DistributionType" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="MikTexBinPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">miktex\bin</Value>
+    </Setting>
+    <Setting Name="TexLiveBinPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">2012\bin\win32</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -31,6 +31,14 @@ namespace PowerPointLaTeX
 {
     public class MiKTeXService : ILaTeXRenderingService
     {
+        [Serializable]
+        public enum Distribution
+        {
+            Custom,
+            MiKTeX,
+            TeXLive,
+        }
+
         private const string latexOptions = "-enable-installer -interaction=nonstopmode";
         private const string dvipngOptions = "-T tight --depth --height -D DPI --noghostscript --picky -q -z 0";
 

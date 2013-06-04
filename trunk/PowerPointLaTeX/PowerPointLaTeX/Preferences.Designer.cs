@@ -49,9 +49,15 @@ namespace PowerPointLaTeX
         {
             System.Windows.Forms.Label label1;
             System.Windows.Forms.GroupBox groupBox1;
+            System.Windows.Forms.Label label6;
+            System.Windows.Forms.Label label5;
             System.Windows.Forms.Label label2;
             System.Windows.Forms.Label label3;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Preferences));
+            this.dvipngPath = new System.Windows.Forms.TextBox();
+            this.latexPath = new System.Windows.Forms.TextBox();
+            this.distributionSelector = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.miktexPathBrowserButton = new System.Windows.Forms.Button();
             this.miktexPathBox = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -71,9 +77,12 @@ namespace PowerPointLaTeX
             this.miktexPathBrowser = new System.Windows.Forms.FolderBrowserDialog();
             label1 = new System.Windows.Forms.Label();
             groupBox1 = new System.Windows.Forms.GroupBox();
+            label6 = new System.Windows.Forms.Label();
+            label5 = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -95,19 +104,77 @@ namespace PowerPointLaTeX
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(this.dvipngPath);
+            groupBox1.Controls.Add(label6);
+            groupBox1.Controls.Add(this.latexPath);
+            groupBox1.Controls.Add(label5);
+            groupBox1.Controls.Add(this.distributionSelector);
+            groupBox1.Controls.Add(this.label4);
             groupBox1.Controls.Add(this.miktexPathBrowserButton);
             groupBox1.Controls.Add(this.miktexPathBox);
             groupBox1.Controls.Add(label2);
             groupBox1.Location = new System.Drawing.Point(8, 6);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new System.Drawing.Size(416, 45);
+            groupBox1.Size = new System.Drawing.Size(416, 110);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Paths";
             // 
+            // dvipngPath
+            // 
+            this.dvipngPath.Location = new System.Drawing.Point(67, 84);
+            this.dvipngPath.Name = "dvipngPath";
+            this.dvipngPath.ReadOnly = true;
+            this.dvipngPath.Size = new System.Drawing.Size(315, 20);
+            this.dvipngPath.TabIndex = 9;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new System.Drawing.Point(6, 87);
+            label6.Name = "label6";
+            label6.Size = new System.Drawing.Size(62, 13);
+            label6.TabIndex = 8;
+            label6.Text = "dvipng.exe:";
+            // 
+            // latexPath
+            // 
+            this.latexPath.Location = new System.Drawing.Point(67, 60);
+            this.latexPath.Name = "latexPath";
+            this.latexPath.ReadOnly = true;
+            this.latexPath.Size = new System.Drawing.Size(315, 20);
+            this.latexPath.TabIndex = 6;
+             // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new System.Drawing.Point(6, 63);
+            label5.Name = "label5";
+            label5.Size = new System.Drawing.Size(52, 13);
+            label5.TabIndex = 5;
+            label5.Text = "latex.exe:";
+            // 
+            // distributionSelector
+            // 
+            this.distributionSelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.distributionSelector.FormattingEnabled = true;
+            this.distributionSelector.Location = new System.Drawing.Point(109, 13);
+            this.distributionSelector.Name = "distributionSelector";
+            this.distributionSelector.Size = new System.Drawing.Size(121, 21);
+            this.distributionSelector.TabIndex = 4;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 16);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(97, 13);
+            this.label4.TabIndex = 3;
+            this.label4.Text = "LaTeX Distribution:";
+            // 
             // miktexPathBrowserButton
             // 
-            this.miktexPathBrowserButton.Location = new System.Drawing.Point(382, 11);
+            this.miktexPathBrowserButton.Location = new System.Drawing.Point(385, 35);
             this.miktexPathBrowserButton.Name = "miktexPathBrowserButton";
             this.miktexPathBrowserButton.Size = new System.Drawing.Size(28, 23);
             this.miktexPathBrowserButton.TabIndex = 2;
@@ -117,20 +184,19 @@ namespace PowerPointLaTeX
             // 
             // miktexPathBox
             // 
-            this.miktexPathBox.Location = new System.Drawing.Point(85, 13);
+            this.miktexPathBox.Location = new System.Drawing.Point(67, 37);
             this.miktexPathBox.Name = "miktexPathBox";
-            this.miktexPathBox.Size = new System.Drawing.Size(297, 20);
+            this.miktexPathBox.Size = new System.Drawing.Size(315, 20);
             this.miktexPathBox.TabIndex = 1;
-            this.miktexPathBox.TextChanged += new System.EventHandler(this.miktexPathBox_TextChanged);
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(6, 16);
+            label2.Location = new System.Drawing.Point(6, 40);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(73, 13);
+            label2.Size = new System.Drawing.Size(32, 13);
             label2.TabIndex = 0;
-            label2.Text = "MiKTeX Path:";
+            label2.Text = "Path:";
             // 
             // label3
             // 
@@ -157,8 +223,8 @@ namespace PowerPointLaTeX
             // 
             this.splitContainer1.Panel2.Controls.Add(this.OkButton);
             this.splitContainer1.Panel2.Controls.Add(this.AbortButton);
-            this.splitContainer1.Size = new System.Drawing.Size(440, 322);
-            this.splitContainer1.SplitterDistance = 293;
+            this.splitContainer1.Size = new System.Drawing.Size(440, 389);
+            this.splitContainer1.SplitterDistance = 360;
             this.splitContainer1.TabIndex = 0;
             // 
             // tabControl
@@ -172,7 +238,7 @@ namespace PowerPointLaTeX
             this.tabControl.Multiline = true;
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(440, 293);
+            this.tabControl.Size = new System.Drawing.Size(440, 360);
             this.tabControl.TabIndex = 1;
             // 
             // generalPage
@@ -182,7 +248,7 @@ namespace PowerPointLaTeX
             this.generalPage.Controls.Add(label1);
             this.generalPage.Location = new System.Drawing.Point(4, 22);
             this.generalPage.Name = "generalPage";
-            this.generalPage.Size = new System.Drawing.Size(432, 267);
+            this.generalPage.Size = new System.Drawing.Size(432, 334);
             this.generalPage.TabIndex = 2;
             this.generalPage.Text = "General";
             this.generalPage.UseVisualStyleBackColor = true;
@@ -217,9 +283,9 @@ namespace PowerPointLaTeX
             this.mikTexOptions.Location = new System.Drawing.Point(4, 22);
             this.mikTexOptions.Name = "mikTexOptions";
             this.mikTexOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.mikTexOptions.Size = new System.Drawing.Size(432, 267);
+            this.mikTexOptions.Size = new System.Drawing.Size(432, 334);
             this.mikTexOptions.TabIndex = 0;
-            this.mikTexOptions.Text = "MiKTeX Service";
+            this.mikTexOptions.Text = "Local Service";
             this.mikTexOptions.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -227,7 +293,7 @@ namespace PowerPointLaTeX
             this.groupBox2.Controls.Add(this.miktexTemplateDefaultButton);
             this.groupBox2.Controls.Add(this.miktexTemplateBox);
             this.groupBox2.Controls.Add(label3);
-            this.groupBox2.Location = new System.Drawing.Point(8, 57);
+            this.groupBox2.Location = new System.Drawing.Point(8, 122);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(416, 204);
             this.groupBox2.TabIndex = 1;
@@ -248,18 +314,18 @@ namespace PowerPointLaTeX
             // 
             this.miktexTemplateBox.AcceptsReturn = true;
             this.miktexTemplateBox.AcceptsTab = true;
-            this.miktexTemplateBox.Location = new System.Drawing.Point(7, 37);
+            this.miktexTemplateBox.Location = new System.Drawing.Point(10, 36);
             this.miktexTemplateBox.Multiline = true;
             this.miktexTemplateBox.Name = "miktexTemplateBox";
             this.miktexTemplateBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.miktexTemplateBox.Size = new System.Drawing.Size(403, 138);
+            this.miktexTemplateBox.Size = new System.Drawing.Size(403, 139);
             this.miktexTemplateBox.TabIndex = 1;
             // 
             // webServiceOptions
             // 
             this.webServiceOptions.Location = new System.Drawing.Point(4, 22);
             this.webServiceOptions.Name = "webServiceOptions";
-            this.webServiceOptions.Size = new System.Drawing.Size(432, 267);
+            this.webServiceOptions.Size = new System.Drawing.Size(432, 334);
             this.webServiceOptions.TabIndex = 3;
             this.webServiceOptions.Text = "Web Service";
             this.webServiceOptions.UseVisualStyleBackColor = true;
@@ -270,7 +336,7 @@ namespace PowerPointLaTeX
             this.aboutPage.Location = new System.Drawing.Point(4, 22);
             this.aboutPage.Name = "aboutPage";
             this.aboutPage.Padding = new System.Windows.Forms.Padding(3);
-            this.aboutPage.Size = new System.Drawing.Size(432, 267);
+            this.aboutPage.Size = new System.Drawing.Size(432, 334);
             this.aboutPage.TabIndex = 1;
             this.aboutPage.Text = "About..";
             this.aboutPage.UseVisualStyleBackColor = true;
@@ -283,10 +349,10 @@ namespace PowerPointLaTeX
             this.aboutBox.Location = new System.Drawing.Point(3, 3);
             this.aboutBox.Name = "aboutBox";
             this.aboutBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.aboutBox.Size = new System.Drawing.Size(426, 261);
+            this.aboutBox.Size = new System.Drawing.Size(426, 328);
             this.aboutBox.TabIndex = 0;
             this.aboutBox.Text = "INSERT_APP_INFO\n(PowerPoint Addin)\n\nby Andreas \'BlackHC\' Kirsch\n\nINSERT_ABOUT_SER" +
-                "VICES\n\n";
+    "VICES\n\n";
             // 
             // OkButton
             // 
@@ -326,7 +392,7 @@ namespace PowerPointLaTeX
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.CancelButton = this.AbortButton;
-            this.ClientSize = new System.Drawing.Size(440, 322);
+            this.ClientSize = new System.Drawing.Size(440, 389);
             this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -338,6 +404,7 @@ namespace PowerPointLaTeX
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.generalPage.ResumeLayout(false);
@@ -369,6 +436,10 @@ namespace PowerPointLaTeX
         private System.Windows.Forms.TextBox miktexTemplateBox;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button miktexTemplateDefaultButton;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox distributionSelector;
+        private System.Windows.Forms.TextBox latexPath;
+        private System.Windows.Forms.TextBox dvipngPath;
 
     }
 }

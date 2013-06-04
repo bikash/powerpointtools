@@ -33,24 +33,37 @@ namespace PowerPointLaTeX
 {
     public partial class Preferences : Form
     {
-        private string oldMiktexPreamble;
-
         public Preferences() {
+            Save();
+
             InitializeComponent();
+
+            // fill the distributionSelector
+            distributionSelector.DataSource = Enum.GetNames(typeof(MiKTeXService.Distribution));
+            distributionSelector.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            distributionSelector.DataBindings.Add("Text", MiKTexSettings.Default, "DistributionType");
 
             // fill the serviceSelector
             serviceSelector.Items.Clear();
-            serviceSelector.Items.AddRange( Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames );
+            serviceSelector.Items.AddRange(Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames);
 
-            miktexTemplateBox.Text = oldMiktexPreamble = LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate;
+            // connect miktexTemplateBox
+            miktexTemplateBox.DataBindings.Add("Text", LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate, "value");
 
-            Save();
-            
-            miktexPathBox.Text = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexPath;
+            // connect latex path and dvipng 
+            latexPath.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            latexPath.DataBindings.Add("Text", MiKTexSettings.Default, "LatexPath");
+            dvipngPath.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            dvipngPath.DataBindings.Add("Text", MiKTexSettings.Default, "DVIPNGPath");
 
+            // connect miktex path 
+            miktexPathBox.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            miktexPathBox.DataBindings.Add("Text", MiKTexSettings.Default, "DistributionPath");
+
+            // initialize the general stuff (service independent)
             string aboutServices = "";
-            foreach(string serviceName in Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames) {
-                ILaTeXRenderingService service = Globals.ThisAddIn.LaTeXRenderingServices.GetService( serviceName );
+            foreach (string serviceName in Globals.ThisAddIn.LaTeXRenderingServices.ServiceNames) {
+                ILaTeXRenderingService service = Globals.ThisAddIn.LaTeXRenderingServices.GetService(serviceName);
                 string aboutNotice = service.AboutNotice;
 
                 aboutServices += serviceName + ":\n\n" + aboutNotice + "\n\n";
@@ -58,14 +71,12 @@ namespace PowerPointLaTeX
 
             var assName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
             string appInfo = assName.Name + " " + assName.Version;
-            aboutBox.Text = aboutBox.Text.Replace( "INSERT_APP_INFO", appInfo ).Replace( "INSERT_ABOUT_SERVICES", aboutServices );
+            aboutBox.Text = aboutBox.Text.Replace("INSERT_APP_INFO", appInfo).Replace("INSERT_ABOUT_SERVICES", aboutServices);
         }
 
         private void Save() {
             Settings.Default.Save();
             MiKTexSettings.Default.Save();
-
-            LaTeXTool.ActivePresentation.SettingsTags().MiKTeXTemplate.value = miktexTemplateBox.Text;
         }
 
         private void Reload() {
@@ -73,41 +84,26 @@ namespace PowerPointLaTeX
             MiKTexSettings.Default.Reload();
         }
 
-        private void AbortButton_Click( object sender, EventArgs e ) {
+        private void AbortButton_Click(object sender, EventArgs e) {
             Reload();
         }
 
-        private void OkButton_Click( object sender, EventArgs e ) {
+        private void OkButton_Click(object sender, EventArgs e) {
             Save();
         }
 
-        private void miktexPathBox_TextChanged( object sender, EventArgs e ) {
-            MiKTexSettings settings = global::PowerPointLaTeX.Properties.MiKTexSettings.Default;
-            settings.MikTexPath = miktexPathBox.Text;
-            try
-            {
-                settings.LatexPath = Path.Combine(settings.MikTexPath, settings.Default_LatexRelPath);
-                settings.DVIPNGPath = Path.Combine(settings.MikTexPath, settings.Default_DVIPNGRelPath);
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        private void miktexPathBrowserButton_Click( object sender, EventArgs e ) {
+        private void miktexPathBrowserButton_Click(object sender, EventArgs e) {
             miktexPathBrowser.SelectedPath = miktexPathBox.Text;
-            if( miktexPathBrowser.ShowDialog() == DialogResult.OK ) {
+            if (miktexPathBrowser.ShowDialog() == DialogResult.OK) {
                 miktexPathBox.Text = miktexPathBrowser.SelectedPath;
             }
         }
 
-        private void Preferences_FormClosed( object sender, FormClosedEventArgs e ) {
+        private void Preferences_FormClosed(object sender, FormClosedEventArgs e) {
             Reload();
         }
 
-        private void miktexTemplateDefaultButton_Click(object sender, EventArgs e)
-        {
+        private void miktexTemplateDefaultButton_Click(object sender, EventArgs e) {
             miktexTemplateBox.Text = global::PowerPointLaTeX.Properties.MiKTexSettings.Default.MikTexTemplate;
         }
     }

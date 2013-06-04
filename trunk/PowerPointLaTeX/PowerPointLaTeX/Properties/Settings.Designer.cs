@@ -47,7 +47,7 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("MiKTeX Service")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LatexService {
             get {
                 return ((string)(this["LatexService"]));

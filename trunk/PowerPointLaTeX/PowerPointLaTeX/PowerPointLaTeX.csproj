@@ -256,6 +256,7 @@
     </Compile>
     <Compile Include="LaTeXRendering\NullService.cs" />
     <Compile Include="Compatibility.cs" />
+    <Compile Include="Properties\MiKTexSettings.cs" />
     <Compile Include="Properties\MiKTexSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -351,6 +352,7 @@
   <ItemGroup>
     <Content Include="TODO.txt" />
   </ItemGroup>
+  <ItemGroup />
   <!-- Include the build rules for a C# project. -->
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

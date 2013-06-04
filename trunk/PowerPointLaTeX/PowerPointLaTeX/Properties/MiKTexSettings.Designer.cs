@@ -25,28 +25,28 @@ namespace PowerPointLaTeX.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public string MikTexPath {
+        public string DistributionPath {
             get {
-                return ((string)(this["MikTexPath"]));
+                return ((string)(this["DistributionPath"]));
             }
             set {
-                this["MikTexPath"] = value;
+                this["DistributionPath"] = value;
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public string Default_LatexRelPath {
+        public string LatexFilename {
             get {
-                return ((string)(this["Default_LatexRelPath"]));
+                return ((string)(this["LatexFilename"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public string Default_DVIPNGRelPath {
+        public string DVIPNGFilename {
             get {
-                return ((string)(this["Default_DVIPNGRelPath"]));
+                return ((string)(this["DVIPNGFilename"]));
             }
         }
         
@@ -77,6 +77,36 @@ namespace PowerPointLaTeX.Properties {
         public string MikTexTemplate {
             get {
                 return ((string)(this["MikTexTemplate"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DistributionType {
+            get {
+                return ((string)(this["DistributionType"]));
+            }
+            set {
+                this["DistributionType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("miktex\\bin")]
+        public string MikTexBinPath {
+            get {
+                return ((string)(this["MikTexBinPath"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2012\\bin\\win32")]
+        public string TexLiveBinPath {
+            get {
+                return ((string)(this["TexLiveBinPath"]));
             }
         }
     }
