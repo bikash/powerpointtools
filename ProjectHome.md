@@ -1,0 +1,3 @@
+Currently contains two PowerPoint 2007 addins:
+[PowerPointLaTeX](PowerPointLaTeX.md) - an addin that allows you to embed LaTeX formulas into your presentations more easily and in a more user-friendly way than comparable software (TexPoint for example).
+LanguagePainter - a tiny tool to help you create presentations in languages different from your keyboard layout and helps you avoid some of the quirks of PowerPoint's language settings.
